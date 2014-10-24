@@ -36,7 +36,7 @@ module Memory150TestBench();
     integer writeNumPixel;
     reg [8*21:0] StrRW; // "read" or "write"
 
-    localparam MAX_STALLS = 50; // simple time-out
+    localparam MAX_STALLS = 100; // simple time-out
 
     localparam HEARTBEAT = 1000; // 1 unit = 10ns (see $timeformat)
     integer ccCnt;
@@ -194,6 +194,7 @@ module Memory150TestBench();
         .clk200_g(clk200_g),
         .clkdiv0_g(clkdiv0_g),
         .clk90_g(clk90_g),
+        .clk50_g(clk50_g),
         .rst(Reset),
         .init_done(init_done),
         .DDR2_A(DDR2_A),
@@ -220,7 +221,7 @@ module Memory150TestBench();
         .dcache_din (dcache_din ),
         .icache_din (icache_din ),
         .dcache_dout(dcache_dout),
-        .instruction(instruction),
+        .icache_dout(instruction),
         .stall      (stall      )
     );
 

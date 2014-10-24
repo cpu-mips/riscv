@@ -305,7 +305,15 @@ module Memory150(
         .filler_wdf_din(128'b0),
         .pixel_rdf_rd_en(1'b0),
         .pixel_af_wr_en(1'b0), 
-        .pixel_addr_din(31'b0) 
+        .pixel_addr_din(31'b0), 
+        .line_af_full(),      
+        .line_wdf_full(),    
+        .bypass_af_full(),      
+        .bypass_wdf_full(),    
+        .filler_af_full(),
+        .filler_wdf_full(),
+        .pixel_rdf_valid(),
+        .pixel_af_full()
         `endif     
 
         `ifdef CS150_CHKPNT_3

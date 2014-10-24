@@ -61,6 +61,8 @@ module CacheTestBench();
     wire clkdiv0_g;
     wire clk200;
     wire clk200_g;
+    wire clk50;
+    wire clk50_g;
     wire pll_lock;
 
     // Memory150, CPU wires
@@ -142,48 +144,20 @@ module CacheTestBench();
         .CLKOUT2(clk0),
         .CLKOUT3(clk90),
         .CLKOUT4(clkdiv0),
-        .CLKOUT5(),
+        .CLKOUT5(clk50),
         .LOCKED(pll_lock),
         .CLKFBIN(pll_fb),
         .CLKIN(user_clk_g),
         .RST(1'b0)
     );
 
-    IBUFG user_clk_buf
-    (
-        .I(Clock),
-        .O(user_clk_g)
-    );
-
-    BUFG cpu_clk_buf
-    (
-        .I(cpu_clk),
-        .O(cpu_clk_g)
-    );
-
-    BUFG clk200_buf
-    (
-        .I(clk200),
-        .O(clk200_g)
-    );
-
-    BUFG clk0_buf
-    (
-        .I(clk0),
-        .O(clk0_g)
-    );
-
-    BUFG clk90_buf
-    (
-        .I(clk90),
-        .O(clk90_g)
-    );
-
-    BUFG clkdiv0_buf
-    (
-        .I(clkdiv0),
-        .O(clkdiv0_g)
-    );
+    IBUFG user_clk_buf ( .I(Clock),    .O(user_clk_g) );
+    BUFG  cpu_clk_buf  ( .I(cpu_clk),  .O(cpu_clk_g)  );
+    BUFG  clk200_buf   ( .I(clk200),   .O(clk200_g)   );
+    BUFG  clk0_buf     ( .I(clk0),     .O(clk0_g)     );
+    BUFG  clkdiv50_buf ( .I(clk50),    .O(clk50_g)    );
+    BUFG  clk90_buf    ( .I(clk90),    .O(clk90_g)    );
+    BUFG  clkdiv0_buf  ( .I(clkdiv0),  .O(clkdiv0_g)  );
 
     mt4htf3264hy ddr2(
         .DDR2_A(DDR2_A),
@@ -207,6 +181,7 @@ module CacheTestBench();
         .clk200_g(clk200_g),
         .clkdiv0_g(clkdiv0_g),
         .clk90_g(clk90_g),
+        .clk50_g(clk50_g),
         .rst(Reset),
         .init_done(init_done),
         .DDR2_A(DDR2_A),
@@ -233,7 +208,7 @@ module CacheTestBench();
         .dcache_din (dcache_din ),
         .icache_din (icache_din ),
         .dcache_dout(dcache_dout),
-        .instruction(instruction),
+        .icache_dout(instruction),
         .stall      (stall      )
     );
 

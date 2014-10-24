@@ -128,11 +128,11 @@ module EchoTestbenchCaches();
     // period of time. It is used for resetting the FIFOs in Memory150.
     // Note that fifo_reset resets fifos, while reset_fifo is a fifo
     // for the reset signal.
-    reg [2:0] rst_sr;
+    reg [9:0] rst_sr;
     wire fifo_reset; 
     assign fifo_reset = Reset | (|rst_sr);
     always @(posedge cpu_clk_g) begin
-        rst_sr <= {rst_sr[1:0], Reset};
+        rst_sr <= {rst_sr[8:0], Reset};
     end
 
     mt4htf3264hy ddr2(
@@ -157,7 +157,8 @@ module EchoTestbenchCaches();
         .clk200_g(clk200_g),
         .clkdiv0_g(clkdiv0_g),
         .clk90_g(clk90_g),
-        .rst(|rst_sr),
+        .clk50_g(clk50_g),
+        .rst(Reset),
         .init_done(init_done),
         .DDR2_A(DDR2_A),
         .DDR2_BA(DDR2_BA),
@@ -178,7 +179,6 @@ module EchoTestbenchCaches();
         .icache_addr(icache_addr),
         .dcache_we  (dcache_we  ),
         .icache_we  (icache_we  ),
-        .bypass_we  (4'b0  ),
         .dcache_re  (dcache_re  ),
         .icache_re  (icache_re  ),
         .dcache_din (dcache_din ),
@@ -223,7 +223,6 @@ module EchoTestbenchCaches();
       DataIn = 8'h7a;
       DataInValid = 0;
       DataOutReady = 0;
-      repeat (100) @( posedge cpu_clk_g );
 
       Reset = 1;
       repeat (30) @( posedge cpu_clk_g );
