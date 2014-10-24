@@ -8,10 +8,10 @@ PART := xc5vlx110t-ff1136-1
 ifeq ($(CS150_CHKPNT), CS150_CHKPNT_1)
 UCF := $(wildcard $(SRC)/$(TOP)_cp1.ucf)
 endif
-ifeq ($(CS150_CHKPNT), CS150_CHKPNT_2)
+ifeq ($(CS150_CHKPNT), CS150_CHKPNT_2 CS150_CHKPNT_2_OR_3)
 UCF := $(wildcard $(SRC)/$(TOP)_cp2.ucf)
 endif
-ifeq ($(CS150_CHKPNT), CS150_CHKPNT_3)
+ifeq ($(CS150_CHKPNT), CS150_CHKPNT_3 CS150_CHKPNT_2_OR_3)
 UCF := $(wildcard $(SRC)/$(TOP)_cp3.ucf)
 endif
 
