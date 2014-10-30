@@ -19,6 +19,18 @@ module RegFile(input clk,
                input  [31:0] wd,
                output [31:0] rd1, rd2);
 
-    // Implement your register file here, then delete this comment.
+           parameter registers = 32;
 
+           reg [31:0] regfile [0:parameters -1];
+
+           assign rd1 = regfile[ra1];
+           assign rd2 = regfile[ra2];
+
+           always@(posedge clk)
+           begin
+               if (we)
+               begin
+                   regfile[wa] <= wd;
+               end
+           end
 endmodule
