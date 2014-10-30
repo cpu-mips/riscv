@@ -29,40 +29,28 @@ always @ (*) begin
    if (OpcodeW == `OPC_ARI_RTYPE || OpcodeW == `OPC_ARI_ITYPE) begin
       ForwardA = (rd==rs1)?1:0;
       ForwardB = (rd==rs2)?1:0;
-      CWE2=1;
-      PCDelay = 0;
-   end 
-   if (OpcodeW == `OPC_LOAD || OpcodeX==`OPC_BRANCH) begin
-      if (OpcodeW == `OPC_LOAD && rd==rs1 || rd==rs2) begin
-	 CWE2 = 0;
-	 PCDelay=1;
-	 noop=1;
-	 ForwardA=0;
-	 ForwardB=0;
-	 
-      end else if (OpcodeX == `OPC_BRANCH && isZero) begin
-	 noop = 1;
-	 if (OpcodeW != `OPC_ARI_RTYPE || OpcodeW != `OPC_ARI_ITYPE) begin
-	    ForwardA = 0;
-	    ForwardB=0;
-	    CWE2=1;
-	    PCDelay=0;
-	    
-	 end 
-      end
-      else begin
-	 noop=0;
-	 PCDelay=0;
+      if (OpcodeX!=`OPC_BRANCH) begin
 	 CWE2=1;
-	 if (OpcodeW != `OPC_ARI_RTYPE || OpcodeW != `OPC_ARI_ITYPE) begin
+	 PCDelay = 0;
+	 noop=0;
+      end   
+   end else if (OpcodeW == `OPC_LOAD) begin
+      CWE2=(rd==rs1 || rd==rs2)?0:1;
+      noop=(rd==rs1 || rd==rs2)?1:0;
+      PCDelay=(rd==rs1 || rd==rs2)?1:0;
+      ForwardA=0;
+      ForwardB=0;
+   end
+   if (OpcodeX == `OPC_BRANCH) begin
+      if (OpcodeW != `OPC_LOAD) noop = (isZero)?0:1;
+      if (OpcodeW != `OPC_LOAD) CWE2=1;
+      if (OpcodeW != `OPC_LOAD ) PCDelay=0;
+       if (OpcodeW != `OPC_ARI_RTYPE && OpcodeW != `OPC_ARI_ITYPE && OpcodeW != `OPC_LOAD) begin
 	    ForwardA = 0;
-	    ForwardB=0;
-	 end
-      end
-   end // if (OpcodeW == `OPC_LOAD || OpcodeX==`OPC_BRANCH)
-   
-      
-   if (OpcodeW != `OPC_LOAD && (OpcodeW != `OPC_ARI_RTYPE || OpcodeW != `OPC_ARI_ITYPE) && OpcodeX != `OPC_BRANCH) begin
+	    ForwardB = 0;
+       end
+   end
+   if (OpcodeW != `OPC_LOAD && OpcodeW != `OPC_ARI_RTYPE && OpcodeW != `OPC_ARI_ITYPE && OpcodeX != `OPC_BRANCH) begin
       PCDelay = 0;
       CWE2=1;
       ForwardA=0;
