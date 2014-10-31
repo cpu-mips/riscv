@@ -1,10 +1,10 @@
-//  Module: AdderTestbench
+//  Module: RegFileTestbench
 //  Desc:   32-bit Adder testbench for the RISCv Processor
 // If #1 is in the initial block of your testbench, time advances by
 // 1ns rather than 1ps
 `timescale 1ns / 1ps
 
-module AdderTestbench();
+module RegFileTestbench();
 
     parameter Halfcycle = 5; //half period is 5ns
     
@@ -17,78 +17,68 @@ module AdderTestbench();
     always #(Halfcycle) Clock = ~Clock;
     
     // Register and wires to test the adder
-    reg [31:0] A, B;
-    wire [31:0] DUTout;
-    wire [31:0] REFout; 
-
-    reg [30:0] rand_31;
-    reg [14:0] rand_15;
-
-    assign REFout = A + B;
+    reg we;
+    reg [4:0] ra1, ra2, wa;
+    reg [31:0] wd, REFrd1, REFrd2;
+    wire [31:0] rd1, rd2;
 
     // Task for checking output
     task checkOutput;
-        if ( REFout !== DUTout ) begin
-            $display("FAIL: Incorrect result for A 0x%h, B 0x%h", A, B);
-            $display("\tA: 0x%h, B: 0x%h, DUTout: 0x%h, REFout: 0x%h", A, B, DUTout, REFout);
-            $finish();
+        if ( rd1 == REFrd1 && rd2 == REFrd2 ) begin
+            $display("PASS: %d and %d", ra1, ra2);
         end
         else begin
-            $display("PASS: A 0x%h, B 0x%h", opcode, funct, add_rshift_type);
-            $display("\tA: 0x%h, B: 0x%h, DUTout: 0x%h, REFout: 0x%h", A, B, DUTout, REFout);
+            if (rd1 != REFrd1)
+            begin
+                $display("FAIL: %d", ra1);
+            end
+            if (rd2 != REFrd2)
+            begin
+                $display("FAIL: %d", ra2);
+            end
+            $finish();
         end
     endtask
 
-    Adder DUT(
-        .a(A),
-        .b(B),
-        .c(DUTout));
+    RegFile DUT(
+        .clk(Clock),
+        .we(we),
+        .ra1(ra1),
+        .ra2(ra2),
+        .wa(wa),
+        .wd(wd),
+        .rd1(rd1),
+        .rd2(rd2));
 
     integer i;
-    localparam loops = 25; // number of times to run the tests for
+    localparam loops = 32; // number of times to run the tests for
+    localparam second_pass = loops / 2;
 
     // Testing logic:
     initial begin
+        ra1 = 0;
+        ra2 = 0;
         for(i = 0; i < loops; i = i + 1)
         begin
-            /////////////////////////////////////////////
-            // Put your random tests inside of this loop
-            // and hard-coded tests outside of the loop
-            // (see comment below)
-            // //////////////////////////////////////////
-            #1;
-            // Make both A and B negative to check signed operations
-            rand_31 = {$random} & 31'h7FFFFFFF;
-            rand_15 = {$random} & 15'h7FFF;
-            A = {1'b1, rand_31};
-            // Hard-wire 16 1's in front of B for sign extension
-            B = {16'hFFFF, 1'b1, rand_15};
-            //Arithmetic right shift register(signed)
-            #1;
-            checkOutput();
-
+            #1
+            if ( 0 == i % 2)
+            begin
+                we = 1;
+            end
+            else
+            begin
+                we = 0;
+            end
+            wa = i;
+            wd = i;
         end
-        ///////////////////////////////
-        // Hard coded tests go here
-        ///////////////////////////////
-
-        A = 32'hf000ffff;
-        B = 32'hf;
-        #1;
-        checkOutput();
-
-        A = 12; 
-        B = 0;
-        #1;
-        checkOutput;
-
-        A = 0; 
-        B = 12;
-        #1;
-        checkOutput;
-
-        $display("\n\nALL TESTS PASSED!");
-        $finish();
+        for(i = 0; i < second_pass;i = i + 1)
+        begin
+            #1
+            ra1 = (i * 2)
+            ra2 = ra1 + 1 
+            checkOutput();
+        end
     end
 
   endmodule
