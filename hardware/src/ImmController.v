@@ -1,3 +1,17 @@
+//-----------------------------------------------------------------------------
+//  Module: ImmController
+//  Desc: Controller block to assemble the necessary immediate fields depending on opcode 
+//  Inputs Interface:
+//    Opcode: The opcode fetched from the instruction, indices 0-6
+//    funct3: Indices 12-14 of instruction
+//    funct7: Indices 25-31 of instruction
+//    immA: This immediate field for a U-type (and UJ-type) field
+//    immB: Immediate for an I-type operation, indices 20-31
+//    immC: Immediate for S-type and SB-type operations, indices 25-31
+//    immD: Second part of immediate for S and SB type instructions, indices 7-11
+//  Output Interface:
+//    imm: The immediate data
+//-----------------------------------------------------------------------------
 `include "ALUop.vh"
 `include "Opcode.vh"
 
