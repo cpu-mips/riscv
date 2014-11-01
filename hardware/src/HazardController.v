@@ -42,15 +42,15 @@ always @ (*) begin
       ForwardB=0;
    end
    if (OpcodeX == `OPC_BRANCH) begin
-      if (OpcodeW != `OPC_LOAD) noop = (isZero)?0:1;
-      if (OpcodeW != `OPC_LOAD) CWE2=1;
-      if (OpcodeW != `OPC_LOAD ) PCDelay=0;
-       if (OpcodeW != `OPC_ARI_RTYPE && OpcodeW != `OPC_ARI_ITYPE && OpcodeW != `OPC_LOAD) begin
+      if (OpcodeW !== `OPC_LOAD) noop = (isZero)?0:1;
+      if (OpcodeW !== `OPC_LOAD) CWE2=1;
+      if (OpcodeW !== `OPC_LOAD ) PCDelay=0;
+       if (OpcodeW !== `OPC_ARI_RTYPE && OpcodeW !== `OPC_ARI_ITYPE && OpcodeW !== `OPC_LOAD) begin
 	    ForwardA = 0;
 	    ForwardB = 0;
        end
    end
-   if (OpcodeW != `OPC_LOAD && OpcodeW != `OPC_ARI_RTYPE && OpcodeW != `OPC_ARI_ITYPE && OpcodeX != `OPC_BRANCH) begin
+   if (OpcodeW !== `OPC_LOAD && OpcodeW !== `OPC_ARI_RTYPE && OpcodeW !== `OPC_ARI_ITYPE && OpcodeX !== `OPC_BRANCH) begin
       PCDelay = 0;
       CWE2=1;
       ForwardA=0;

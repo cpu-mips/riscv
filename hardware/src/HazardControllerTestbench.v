@@ -1,10 +1,10 @@
 //  Module: ALUTestbench
-//  Desc:   32-bit ALU testbench for the MIPS150 Processor
+//  Desc:   Hazard Controller testbench for the MIPS150 Processor
 //  Feel free to edit this testbench to add additional functionality
 //  
-//  Note that this testbench only tests correct operation of the ALU,
+//  Note that this testbench only tests correct operation of the Hazard Controller,
 //  it doesn't check that you're mux-ing the correct values into the inputs
-//  of the ALU. 
+//  of the Hazard Controller. 
 
 // If #1 is in the initial block of your testbench, time advances by
 // 1ns rather than 1ps
@@ -12,7 +12,7 @@
 
 `include "Opcode.vh"
 
-module ALUTestbench();
+module HazardControllerTestbench();
 
     parameter Halfcycle = 5; //half period is 5ns
     
@@ -24,288 +24,189 @@ module ALUTestbench();
     initial Clock = 0; 
     always #(Halfcycle) Clock = ~Clock;
     
-    // Register and wires to test the ALU
-    reg [2:0] funct;
-    reg add_rshift_type;
-    reg [6:0] opcode;
-    reg [31:0] A, B;
-    wire [31:0] DUTout;
-    reg [31:0] REFout; 
-    wire [3:0] ALUop;
-
-    reg [30:0] rand_31;
-    reg [14:0] rand_15;
+    // Register and wires to test the HazardController
+    reg [6:0] OpcodeX;
+    reg [6:0]  OpcodeW;
+   reg [6:0]   rd;
+   reg [6:0]   rs1;
+   reg [6:0]   rs2;
+   reg 	       isZero;
+   reg 	       CWE2;
+   reg 	       noop;
+   reg 	       ForwardA;
+   reg 	       ForwardB;
+   reg 	       PCDelay;
+   reg 	       refCWE2;
+   reg 	       refnoop;
+   reg 	       refForwardA;
+   reg 	       refForwardB;
+   reg 	       refPCDelay;
+   
+    
 
     // Signed operations; these are useful
     // for signed operations
-    wire signed [31:0] B_signed;
-    assign B_signed = $signed(B);
+    //wire signed [31:0] B_signed;
+   // assign B_signed = $signed(B);
 
-    wire signed_comp, unsigned_comp;
-    assign signed_comp = ($signed(A) < $signed(B));
-    assign unsigned_comp = A < B;
+    //wire signed_comp, unsigned_comp;
+   // assign signed_comp = ($signed(A) < $signed(B));
+   // assign unsigned_comp = A < B;
 
     // Task for checking output
     task checkOutput;
-        input [6:0] opcode;
-        input [2:0] funct;
-        input add_rshift_type;
-        if ( REFout !== DUTout ) begin
-            $display("FAIL: Incorrect result for opcode %b, funct: %b:, add_rshift_type: %b", opcode, funct, add_rshift_type);
-            $display("\tA: 0x%h, B: 0x%h, DUTout: 0x%h, REFout: 0x%h", A, B, DUTout, REFout);
+        if ( CWE2 !== refCWE2 || noop !== refnoop || ForwardA !== refForwardA || ForwardB !== refForwardB || PCDelay !== refPCDelay ) begin
+            $display("FAIL: Incorrect result for opcodeX %b, opcodeW %b, rd %b, rs1 %b, rs2 %b", OpcodeX, OpcodeW, rd, rs1, rs2);
+            $display("\t Is CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", CWE2, noop, ForwardA, ForwardB, PCDelay);
+	   $display("\t Should be CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", refCWE2, refnoop, refForwardA,refForwardB, refPCDelay);
             $finish();
         end
         else begin
-            $display("PASS: opcode %b, funct %b, add_rshift_type %b", opcode, funct, add_rshift_type);
-            $display("\tA: 0x%h, B: 0x%h, DUTout: 0x%h, REFout: 0x%h", A, B, DUTout, REFout);
+            $display("PASS: Result for opcodeX %b, opcodeW %b, rd %b, rs1 %b, rs2 %b", OpcodeX, OpcodeW, rd, rs1, rs2);
+            $display("\t Is CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", CWE2, noop, ForwardA, ForwardB, PCDelay);
         end
     endtask
 
     //This is where the modules being tested are instantiated. 
-    ALUdec DUT1(
-        .opcode(opcode),
-        .funct(funct),
-        .add_rshift_type(add_rshift_type),
-        .ALUop(ALUop));
 
-    ALU DUT2( .A(A),
-        .B(B),
-        .ALUop(ALUop),
-        .Out(DUTout));
+    HazardController DUT( .OpcodeW(OpcodeW),
+        .OpcodeX(OpcodeX),
+        .rd(rd),
+        .rs1(rs1),
+	.rs2(rs2),
+	.isZero(isZero),
+        .CWE2(CWE2),
+        .noop(noop),
+        .ForwardA(ForwardA),
+        .ForwardB(ForwardB),
+        .PCDelay(PCDelay));
 
     integer i;
-    localparam loops = 25; // number of times to run the tests for
+    localparam loops = 3; // number of times to run the tests for
 
     // Testing logic:
     initial begin
-        for(i = 0; i < loops; i = i + 1)
-        begin
-            /////////////////////////////////////////////
-            // Put your random tests inside of this loop
-            // and hard-coded tests outside of the loop
-            // (see comment below)
-            // //////////////////////////////////////////
-            #1;
-            // Make both A and B negative to check signed operations
-            rand_31 = {$random} & 31'h7FFFFFFF;
-            rand_15 = {$random} & 15'h7FFF;
-            A = {1'b1, rand_31};
-            // Hard-wire 16 1's in front of B for sign extension
-            B = {16'hFFFF, 1'b1, rand_15};
-            // Set funct random to test that it doesn't affect non-R-type insts
-
-            // Tests for the non R-Type and I-Type instructions.
-            // Add your own tests for R-Type and I-Type instructions
-            opcode = `OPC_LUI;
-            // Set funct random to verify that the value doesn't matter
-            funct = $random & 3'b111;
-            add_rshift_type = $random & 1'b1;
-            REFout = B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            opcode = `OPC_AUIPC;
-            funct = $random & 3'b111;
-            add_rshift_type = $random & 1'b1;
-            REFout = A + B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            opcode = `OPC_BRANCH;
-            funct = $random & 3'b111;
-            add_rshift_type = $random & 1'b1;
-            REFout = A + B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            opcode = `OPC_LOAD;
-            funct = $random & 3'b111;
-            add_rshift_type = $random & 1'b1;
-            REFout = A + B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            opcode = `OPC_STORE;
-            funct = $random & 3'b111;
-            add_rshift_type = $random & 1'b1;
-            REFout = A + B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //I Type Instructions
-            opcode = `OPC_JALR;
-            funct = 3'b000;
-            add_rshift_type = $random & 1'b1;
-            REFout = A + B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Add immediate
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_ADD_SUB;
-            add_rshift_type = $random & 1'b1;
-            REFout = A + B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Set less than immediate
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_SLT;
-            add_rshift_type = $random & 1'b1;
-            REFout =  $signed(A) < $signed(B) ? 1 : 0;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Set less than imediate unsigned
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_SLTU;
-            add_rshift_type = $random & 1'b1;
-            REFout = A < B ? 1 : 0;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //XOR immediate
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_XOR;
-            add_rshift_type = $random & 1'b1;
-            REFout = A ^ B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //OR immediate
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_OR;
-            add_rshift_type = $random & 1'b1;
-            REFout = A | B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //AND immediate
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_AND;
-            add_rshift_type = $random & 1'b1;
-            REFout = A & B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Logical left shift immediate
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_SLL;
-            add_rshift_type = $random & 1'b1;
-            REFout = A << B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Logical right shift immediate
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_SRL_SRA;
-            add_rshift_type = `FNC2_SRL;
-            REFout = A >> B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Arithmetic right shift immediate(signed)
-            opcode = `OPC_ARI_ITYPE;
-            funct = `FNC_SRL_SRA;
-            add_rshift_type = `FNC2_SRA;
-            REFout = $signed(A) >>> B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //R Type Instructions
-
-            //Add register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_ADD_SUB;
-            add_rshift_type = 1'b0;
-            REFout = A + B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Sub register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_ADD_SUB;
-            add_rshift_type = 1'b1;
-            REFout = A - B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Set less than register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_SLT;
-            add_rshift_type = $random & 1'b1;
-            REFout =  $signed(A) < $signed(B) ? 1 : 0;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Set less than register unsigned
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_SLTU;
-            add_rshift_type = $random & 1'b1;
-            REFout = A < B ? 1 : 0;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //XOR register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_XOR;
-            add_rshift_type = $random & 1'b1;
-            REFout = A ^ B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //OR register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_OR;
-            add_rshift_type = $random & 1'b1;
-            REFout = A | B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //AND register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_AND;
-            add_rshift_type = $random & 1'b1;
-            REFout = A & B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Logical left shift register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_SLL;
-            add_rshift_type = $random & 1'b1;
-            REFout = A << B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Logical right shift register
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_SRL_SRA;
-            add_rshift_type = `FNC2_SRL;
-            REFout = A >> B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-            //Arithmetic right shift register(signed)
-            opcode = `OPC_ARI_RTYPE;
-            funct = `FNC_SRL_SRA;
-            add_rshift_type = `FNC2_SRA;
-            REFout = $signed(A) >>> B;
-            #1;
-            checkOutput(opcode, funct, add_rshift_type);
-
-        end
-        ///////////////////////////////
-        // Hard coded tests go here
-        ///////////////////////////////
-
-        A = 32'hf000ffff;
-        B = 32'hf;
-        opcode = `OPC_ARI_ITYPE;
-        funct = `FNC_SRL_SRA;
-        add_rshift_type = `FNC2_SRA;
-        REFout = 32'h0;
-
+	    #1;
+	    A = 6'b0;
+	    B = 6'b1;
+	    C = 6'b2;
+	    OpcodeW=`OPC_ARI_RTYPE;
+	    OpcodeX=`OPC_ARI_ITYPE;
+	    rd = A;
+	    rs1 = A;
+	    rs2 = B;
+	    isZero = 1;
+	    refForwardA = 1;
+	    refForwardB = 0;
+	    refnoop = 0;
+	    refCWE2=1;
+	    refPCDelay = 0;
+	    #1;
+	    checkOutput();
+	    OpcodeW=`OPC_ARI_ITYPE;
+	    OpcodeX=`OPC_ARI_RTYPE;
+	    rd = A;
+	    rs1 = A;
+	    rs2 = A;
+	    isZero = 1;
+	    refForwardA = 1;
+	    refForwardB = 1;
+	    refnoop = 0;
+	    refCWE2=1;
+	    refPCDelay = 0;
+	    #1;
+	    checkOutput();
+	    OpcodeW=`OPC_ARI_RTYPE;
+	    OpcodeX=`OPC_BRANCH;
+	    rd = A;
+	    rs1 = A;
+	    rs2 = C;
+	    isZero = 0;
+	    refForwardA = 1;
+	    refForwardB = 0;
+	    refnoop = 1;
+	    refCWE2=1;
+	    refPCDelay = 0;
+	    #1;
+	    checkOutput();
+	    OpcodeW=`OPC_ARI_RTYPE;
+	    OpcodeX=`OPC_BRANCH;
+	    rd = A;
+	    rs1 = C;
+	    rs2 = B;
+	    isZero = 0;
+	    refForwardA = 0;
+	    refForwardB = 0;
+	    refnoop = 1;
+	    refCWE2=1;
+	    refPCDelay = 0;
+	    #1;
+	    checkOutput();
+	    OpcodeW=`OPC_ARI_RTYPE;
+	    OpcodeX=`OPC_BRANCH;
+	    rd = A;
+	    rs1 = C;
+	    rs2 = B;
+	    isZero = 1;
+	    refForwardA = 0;
+	    refForwardB = 0;
+	    refnoop = 0;
+	    refCWE2=1;
+	    refPCDelay = 0;
+	    #1;
+	    checkOutput();
+	    OpcodeW = `OPC_LOAD;
+	    OpcodeX = `OPC_ARI_RTYPE;
+	    rd = A;
+	    rs1=A;
+	    rs2=B;
+	    isZero=0;
+	    refForwardA=0;
+	    refForwardB=0;
+	    refnoop = 1;
+	    refCWE2 = 0;
+	    refPCDelay=1;
+	    #1;
+	    checkOutput();
+	    OpcodeW = `OPC_LOAD;
+	    OpcodeX = `OPC_BRANCH;
+	    rd = A;
+	    rs1=A;
+	    rs2=B;
+	    isZero=0;
+	    refForwardA=0;
+	    refForwardB=0;
+       refnoop = 1;
+       refCWE2 = 0;
+       refPCDelay=1;
+       #1;
+       checkOutput();
+       OpcodeW = `OPC_ARI_LOAD;
+       OpcodeX = `OPC_ARI_RTYPE;
+       rd = A;
+       rs1=B;
+       rs2=C;
+       isZero=1;
+       refForwardA=0;
+       refForwardB=0;
+       refnoop = 0;
+       refCWE2 = 1;
+       refPCDelay=0;
+       #1;
+       checkOutput();
+       OpcodeW = `OPC_ARI_LOAD;
+       OpcodeX = `OPC_ARI_BRANCH;
+       rd = A;
+       rs1=C;
+       rs2=B;
+       isZero=1;
+       refForwardA=0;
+       refForwardB=0;
+       refnoop = 0;
+       refCWE2 = 1;
+       refPCDelay=0;
+       #1;
+       
         $display("\n\nALL TESTS PASSED!");
         $finish();
     end
