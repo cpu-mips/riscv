@@ -116,9 +116,18 @@ module ALUTestbench();
             opcode = `OPC_BRANCH;
             funct = $random & 3'b111;
             add_rshift_type = $random & 1'b1;
-            REFout = A + B;
+            REFout = A - B;
             #1;
             checkOutput(opcode, funct, add_rshift_type);
+            if (1 == Zero)
+            begin
+                $display("\tZero output is incorrect");
+                $finish();
+            end
+            else
+            begin
+                $display("\tZero output is correct");
+            end
 
             opcode = `OPC_LOAD;
             funct = $random & 3'b111;
@@ -301,12 +310,23 @@ module ALUTestbench();
         // Hard coded tests go here
         ///////////////////////////////
 
-        A = 32'hf000ffff;
-        B = 32'hf;
-        opcode = `OPC_ARI_ITYPE;
-        funct = `FNC_SRL_SRA;
-        add_rshift_type = `FNC2_SRA;
+        A = 32'h010;
+        B = 32'h010;
+        opcode = `OPC_BRANCH;
+        funct = $random & 3'b111;
+        add_rshift_type = $random & 1'b1;
         REFout = 32'h0;
+        #1;
+        checkOutput(opcode, funct, add_rshift_type);
+        if (1 == Zero)
+        begin
+            $display("\tZero output is high when it should be");
+        end
+        else
+        begin
+            $display("\tZero output is low when it shouldn't be");
+            $finish();
+        end
 
         $display("\n\nALL TESTS PASSED!");
         $finish();

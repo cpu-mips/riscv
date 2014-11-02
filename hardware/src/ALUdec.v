@@ -22,7 +22,7 @@ module ALUdec(
             `OPC_LUI: ALUop = `ALU_COPY_B;
             `OPC_AUIPC: ALUop=`ALU_ADD;
             `OPC_JAL: ALUop = `ALU_ADD;
-            `OPC_BRANCH: ALUop = `ALU_ADD;
+            `OPC_BRANCH: ALUop = `ALU_SUB;
             `OPC_STORE: ALUop = `ALU_ADD;
             `OPC_LOAD: ALUop = `ALU_ADD;
             `OPC_ARI_RTYPE: begin
