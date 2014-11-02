@@ -34,7 +34,7 @@ module AdderTestbench();
             $finish();
         end
         else begin
-            $display("PASS: A 0x%h, B 0x%h", opcode, funct, add_rshift_type);
+            $display("PASS: Correct result for A 0x%h, B 0x%h", A, B);
             $display("\tA: 0x%h, B: 0x%h, DUTout: 0x%h, REFout: 0x%h", A, B, DUTout, REFout);
         end
     endtask

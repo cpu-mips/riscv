@@ -76,7 +76,7 @@ module ALUTestbench();
         .Zero(Zero));
 
     integer i;
-    localparam loops = 25; // number of times to run the tests for
+    localparam loops = 1; // number of times to run the tests for
 
     // Testing logic:
     initial begin
