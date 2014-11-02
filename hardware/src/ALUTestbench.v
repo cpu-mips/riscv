@@ -32,6 +32,7 @@ module ALUTestbench();
     wire [31:0] DUTout;
     reg [31:0] REFout; 
     wire [3:0] ALUop;
+    wire Zero;
 
     reg [30:0] rand_31;
     reg [14:0] rand_15;
@@ -71,7 +72,8 @@ module ALUTestbench();
     ALU DUT2( .A(A),
         .B(B),
         .ALUop(ALUop),
-        .Out(DUTout));
+        .Out(DUTout),
+        .Zero(Zero));
 
     integer i;
     localparam loops = 25; // number of times to run the tests for
@@ -192,7 +194,7 @@ module ALUTestbench();
             opcode = `OPC_ARI_ITYPE;
             funct = `FNC_SLL;
             add_rshift_type = $random & 1'b1;
-            REFout = A << B;
+            REFout = A << B[4:0];
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
