@@ -23,7 +23,7 @@
 `include "ALUop.vh"
 `include "Opcode.vh"
 
-module HazardController(input [6:0]OpcodeW, input [6:0] OpcodeX, input[6:0] rd, input[6:0] rs1, input[6:0] rs2, input isZero, output CWE2, output reg noop, output reg ForwardA, output reg ForwardB, output reg PCDelay)
+module HazardController(input [6:0]OpcodeW, input [6:0] OpcodeX, input[6:0] rd, input[6:0] rs1, input[6:0] rs2, input isZero, output reg CWE2, output reg noop, output reg ForwardA, output reg ForwardB, output reg PCDelay);
 
 always @ (*) begin
    if (OpcodeW == `OPC_ARI_RTYPE || OpcodeW == `OPC_ARI_ITYPE) begin

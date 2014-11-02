@@ -21,7 +21,7 @@ module RegFile(input clk,
 
            parameter registers = 32;
 
-           reg [31:0] regfile [0:parameters -1];
+           reg [31:0] regfile [0:registers -1];
 
            assign rd1 = regfile[ra1];
            assign rd2 = regfile[ra2];

@@ -32,7 +32,7 @@ module ImmControllerTestbench();
    reg [11:0] immB;
    reg [6:0]  immC;
    reg [4:0]  immD;
-   reg [19:0] imm;
+   wire [19:0] imm;
    reg [19:0] refimm;
    
    
@@ -40,20 +40,20 @@ module ImmControllerTestbench();
     // Task for checking output
     task checkOutput;
         if (imm !== refimm ) begin
-            $display("FAIL: Incorrect result for opcode %b, funct3: %b, funct7: %b", opcode, funct3, funct7);
+            $display("FAIL: Incorrect result for opcode %b, funct3: %b, funct7: %b", Opcode, funct3, funct7);
             $display("\tIs Imm: %b",imm);
 	   $display("\tShould Be: Imm %b", refimm);
             $finish();
         end
         else begin
-            $display("PASS: Result for opcode %b, funct3: %b, funct7: %b", opcode, funct3, funct7);
+            $display("PASS: Result for opcode %b, funct3: %b, funct7: %b", Opcode, funct3, funct7);
             $display("\tIs Imm: %b",imm);
         end
     endtask
 
     //This is where the modules being tested are instantiated. 
 
-    ImmController DUT( .Opcode(opcode),
+    ImmController DUT( .Opcode(Opcode),
         .funct3(funct3),
         .funct7(funct7),
         .immA(immA),
@@ -70,40 +70,41 @@ module ImmControllerTestbench();
         for(i = 0; i < loops; i = i + 1)
           begin
 	     #1;
-	     immA = $random[19:0];
-	     immB = $random[11:0];
-	     immC = $random[6:0];
-	     immD = $random[4:0];
-             opcode = `OPC_LUI;
+	     immA = $random;
+	     immB = $random;
+	     immC = $random;
+	     immD = $random;
+             Opcode = `OPC_LUI;
 	     refimm = immA;
 	     #1;
 	     checkOutput();
-	     opcode = `OPC_AUIPC;
+	     Opcode = `OPC_AUIPC;
 	     refimm = immA;
 	     #1;
 	     checkOutput();
-	     opcode = `OPC_JAL;
+	     Opcode = `OPC_JAL;
 	     refimm = {immA[19],immA[7:0],immA[8],immA[18:9]};
 	     #1;
 	     checkOutput();
-	     opcode = `OPC_JALR;
+	     Opcode = `OPC_JALR;
 	     refimm = {8'b0, immB};
 	     #1;
 	     checkOutput();
-	     opcode = `OPC_BRANCH;
+	     Opcode = `OPC_BRANCH;
 	     refimm = {8'b0,immC[6],immD[0],immC[5:0],immD[4:1]};
 	     #1;
 	     checkOutput();
-	     opcode = `OPC_LOAD;
+	     Opcode = `OPC_LOAD;
 	     refimm = {8'b0,immB};
 	     #1;
 	     checkOutput();
-	     opcode = `OPC_ARI_ITYPE;
+	     Opcode = `OPC_ARI_ITYPE;
 	     refimm = {8'b0, immB};
 	     #1;
 	     checkOutput();
-	     opcode = `OPC_STORE;
-	     refimm = {8'b0, immC, immD}
+	     Opcode = `OPC_STORE;
+	     refimm = {8'b0, immC, immD};
+	     
 	     #1;
 	     checkOutput();
 	     

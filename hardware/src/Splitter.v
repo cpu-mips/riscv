@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 
 module Splitter(
-    input [31:0] Instruction;
+    input [31:0] Instruction,
     output [6:0] Opcode,
     output [2:0] Funct3,
     output [6:0] Funct7,

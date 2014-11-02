@@ -18,7 +18,7 @@ module ALU(
     input [31:0] B,
     input [3:0] ALUop,
     output reg [31:0] Out,
-    output reg Zero
+    output Zero
 );
 
     // Implement your ALU here, then delete this comment

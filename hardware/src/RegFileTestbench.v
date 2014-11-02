@@ -75,8 +75,10 @@ module RegFileTestbench();
         for(i = 0; i < second_pass;i = i + 1)
         begin
             #1
-            ra1 = (i * 2)
-            ra2 = ra1 + 1 
+              ra1 = (i * 2);
+	   
+           ra2 = ra1 + 1;
+ 
             checkOutput();
         end
     end

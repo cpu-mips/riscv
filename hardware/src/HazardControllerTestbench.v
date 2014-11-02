@@ -31,11 +31,11 @@ module HazardControllerTestbench();
    reg [6:0]   rs1;
    reg [6:0]   rs2;
    reg 	       isZero;
-   reg 	       CWE2;
-   reg 	       noop;
-   reg 	       ForwardA;
-   reg 	       ForwardB;
-   reg 	       PCDelay;
+   wire 	       CWE2;
+   wire 	       noop;
+   wire 	       ForwardA;
+   wire 	       ForwardB;
+   wire 	       PCDelay;
    reg 	       refCWE2;
    reg 	       refnoop;
    reg 	       refForwardA;
@@ -58,6 +58,7 @@ module HazardControllerTestbench();
         if ( CWE2 !== refCWE2 || noop !== refnoop || ForwardA !== refForwardA || ForwardB !== refForwardB || PCDelay !== refPCDelay ) begin
             $display("FAIL: Incorrect result for opcodeX %b, opcodeW %b, rd %b, rs1 %b, rs2 %b", OpcodeX, OpcodeW, rd, rs1, rs2);
             $display("\t Is CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", CWE2, noop, ForwardA, ForwardB, PCDelay);
+
 	   $display("\t Should be CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", refCWE2, refnoop, refForwardA,refForwardB, refPCDelay);
             $finish();
         end
@@ -83,13 +84,13 @@ module HazardControllerTestbench();
 
     integer i;
     localparam loops = 3; // number of times to run the tests for
-
+   localparam A = 6'd0;
+   localparam B = 6'd1;
+   localparam C = 6'd2;
+   
     // Testing logic:
     initial begin
 	    #1;
-	    A = 6'b0;
-	    B = 6'b1;
-	    C = 6'b2;
 	    OpcodeW=`OPC_ARI_RTYPE;
 	    OpcodeX=`OPC_ARI_ITYPE;
 	    rd = A;
@@ -181,7 +182,7 @@ module HazardControllerTestbench();
        refPCDelay=1;
        #1;
        checkOutput();
-       OpcodeW = `OPC_ARI_LOAD;
+       OpcodeW = `OPC_LOAD;
        OpcodeX = `OPC_ARI_RTYPE;
        rd = A;
        rs1=B;
@@ -194,8 +195,8 @@ module HazardControllerTestbench();
        refPCDelay=0;
        #1;
        checkOutput();
-       OpcodeW = `OPC_ARI_LOAD;
-       OpcodeX = `OPC_ARI_BRANCH;
+       OpcodeW = `OPC_LOAD;
+       OpcodeX = `OPC_BRANCH;
        rd = A;
        rs1=C;
        rs2=B;
