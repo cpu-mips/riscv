@@ -16,8 +16,8 @@ module MemControl(
     input [6:0] Opcode,
     input [2:0] Funct3,
     input [31:0] A,
-    output Dmem_enable,
-    output Imem_enable,
+    output [3:0] Dmem_enable,
+    output [3:0] Imem_enable,
     output [3:0] Uart_trans,
     output Uart_recv);
 
