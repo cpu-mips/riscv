@@ -20,7 +20,7 @@ module ALUdec(
     always @(*) 
     begin
         case (opcode)
-            `OPC_LUI: ALUop = `ALU_COPY_B;
+            `OPC_LUI: ALUop = `ALU_SLL;
             `OPC_AUIPC: ALUop =`ALU_ADD;
             `OPC_BRANCH: 
             begin
