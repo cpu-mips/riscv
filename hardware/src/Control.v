@@ -41,98 +41,108 @@ input Control(
     wire add_rshift_type;
     assign add_rshift_type = Funct7[5];
 
+    reg lui_reg, pass_reg, alusrc2_reg, dest_reg, jal_reg, jalr_reg;
+    
+    assign Lui = lui_reg;
+    assign Pass = pass_reg;
+    assign ALUop = aluop_reg;
+    assign ALUSrc2 = alusrc_reg;
+    assign Dest = dest_reg;
+    assign Jal = jal_reg;
+    assign Jalr = jalr_reg;
+
     always@(*)
     begin
         case (opcode)
             `OPC_LUI:
             begin
-                Lui = 1'b1;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b1;
-                Dest = 2'b00;
-                Jal = 1'b0;
-                Jalr = 1'b0
+                lui_reg = 1'b1;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'b00;
+                jal_reg = 1'b0;
+                jalr_reg = 1'b0
             end
             `OPC_AUIPC:
             begin
-                Lui = 1'b0;
-                Pass = 1'b1;
-                ALUSrc2 = 1'b1;
-                Dest = 2'b10;
-                Jal = 1'b0;
-                Jalr = 1'b0;
+                lui_reg = 1'b0;
+                pass_reg = 1'b1;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'b10;
+                jal_reg = 1'b0;
+                jalr_reg = 1'b0;
             end
             `OPC_JAL:
             begin
-                Lui = 1'b1;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b1;
-                Dest = 2'bxx;
-                Jal = 1'b1
-                Jalr = 1'b0;
+                lui_reg = 1'b1;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'bxx;
+                jal_reg = 1'b1
+                jalr_reg = 1'b0;
             end
             `OPC_JALR:
             begin
-                Lui = 1'b1;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b1;
-                Dest = 2'b10;
-                Jal = 1'b1;
-                Jalr = 1'b1;
+                lui_reg = 1'b1;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'b10;
+                jal_reg = 1'b1;
+                jalr_reg = 1'b1;
             end
-            //All branch instructions subtract.
             `OPC_BRANCH:
             begin
-                Lui = 1'b0;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b0;
-                Dest = 2'bxx;
-                Jal = 1'b0;
-                Jalr = 1'b0;
+                lui_reg = 1'b0;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b0;
+                dest_reg = 2'bxx;
+                jal_reg = 1'b0;
+                jalr_reg = 1'b0;
             end
             `OPC_STORE:
             begin
-                Lui = 1'b0;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b1;
-                Dest = 2'bxx;
-                Jal = 1'b0;
-                Jalr = 1'b0;
+                lui_reg = 1'b0;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'bxx;
+                jal_reg = 1'b0;
+                jalr_reg = 1'b0;
             end
             `OPC_LOAD:
             begin
-                Lui = 1'b0;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b1;
-                Dest = 2'b01;
-                Jal = 1'b0;
-                Jalr = 1'b0;
+                lui_reg = 1'b0;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'b01;
+                jal_reg = 1'b0;
+                jalr_reg = 1'b0;
             end
             `OPC_ARI_ITYPE:
             begin
-                Lui = 1'b0;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b1;
-                Dest = 2'b00;
-                Jal = 1'b0;
-                Jalr = 1'b0;
+                lui_reg = 1'b0;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'b00;
+                jal_reg = 1'b0;
+                jalr_reg = 1'b0;
             end
             `OPC_ARI_RTYPE:
             begin
-                Lui = 1'b0;
-                Pass = 1'b0;
-                ALUSrc2 = 1'b1;
-                Dest = 2'b00;
-                Jal = 1'b0;
-                Jalr = 1'b0;
+                lui_reg = 1'b0;
+                pass_reg = 1'b0;
+                alusrc2_reg = 1'b1;
+                dest_reg = 2'b00;
+                jal_reg = 1'b0;
+                jalr_reg = 1'b0;
             end
             default:
             begin
-                Lui = 1'bx;
-                Pass = 1'bx;
-                ALUSrc2 = 1'bx;
-                Dest = 2'bxx;
-                Jal = 1'bx;
+                lui_reg = 1'bx;
+                pass_reg = 1'bx;
+                alusrc2_reg = 1'bx;
+                dest_reg = 2'bxx;
+                jal_reg = 1'bx;
+                jalr_reg = 1'bx;
             end
         endcase
     end
