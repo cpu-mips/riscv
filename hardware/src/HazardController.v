@@ -23,9 +23,10 @@
 `include "ALUop.vh"
 `include "Opcode.vh"
 
-module HazardController(input [6:0]OpcodeW, input [6:0] OpcodeX, input[6:0] rd, input[6:0] rs1, input[6:0] rs2, input isZero, output reg CWE2, output reg noop, output reg ForwardA, output reg ForwardB, output reg PCDelay);
+module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX, input[6:0] rd, input[6:0] rs1, input[6:0] rs2, input isZero, output reg CWE2, output reg noop, output reg ForwardA, output reg ForwardB, output reg PCDelay);
 
 always @ (*) begin
+   if (stall==0) begin
    if (OpcodeW == `OPC_ARI_RTYPE || OpcodeW == `OPC_ARI_ITYPE) begin
       ForwardA = (rd==rs1)?1:0;
       ForwardB = (rd==rs2)?1:0;
@@ -42,7 +43,7 @@ always @ (*) begin
       ForwardB=0;
    end
    if (OpcodeX == `OPC_BRANCH) begin
-      if (OpcodeW !== `OPC_LOAD) noop = (isZero)?0:1;
+      if (OpcodeW !== `OPC_LOAD ||noop == 0) noop = (isZero)?1:0;
       if (OpcodeW !== `OPC_LOAD) CWE2=1;
       if (OpcodeW !== `OPC_LOAD ) PCDelay=0;
        if (OpcodeW !== `OPC_ARI_RTYPE && OpcodeW !== `OPC_ARI_ITYPE && OpcodeW !== `OPC_LOAD) begin
@@ -50,12 +51,20 @@ always @ (*) begin
 	    ForwardB = 0;
        end
    end
-   if (OpcodeW !== `OPC_LOAD && OpcodeW !== `OPC_ARI_RTYPE && OpcodeW !== `OPC_ARI_ITYPE && OpcodeX !== `OPC_BRANCH) begin
+   if (OpcodeW !== `OPC_LOAD && OpcodeX !== `OPC_ARI_RTYPE && OpcodeX !== `OPC_ARI_ITYPE && OpcodeX !== `OPC_BRANCH) begin
       PCDelay = 0;
-      CWE2=1;
+      CWE2=(OpcodeX == `OPC_NOOP)?0:1;
       ForwardA=0;
       ForwardB=0;
       noop=0;
+   end
+   end // if (stall==0)
+   else if (stall == 1) begin
+      ForwardA = 0;
+      ForwardB=0;
+      CWE2=0;
+      PCDelay = 1;
+      noop = 1;
    end
    
 end
