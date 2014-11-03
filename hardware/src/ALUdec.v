@@ -17,17 +17,30 @@ module ALUdec(
   input             add_rshift_type,
   output reg [3:0]  ALUop
 );
-    always @(*) begin
+    always @(*) 
+    begin
         case (opcode)
             `OPC_LUI: ALUop = `ALU_COPY_B;
-            `OPC_AUIPC: ALUop=`ALU_ADD;
+            `OPC_AUIPC: ALUop =`ALU_ADD;
             `OPC_JAL: ALUop = `ALU_ADD;
-            `OPC_BRANCH: ALUop = `ALU_SUB;
+            `OPC_BRANCH: 
+            begin
+                case (funct)
+                    `FNC_BEQ: ALUop = `ALU_SUB;
+                    `FNC_BNE: ALUop = `ALU_XOR;
+                    `FNC_BLT: ALUop = `ALU_SLT;
+                    `FNC_BGE: ALUop = `ALU_SLT;
+                    `FNC_BLTU: ALUop = `ALU_SLTU;
+                    `FNC_BGEU: ALUop = `ALU_SLTU;
+                endcase
+            end
             `OPC_STORE: ALUop = `ALU_ADD;
             `OPC_LOAD: ALUop = `ALU_ADD;
-            `OPC_ARI_RTYPE: begin
+            `OPC_ARI_RTYPE: 
+            begin
                 case (funct)
-                    `FNC_ADD_SUB: begin
+                    `FNC_ADD_SUB: 
+                    begin
                         case(add_rshift_type) 
                             `FNC2_ADD: ALUop = `ALU_ADD;
                             `FNC2_SUB: ALUop = `ALU_SUB;
@@ -39,7 +52,8 @@ module ALUdec(
                     `FNC_XOR: ALUop = `ALU_XOR;
                     `FNC_OR: ALUop = `ALU_OR;
                     `FNC_AND: ALUop = `ALU_AND;
-                    `FNC_SRL_SRA: begin
+                    `FNC_SRL_SRA: 
+                    begin
                         case(add_rshift_type) 
                             `FNC2_SRL: ALUop = `ALU_SRL;
                             `FNC2_SRA: ALUop = `ALU_SRA;
@@ -48,27 +62,26 @@ module ALUdec(
                 endcase
             end
             `OPC_ARI_ITYPE: 
-	       case (funct)
-		 `FNC_ADD_SUB: ALUop = `ALU_ADD;
-		 `FNC_SLT: ALUop = `ALU_SLT;
-		 `FNC_SLTU: ALUop = `ALU_SLTU;
-		 `FNC_XOR: ALUop = `ALU_XOR;
-		 `FNC_AND: ALUop=`ALU_AND;
-		 `FNC_OR: ALUop = `ALU_OR;
-		 `FNC_SLL: ALUop = `ALU_SLL;
-		 `FNC_SRL_SRA: begin
-		    case(add_rshift_type)
-		      `FNC2_SRL: ALUop = `ALU_SRL;
+               case (funct)
+                 `FNC_ADD_SUB: ALUop = `ALU_ADD;
+                 `FNC_SLT: ALUop = `ALU_SLT;
+                 `FNC_SLTU: ALUop = `ALU_SLTU;
+                 `FNC_XOR: ALUop = `ALU_XOR;
+                 `FNC_AND: ALUop=`ALU_AND;
+                 `FNC_OR: ALUop = `ALU_OR;
+                 `FNC_SLL: ALUop = `ALU_SLL;
+                 `FNC_SRL_SRA: 
+                 begin
+                    case(add_rshift_type)
+                      `FNC2_SRL: ALUop = `ALU_SRL;
                       `FNC2_SRA: ALUop = `ALU_SRA;
-		    endcase // case (add_rshift_type)
-		   end
-		 
-		 
-	       endcase // case (funct)
+                    endcase // case (add_rshift_type)
+                   end
+               endcase // case (funct)
 	        
-	  `OPC_JALR: ALUop = `ALU_ADD;
-	  `OPC_JAL: ALUop = `ALU_ADD;
-            default: ALUop = `ALU_XXX;
+          `OPC_JALR: ALUop = `ALU_ADD;
+          `OPC_JAL: ALUop = `ALU_ADD;
+          default: ALUop = `ALU_XXX;
         endcase
     end
   // Implement your ALU decoder here, then delete this comment
