@@ -28,7 +28,6 @@ input Control(
     output ALUop,
     output ALUSrc2,
     output [1:0] Dest, 
-    output Diverge,
     output Jal,
     output Jalr);
 
@@ -51,7 +50,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b1;
                 Dest = 2'b00;
-                Diverge = 1'b0;
                 Jal = 1'b0;
                 Jalr = 1'b0
             end
@@ -61,7 +59,6 @@ input Control(
                 Pass = 1'b1;
                 ALUSrc2 = 1'b1;
                 Dest = 2'b10;
-                Diverge = 1'b0;
                 Jal = 1'b0;
                 Jalr = 1'b0;
             end
@@ -71,7 +68,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b1;
                 Dest = 2'bxx;
-                Diverge = 1'b1;
                 Jal = 1'b1
                 Jalr = 1'b0;
             end
@@ -81,7 +77,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b1;
                 Dest = 2'b10;
-                Diverge = 1'b0;
                 Jal = 1'b1;
                 Jalr = 1'b1;
             end
@@ -92,7 +87,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b0;
                 Dest = 2'bxx;
-                Diverge = 1'b1;
                 Jal = 1'b0;
                 Jalr = 1'b0;
             end
@@ -102,7 +96,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b1;
                 Dest = 2'bxx;
-                Diverge = 1'b0;
                 Jal = 1'b0;
                 Jalr = 1'b0;
             end
@@ -112,7 +105,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b1;
                 Dest = 2'b01;
-                Diverge = 1'b0;
                 Jal = 1'b0;
                 Jalr = 1'b0;
             end
@@ -122,7 +114,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b1;
                 Dest = 2'b00;
-                Diverge = 1'b0;
                 Jal = 1'b0;
                 Jalr = 1'b0;
             end
@@ -132,7 +123,6 @@ input Control(
                 Pass = 1'b0;
                 ALUSrc2 = 1'b1;
                 Dest = 2'b00;
-                Diverge = 1'b0;
                 Jal = 1'b0;
                 Jalr = 1'b0;
             end
@@ -142,7 +132,6 @@ input Control(
                 Pass = 1'bx;
                 ALUSrc2 = 1'bx;
                 Dest = 2'bxx;
-                Diverge = 1'bx;
                 Jal = 1'bx;
             end
         endcase
