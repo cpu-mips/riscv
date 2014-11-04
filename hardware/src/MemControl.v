@@ -12,7 +12,7 @@
 //    Uart_recv: Receive signal for UART
 //-----------------------------------------------------------------------------
 
-`include Opcode.vh
+`include "Opcode.vh"
 
 module MemControl(
     input [6:0] Opcode,
