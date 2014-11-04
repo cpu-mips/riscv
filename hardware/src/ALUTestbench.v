@@ -91,8 +91,8 @@ module ALUTestbench();
             // Make both A and B negative to check signed operations
             rand_31 = {$random} & 31'h7FFFFFFF;
             rand_15 = {$random} & 15'h7FFF;
-            A = {1'b1, rand_31};
             // Hard-wire 16 1's in front of B for sign extension
+            A = 12;
             B = {16'hFFFF, 1'b1, rand_15};
             // Set funct random to test that it doesn't affect non-R-type insts
 
@@ -106,6 +106,7 @@ module ALUTestbench();
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
+            A = {1'b1, rand_31};
             opcode = `OPC_AUIPC;
             funct = $random & 3'b111;
             add_rshift_type = $random & 1'b1;
