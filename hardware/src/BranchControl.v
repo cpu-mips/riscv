@@ -10,7 +10,7 @@
 //    Branch: Whether to take the branch or not
 //-----------------------------------------------------------------------------
 
-`include  Opcode.vh
+`include  "Opcode.vh"
 
 module BranchControl(
     input [6:0]  Opcode,
