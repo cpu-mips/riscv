@@ -48,6 +48,8 @@ module ALU(
 	    Out = $signed(A)>>>B[4:0];
 	  `ALU_COPY_B:
 	    Out=B;
+	  `ALU_LUI:
+	    Out = B<<A;
 	  `ALU_XXX: ;
 	  default: ;
 	 endcase
