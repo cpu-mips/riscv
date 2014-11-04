@@ -31,14 +31,15 @@ module Control(
     output Jal,
     output Jalr);
 
+    wire add_rshift_type;
+    assign add_rshift_type = Funct7[5];
+
     ALUdec decoder(
         .opcode(Opcode),
         .funct(Funct3),
         .add_rshift_type(add_rshift_type),
         .ALUop(ALUop));
 
-    wire add_rshift_type;
-    assign add_rshift_type = Funct7[5];
 
     reg lui_reg, pass_reg, alusrc2_reg, dest_reg, jal_reg, jalr_reg;
     
@@ -76,7 +77,7 @@ module Control(
                 pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'bxx;
-                jal_reg = 1'b1
+                jal_reg = 1'b1;
                 jalr_reg = 1'b0;
             end
             `OPC_JALR:
