@@ -12,7 +12,7 @@
 //    Uart_recv: Receive signal for UART
 //-----------------------------------------------------------------------------
 
-`include Opcode.vh
+`include "Opcode.vh"
 
 module MemControl(
     input [6:0] Opcode,
@@ -23,7 +23,7 @@ module MemControl(
     output [3:0] Uart_trans,
     output Uart_recv);
 
-    reg [3:0] dmem_reg, imem_reg, mask_reg, uart_trans_reg
+    reg [3:0] dmem_reg, imem_reg, mask_reg, uart_trans_reg;
     reg uart_recv_reg;
 
     assign Dmem_enable = dmem_reg;
@@ -80,14 +80,14 @@ module MemControl(
                     uart_trans_reg = 4'b000;
                 end
             end
+            default:
+            begin
+                dmem_reg = 4'b000;
+                imem_reg = 4'b000;
+                uart_trans_reg = 4'b000;
+                uart_recv_reg = 1'b0;
+            end
         endcase
-        default:
-        begin
-            dmem_reg = 4'b000;
-            imem_reg = 4'b000;
-            uart_trans_reg = 4'b000;
-            uart_recv_reg = 1'b0;
-        end
     end
 
 endmodule
