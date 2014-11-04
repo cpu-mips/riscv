@@ -19,11 +19,16 @@ module BranchControl(
     input Zero,
     output Diverge);
 
+
+    reg diverge_reg;
+
+    assign Diverge = diverge_reg;
+
     always@(*)
     begin
         if (`OPC_JAL == Opcode|| `OPC_JALR == Opcode)
         begin
-            Diverge = 1'b1;
+            diverge_reg = 1'b1;
         end
         else if (`OPC_BRANCH == Opcode)
         begin
@@ -32,74 +37,74 @@ module BranchControl(
                 begin
                     if (1'b1 == Zero)
                     begin
-                        Diverge = 1'b1;
+                        diverge_reg = 1'b1;
                     end
                     else
                     begin
-                        Diverge = 1'b0;
+                        diverge_reg = 1'b0;
                     end
                 end
                 `FNC_BNE:
                 begin
                     if (1'b1 == Zero)
                     begin
-                        Diverge = 1'b0;
+                        diverge_reg = 1'b0;
                     end
                     else
                     begin
-                        Diverge = 1'b1;
+                        diverge_reg = 1'b1;
                     end
                 end
                 `FNC_BLT:
                 begin
                     if(1'b1 == ALUOut)
                     begin
-                        Diverge = 1'b1;
+                        diverge_reg = 1'b1;
                     end
                     else
                     begin
-                        Diverge = 1'b0;
+                        diverge_reg = 1'b0;
                     end
                 end
                 `FNC_BGE:
                 begin
                     if(1'b1 == ALUOut)
                     begin
-                        Diverge = 1'b0;
+                        diverge_reg = 1'b0;
                     end
                     else
                     begin
-                        Diverge = 1'b1;
+                        diverge_reg = 1'b1;
                     end
                 end
                 `FNC_BLTU:
                 begin
                     if(1'b1 == ALUOut)
                     begin
-                        Diverge = 1'b0;
+                        diverge_reg = 1'b0;
                     end
                     else
                     begin
-                        Diverge = 1'b1;
+                        diverge_reg = 1'b1;
                     end
                 end
                 `FNC_BGEU:
                 begin
                     if(1'b1 == ALUOut)
                     begin
-                        Diverge = 1'b1;
+                        diverge_reg = 1'b1;
                     end
                     else
                     begin
-                        Diverge = 1'b0;
+                        diverge_reg = 1'b0;
                     end
                 end
-                default: Diverge = 1'bx;
+                default: diverge_reg = 1'bx;
             endcase
         end
         else
         begin
-            Diverge = 1'b0;
+            diverge_reg = 1'b0;
         end
     end
 
