@@ -9,6 +9,8 @@
 //    Proc_Mem: Memory after masking
 //-----------------------------------------------------------------------------
 
+`include "Opcode.vh"
+
 module MemoryProc(
     input [31:0] Mem,
     input [6:0] Opcode,
@@ -29,7 +31,7 @@ module MemoryProc(
                     `FNC_LH:mem_reg = $signed(Mem[15:0]);
                     `FNC_LBU:mem_reg = 32'h000000ff & Mem[7:0];
                     `FNC_LHU:mem_reg = 32'h0000ffff & Mem[15:0];
-                    default:mem_reg = Mem;;
+                    default:mem_reg = Mem;
                 endcase
             end
             default:
