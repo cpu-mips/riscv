@@ -102,7 +102,7 @@ module ALUTestbench();
             // Set funct random to verify that the value doesn't matter
             funct = $random & 3'b111;
             add_rshift_type = $random & 1'b1;
-            REFout = B;
+            REFout = B << 12;
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
