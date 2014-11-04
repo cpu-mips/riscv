@@ -36,7 +36,6 @@ module Control(
         .funct(Funct3),
         .add_rshift_type(add_rshift_type),
         .ALUop(ALUop));
-    )
 
     wire add_rshift_type;
     assign add_rshift_type = Funct7[5];
@@ -45,15 +44,14 @@ module Control(
     
     assign Lui = lui_reg;
     assign Pass = pass_reg;
-    assign ALUop = aluop_reg;
-    assign ALUSrc2 = alusrc_reg;
+    assign ALUSrc2 = alusrc2_reg;
     assign Dest = dest_reg;
     assign Jal = jal_reg;
     assign Jalr = jalr_reg;
 
     always@(*)
     begin
-        case (opcode)
+        case (Opcode)
             `OPC_LUI:
             begin
                 lui_reg = 1'b1;
@@ -61,7 +59,7 @@ module Control(
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b00;
                 jal_reg = 1'b0;
-                jalr_reg = 1'b0
+                jalr_reg = 1'b0;
             end
             `OPC_AUIPC:
             begin
