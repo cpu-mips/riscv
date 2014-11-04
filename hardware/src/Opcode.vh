@@ -14,7 +14,7 @@
 // Special immediate instructions
 `define OPC_LUI         7'b0110111
 `define OPC_AUIPC       7'b0010111
-
+`define OPC_NOOP	7'b0000000
 // Jump instructions
 `define OPC_JAL         7'b1101111
 `define OPC_JALR        7'b1100111
