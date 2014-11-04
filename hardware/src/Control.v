@@ -18,7 +18,7 @@
 
 `include "Opcode.vh"
 
-input Control(
+module Control(
     input [6:0] Opcode,
     input [3:0] Funct3,
     input [6:0] Funct7,
