@@ -114,20 +114,46 @@ module ALUTestbench();
             checkOutput(opcode, funct, add_rshift_type);
 
             opcode = `OPC_BRANCH;
-            funct = $random & 3'b111;
+            funct = `FNC_BEQ;
             add_rshift_type = $random & 1'b1;
             REFout = A - B;
             #1;
             checkOutput(opcode, funct, add_rshift_type);
-            if (1 == Zero)
-            begin
-                $display("\tZero output is incorrect");
-                $finish();
-            end
-            else
-            begin
-                $display("\tZero output is correct");
-            end
+
+            opcode = `OPC_BRANCH;
+            funct = `FNC_BNE;
+            add_rshift_type = $random & 1'b1;
+            REFout = A ^ B;
+            #1;
+            checkOutput(opcode, funct, add_rshift_type);
+
+            opcode = `OPC_BRANCH;
+            funct = `FNC_BLT;
+            add_rshift_type = $random & 1'b1;
+            REFout = $signed(A) < $signed(B) ? 1 : 0;
+            #1;
+            checkOutput(opcode, funct, add_rshift_type);
+
+            opcode = `OPC_BRANCH;
+            funct = `FNC_BGE;
+            add_rshift_type = $random & 1'b1;
+            REFout = $signed(A) < $signed(B) ? 1 : 0;
+            #1;
+            checkOutput(opcode, funct, add_rshift_type);
+
+            opcode = `OPC_BRANCH;
+            funct = `FNC_BLTU;
+            add_rshift_type = $random & 1'b1;
+            REFout = A < B ? 1 : 0;
+            #1;
+            checkOutput(opcode, funct, add_rshift_type);
+            
+            opcode = `OPC_BRANCH;
+            funct = `FNC_BGEU;
+            add_rshift_type = $random & 1'b1;
+            REFout = A < B ? 1 : 0;
+            #1;
+            checkOutput(opcode, funct, add_rshift_type);
 
             opcode = `OPC_LOAD;
             funct = $random & 3'b111;
