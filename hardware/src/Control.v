@@ -145,3 +145,4 @@ module Control(
             end
         endcase
     end
+endmodule
