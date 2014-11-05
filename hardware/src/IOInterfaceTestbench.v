@@ -77,7 +77,7 @@ module IOInterfaceTestbench();
         rd2 = 32'bx;
         io_trans = 4'bxxx0;
         io_recv = 1'b1;
-        din = 8'b10101010
+        din = 8'b10101010;
         din_valid = 1'b1;
         Addr = 32'h80000004;
         REFout = din;
