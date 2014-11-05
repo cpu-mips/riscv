@@ -25,9 +25,11 @@ module IOInterfaceTestbench();
     reg [7:0] din, REFout;
 
     wire Reset, uart_to_io, io_to_uart, din_ready, dou_valid;
+    wire [31:0] recieve_out;
     wire  [7:0] dout, DUTout;
 
     assign Reset = 1'b0;
+    assign DUTout = recieve_out[7:0]
 
 
     // Task for checking output
@@ -51,7 +53,7 @@ module IOInterfaceTestbench();
         .Clock(Clock),
         .FPGA_Sin(uart_to_io),
         .FPGA_Sout(io_to_uart), 
-        .Received(DUTout)
+        .Received(recieve_out)
     );
 
     UART uart(
