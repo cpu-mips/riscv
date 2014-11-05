@@ -52,7 +52,6 @@ module MemControl(
             begin
                 case (Funct3)
                     `FNC_SB:mask_reg = 4'b0001;
-                    begin
                         case (A[1:0])
                             00:mask_reg = 4'b0001;
                             01:mask_reg = 4'b0010;
