@@ -29,8 +29,9 @@ module RegFile(input clk,
            always@(posedge clk)
            begin
                if (we)
-               begin
-                   regfile[wa] <= wd;
-               end
+		 begin
+		    if (wa!=0)
+                      regfile[wa] <= wd;
+		 end
            end
 endmodule
