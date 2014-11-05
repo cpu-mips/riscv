@@ -118,7 +118,7 @@ module MemControlTestbench();
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
-        REFIo_trans = 4'b1111;
+        REFIo_trans = 4'b0001;
         REFIo_recv = 1'bx;
         #1;
         checkOutput();
