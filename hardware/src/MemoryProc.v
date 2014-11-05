@@ -30,8 +30,8 @@ module MemoryProc(
                 case (Funct3)
                     `FNC_LB:mem_reg = $signed(Mem[7:0]);
                     `FNC_LH:mem_reg = $signed(Mem[15:0]);
-                    `FNC_LBU:mem_reg = 32'h000000ff & Mem[7:0];
-                    `FNC_LHU:mem_reg = 32'h0000ffff & Mem[15:0];
+                    `FNC_LBU:mem_reg = Mem[7:0];
+                    `FNC_LHU:mem_reg = Mem[15:0];
                     default:mem_reg = Mem;
                 endcase
             end
