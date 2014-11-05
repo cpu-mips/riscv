@@ -41,7 +41,7 @@ module BranchTestbench();
             $finish();
         end
         else begin
-            $display("PASS: Incorrect result for A 0x%h, B 0x%h, Opcode %b, Funct %b", A, B, opcode, funct3);
+            $display("PASS: Correct result for A 0x%h, B 0x%h, Opcode %b, Funct %b", A, B, opcode, funct3);
             $display("\tDUTout:%h, REFout:%b", DUTout, REFout);
         end
     endtask

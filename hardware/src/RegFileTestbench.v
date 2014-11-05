@@ -25,18 +25,18 @@ module RegFileTestbench();
     // Task for checking output
     task checkOutput;
         if ( rd1 == REFrd1 && rd2 == REFrd2 ) begin
-            $display("PASS: %d and %d", ra1, ra2);
+            $display("PASS: Registers %b and %b", ra1, ra2);
         end
         else begin
             if (rd1 !== REFrd1)
             begin
-                $display("FAIL: ra1=%d", ra1);
-                $display("is: %d, should be: %d", rd1, REFrd1);
+                $display("FAIL: ra1=%b", ra1);
+                $display("\tis: %b, should be: %b", rd1, REFrd1);
             end
             if (rd2 !== REFrd2)
             begin
-                $display("FAIL: ra2= %d", ra2);
-                $display("is: %d, should be: %d", rd2, REFrd2);
+                $display("FAIL: ra2= %b", ra2);
+                $display("\tis: %b, should be: %b", rd2, REFrd2);
             end
             $finish();
         end
@@ -55,10 +55,10 @@ module RegFileTestbench();
     // Testing logic:
     initial begin
        we = 1'b1;
-       ra1 = 0;
-       ra2 = 0;
-       wa = 0;
-       wd = 0;
+       ra1 = 1'b0;
+       ra2 = 1'b0;
+       wa = 32'b0;
+       wd = 32'b0;
        #10;
        wa=1;
        wd=1;
@@ -74,22 +74,21 @@ module RegFileTestbench();
        ra2 = 1;
        REFrd1 = 32'b0;
        REFrd2 = 32'b1;
-       #1
+       #10
        checkOutput();
 
        ra1=2;
        ra2=3;
        REFrd1 = 32'b10;
        REFrd2 = 32'b11;
-       #1
+       #10
        checkOutput();
 
-       wa = 5;
-       wd = 5;
+       wa = 1;
+       wd = 32'hffffffff;
        #10
 
-       ra1 = 5;
-       REFrd1 = 32'b0;
+       ra1 = 1;
        checkOutput();
 
 
