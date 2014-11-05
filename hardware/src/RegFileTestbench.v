@@ -35,9 +35,10 @@ module RegFileTestbench();
             end
             if (rd2 !== REFrd2)
             begin
-                $display("FAIL: addres 2, ra2= %d", ra2);
+                $display("FAIL: address 2, ra2= %d", ra2);
                 $display("is: %d, should be: %d", rd2, REFrd2);
             end
+            $finish();
         end
     endtask
 
@@ -57,24 +58,10 @@ module RegFileTestbench();
 
     // Testing logic:
     initial begin
-        ra1 = 0;
-        ra2 = 0;
-        //for(i = 0; i < loops; i = i + 1)
-        //begin
-           //#10;
-            //if ( 0 == i % 2)
-            //begin
-                we = 1;
-            //end
-            //else
-            //begin
-              //  we = 0;
-            //end
-            wa = 0;
-            wd = 0;
-        //end
-        //for(i = 0; i < second_pass;i = i + 1)
-        //begin
+       ra1 = 0;
+       ra2 = 0;
+       wa = 0;
+       wd = 0;
        #10;
        wa=1;
        wd=1;
@@ -89,15 +76,13 @@ module RegFileTestbench();
        ra2 = 1;
        REFrd1 = 32'bx;
        REFrd2 = 32'b1;
-           //ra1 = (i * 2);
-           //ra2 = ra1 + 1;
-	   //REFrd1 = 32'bx;
-	   //REFrd2 = 32'bx;
+       #1
        checkOutput();
        ra1=2;
        ra2=3;
        REFrd1 = 32'b10;
        REFrd2 = 32'b11;
+       #1
        checkOutput();
        
         //end
