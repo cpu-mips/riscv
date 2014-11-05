@@ -28,7 +28,7 @@ module RegFileTestbench();
             $display("PASS: %d and %d", ra1, ra2);
         end
         else begin
-            if (rd1 != REFrd1)
+            if (rd1 !== REFrd1)
             begin
                 $display("FAIL: address 1, ra1=%d", ra1);
                 $display("is: %d, should be: %d", rd1, REFrd1);
@@ -37,7 +37,7 @@ module RegFileTestbench();
             begin
                 $display("Here");
             end
-            if (rd2 != REFrd2)
+            if (rd2 !== REFrd2)
             begin
                 $display("FAIL: addres 2, ra2= %d", ra2);
                 $display("is: %d, should be: %d", rd2, REFrd2);
