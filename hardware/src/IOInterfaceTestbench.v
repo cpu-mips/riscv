@@ -29,7 +29,7 @@ module IOInterfaceTestbench();
     wire  [7:0] dout, DUTout;
 
     assign Reset = 1'b0;
-    assign DUTout = recieve_out[7:0]
+    assign DUTout = recieve_out[7:0];
 
 
     // Task for checking output
