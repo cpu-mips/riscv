@@ -52,12 +52,9 @@ module RegFileTestbench();
         .rd1(rd1),
         .rd2(rd2));
 
-    integer i=0;
-    localparam loops = 32; // number of times to run the tests for
-    localparam second_pass = 16;
-
     // Testing logic:
     initial begin
+       we = 1'b1;
        ra1 = 0;
        ra2 = 0;
        wa = 0;
