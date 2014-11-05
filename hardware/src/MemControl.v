@@ -50,6 +50,7 @@ module MemControl(
             end
             `OPC_STORE:
             begin
+                io_recv_reg = 1'bx;
                 case (Funct3)
                     `FNC_SB:
                     begin
