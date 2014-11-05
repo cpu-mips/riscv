@@ -84,12 +84,11 @@ module RegFileTestbench();
        #10
        checkOutput();
 
-       wa = 5;
-       wd = 5;
+       wa = 1;
+       wd = 32'hffffffff;
        #10
 
-       ra1 = 5;
-       REFrd1 = 32'b0;
+       ra1 = 1;
        checkOutput();
 
 
