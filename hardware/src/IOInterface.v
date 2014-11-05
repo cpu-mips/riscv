@@ -10,6 +10,7 @@
 //-----------------------------------------------------------------------------
 
 module IOInterface(
+    input [32:0] rd2,
     input [31:0] A,
     input [3:0] io_trans,
     input io_recv,
