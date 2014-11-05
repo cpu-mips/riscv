@@ -123,7 +123,7 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        A = 32'1xxxxxxx3;
+        A = 32'h1xxxxxxx3;
         opcode = `OPC_STORE;
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
@@ -143,7 +143,7 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        A = 32'3xxxxxxxx;
+        A = 32'h3xxxxxxxx;
         opcode = `OPC_STORE;
         funct3 = `FNC_SW;
         REFImem_enable = 4'b1111;
