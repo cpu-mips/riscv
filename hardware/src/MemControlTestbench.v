@@ -4,7 +4,7 @@
 // 1ns rather than 1ps
 `timescale 1ns / 1ps
 
-`include "Opcode.vh"
+`include "opcode.vh"
 
 module MemControlTestbench();
 
@@ -34,20 +34,20 @@ module MemControlTestbench();
              REFDmem_enable !== DUTDmem_enable &&
              REFIo_trans !== DUTIo_trans &&
              REFIo_recv !== DUTIo_recv) begin
-            $display("FAIL: Incorrect result for A 0x%h, Opcode %b, Funct %b", A, opcode, funct3);
+            $display("FAIL: Incorrect result for A 0x%h, opcode %b, Funct %b", A, opcode, funct3);
             $display("\tDUTImem_enable:%b, REFImem_enable:%b DUTDmem_enable:%b REFDmem_enable:%b", DUTImem_enable, REFImem_enable, DUTDmem_enable, REFDmem_enable);
             $display("\tDUTIo_trans:%b, REFIo_trans:%b DUTIo_recv:%b REFIo_recv:%b", DUTIo_trans, REFIo_trans, DUTIo_recv, REFIo_recv);
             $finish();
         end
         else begin
-            $display("PASS: Correct result for A 0x%h, Opcode %b, Funct %b", A, opcode, funct3);
+            $display("PASS: Correct result for A 0x%h, opcode %b, Funct %b", A, opcode, funct3);
             $display("\tDUTImem_enable:%b, REFImem_enable:%b DUTDmem_enable:%b REFDmem_enable:%b", DUTImem_enable, REFImem_enable, DUTDmem_enable, REFDmem_enable);
             $display("\tDUTIo_trans:%b, REFIo_trans:%b DUTIo_recv:%b REFIo_recv:%b", DUTIo_trans, REFIo_trans, DUTIo_recv, REFIo_recv);
         end
     endtask
 
     MemControl DUT(
-        .Opcode(opcode),
+        .opcode(opcode),
         .Funct3(funct3),
         .A(A),
         .Dmem_enable(DUTDmem_enable),
@@ -63,8 +63,8 @@ module MemControlTestbench();
         ///////////////////////////////
 
         //Checking unsigned vs signed for negatives
-        A = 32'8xxxxxxx;
-        Opcode = `OPC_LOAD;
+        A = 32'h8xxxxxxx;
+        opcode = `OPC_LOAD;
         funct3 = `FNC_LB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
@@ -73,8 +73,8 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        A = 32'1xxxxxxx;
-        Opcode = `OPC_LOAD;
+        A = 32'h1xxxxxxx;
+        opcode = `OPC_LOAD;
         funct3 = `FNC_LH;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
@@ -83,8 +83,8 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        A = 32'8xxxxxxx;
-        Opcode = `OPC_LOAD;
+        A = 32'h8xxxxxxx;
+        opcode = `OPC_LOAD;
         funct3 = `FNC_LW;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
@@ -93,8 +93,8 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        A = 32'1xxxxxxx;
-        Opcode = `OPC_LOAD;
+        A = 32'h1xxxxxxx;
+        opcode = `OPC_LOAD;
         funct3 = `FNC_LBU;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
@@ -103,8 +103,8 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        A = 32'1xxxxxxx;
-        Opcode = `OPC_LOAD;
+        A = 32'h1xxxxxxx;
+        opcode = `OPC_LOAD;
         funct3 = `FNC_LHU;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
@@ -114,7 +114,7 @@ module MemControlTestbench();
         checkOutput();
 
         A = 32'h8xxxxxx4;
-        Opcode = `OPC_STORE;
+        opcode = `OPC_STORE;
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
@@ -124,7 +124,7 @@ module MemControlTestbench();
         checkOutput();
 
         A = 32'1xxxxxxx3;
-        Opcode = `OPC_STORE;
+        opcode = `OPC_STORE;
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b1000;
@@ -134,7 +134,7 @@ module MemControlTestbench();
         checkOutput();
 
         A = 32'h1xxxxxx2;
-        Opcode = `OPC_STORE;
+        opcode = `OPC_STORE;
         funct3 = `FNC_SH;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b1100;
@@ -144,7 +144,7 @@ module MemControlTestbench();
         checkOutput();
 
         A = 32'3xxxxxxxx;
-        Opcode = `OPC_STORE;
+        opcode = `OPC_STORE;
         funct3 = `FNC_SW;
         REFImem_enable = 4'b1111;
         REFDmem_enable = 4'b1111;
