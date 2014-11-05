@@ -75,12 +75,24 @@ module RegFileTestbench();
        REFrd2 = 32'b1;
        #1
        checkOutput();
+
        ra1=2;
        ra2=3;
        REFrd1 = 32'b10;
        REFrd2 = 32'b11;
        #1
        checkOutput();
+
+       we = 1'b0;
+       wa = 5;
+       wd = 5;
+       #10
+
+       ra1 = 5;
+       REFrd1 = 32'b0;
+       checkOutput();
+
+
        
         //end
        $display("ALL TESTS PASS");
