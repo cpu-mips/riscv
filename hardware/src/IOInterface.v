@@ -15,6 +15,8 @@ module IOInterface(
     input [3:0] IO_trans,
     input IO_recv,
     input Clock,
+    input FPGA_Sin,
+    output FPGA_Sout,
     output [31:0] Received);
 
 endmodule
