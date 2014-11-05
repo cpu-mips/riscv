@@ -52,7 +52,23 @@ module MemControl(
             begin
                 case (Funct3)
                     `FNC_SB:mask_reg = 4'b0001;
+                    begin
+                        case (A[1:0])
+                            00:mask_reg = 4'b0001;
+                            01:mask_reg = 4'b0010;
+                            10:mask_reg = 4'b0100;
+                            11:mask_reg = 4'b1000;
+                            default:mask_reg = 4'bx;
+                        endcase
+                    end
                     `FNC_SH:mask_reg = 4'b0011;
+                    begin
+                        case (A[1:0])
+                            00:mask_reg = 4'b0011;
+                            10:mask_reg = 4'b1100;
+                            default:mask_reg = 4'bx;
+                        endcase
+                    end
                     default:mask_reg = 4'b1111;
                 endcase
                 if (1'b0 == A[31] && 1'b1 == A[28])
