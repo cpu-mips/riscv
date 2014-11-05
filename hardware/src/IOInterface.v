@@ -68,14 +68,7 @@ module IOInterface(
                 if (1'b1 == IO_recv && 1'b0 == IO_trans[0])
                 begin
                     dout_ready = 1'b0;
-                    if (1'b1 == dout_valid)
-                    begin
-                        io_out = {24'b0, dout};
-                    end
-                    else
-                    begin
-                        io_out = 32'bx;
-                    end
+                    io_out = {24'b0, dout};
                 end
                 else
                 begin
@@ -90,14 +83,7 @@ module IOInterface(
                 if (1'b1 == IO_trans[0] && 1'b0 == IO_recv)
                 begin
                     din = rd2[7:0];
-                    if (1'b1 == din_ready)
-                    begin
-                        din_valid = 1'b1;
-                    end
-                    else
-                    begin
-                        din_valid = 1'b0;
-                    end
+                    din_valid = 1'b1;
                 end
                 else
                 begin
