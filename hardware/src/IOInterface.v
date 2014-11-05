@@ -3,8 +3,8 @@
 //  Desc: Handles Communication with IO  
 //  Inputs Interface:
 //    A: Input address (asynchronous)
-//    io_trans: Signal for IO transmission (asynchronous)
-//    io_recv: Signal for IO receiving
+//    IO_trans: Signal for IO transmission (asynchronous)
+//    IO_recv: Signal for IO receiving
 //  Output Interface:
 //    Received: Received IO signal
 //-----------------------------------------------------------------------------
@@ -12,8 +12,9 @@
 module IOInterface(
     input [32:0] rd2,
     input [31:0] Addr,
-    input [3:0] io_trans,
-    input io_recv,
+    input [3:0] IO_trans,
+    input IO_recv,
+    input Clock,
     output [31:0] Received);
 
 endmodule
