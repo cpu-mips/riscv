@@ -81,22 +81,22 @@ module BranchControl(
                 begin
                     if(1'b1 == ALUOut)
                     begin
-                        diverge_reg = 1'b0;
+                        diverge_reg = 1'b1;
                     end
                     else
                     begin
-                        diverge_reg = 1'b1;
+                        diverge_reg = 1'b0;
                     end
                 end
                 `FNC_BGEU:
                 begin
                     if(1'b1 == ALUOut)
                     begin
-                        diverge_reg = 1'b1;
+                        diverge_reg = 1'b0;
                     end
                     else
                     begin
-                        diverge_reg = 1'b0;
+                        diverge_reg = 1'b1;
                     end
                 end
                 default: diverge_reg = 1'bx;
