@@ -164,7 +164,7 @@ module BranchTestbench();
 
         A = 0; 
         B = 0;
-        funct3 = `FNC_SLT;
+        funct3 = `FNC_BLT;
         REFout = 1'b0;
         #1;
         checkOutput;
