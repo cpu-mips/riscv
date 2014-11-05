@@ -74,7 +74,7 @@ module RegFileTestbench();
        #10
        ra1 = 0;
        ra2 = 1;
-       REFrd1 = 32'bx;
+       REFrd1 = 32'b0;
        REFrd2 = 32'b1;
        #1
        checkOutput();
