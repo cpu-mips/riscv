@@ -14,7 +14,6 @@
 
 `include "Opcode.vh"
 
-//NEED TO ADD MEMCTL SUPPORT TO MASK IO BASED ON SB OR SH FOR CHKPT 2!!!!
 module MemControl(
     input [6:0] Opcode,
     input [2:0] Funct3,
