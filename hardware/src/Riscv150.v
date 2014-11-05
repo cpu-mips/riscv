@@ -7,6 +7,7 @@
  *
  * CS150 Fall 14. Template written by Simon Scott.
  */
+`include "Opcode.vh"
 module Riscv150(
     input clk,
     input rst,
@@ -54,13 +55,182 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-
+   reg [31:0] 	   inst, a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_fetch;
+   wire [31:0] 	   out, imm, Dmem_out, Proc_Mem_Out, inst_fetch_wire, rd1, rd2, UART_out;
+   
+   reg [11:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
+   reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
+   wire [19:0] 	   immA;
+   reg [6:0] 	   opcodew;
+   wire [6:0] 	   opcodex, funct7, immC;
+   wire [4:0] 	   rs1, rs2;
+   wire [11:0] 	   immB;
+   reg [4:0] 	   rd_write;
+   wire [4:0] 	   immD;
+   wire [4:0] 	   rd;
+   wire [3:0] 	   uart_trans;
+   wire [2:0] 	   funct3;
+   reg [2:0] 	   funct3_write;
+   wire [1:0] 	   dest;
+   wire [3:0] 	   aluop;
+   reg 		   CWE2, CWE3;
+   wire 	   zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv;
+   wire [3:0] 	   imem_enable, dmem_enable;
+   wire [11:0] 	   rd2_mem;
+   assign ena_hardwire = 1;
+   assign inst_fetch_wire = inst_fetch;
+   assign rd2_mem = rd2[13:2];
     // Instantiate the instruction memory here (checkpoint 1 only)
-
+   imem_blk_ram imem(.clka(clk),
+		     .ena(ena_hardwire),
+		     .wea(imem_enable),
+		     .addra(rd2_mem),
+		     .dina(rd2),
+		     .clkb(clk),
+		     .addrb(PC),
+		     .doutb(inst_fetch_wire));
     // Instantiate the data memory here (checkpoint 1 only)
-
+     dmem_blk_ram dmem(.clka(clk),
+		       .ena(ena_hardwire),
+		       .wea(dmem_enable),
+		       .addra(rd2_mem),
+		       .dina(rd2),
+		       .douta(Dmem_out));
+   RegFile regfile(.clk(clk),
+		   .we(CWE3),
+		   .ra1(rs1),
+		   .ra2(rs2),
+		   .wa(rd_write),
+		   .wd(val),
+		   .rd1(rd1),
+		   .rd2(rd2));
+   
     // Instantiate your control unit here
-
+   ALU alu(.A(a), 
+	   .B(b), 
+	   .ALUop(aluop), 
+	   .Out(out), 
+	   .Zero(zero));
+   IOInterface io(.rd2(rd2),
+		  .Addr(out),
+		  .IO_trans(uart_trans),
+		  .IO_recv(uart_recv),
+		  .Clock(clk),
+                  .FPGA_Sin(FPGA_Serial_Rx),
+                  .FPGA_Sout(FPGA_Serial_Tx),
+		  .Received(UART_out));
+   MemoryProc memoryproc(.Mem(Dmem_UART_Out),
+			 .Opcode(opcodew),
+			 .Funct3(funct3_write),
+			 .Address(forwarded),
+			 .Proc_Mem(Proc_Mem_Out));
+   
+   MemControl memcontrol(.Opcode(opcodex),
+			 .Funct3(funct3),
+			 .A(out),
+			 .Dmem_enable(dmem_enable),
+			 .Imem_enable(imem_enable),
+			 .Io_trans(uart_trans),
+			 .Io_recv(uart_recv));
+   
+   HazardController hazard(.stall(stall), 
+			   .OpcodeW(opcodew), 
+			   .OpcodeX(opcodex), 
+			   .rd(rd), 
+			   .rs1(rs1), 
+			   .rs2(rs2), 
+			   .isZero(diverge), 
+			   .CWE2(cwe2),
+			   .noop(noop),
+			   .ForwardA(FA), 
+			   .ForwardB(FB), 
+			   .PCDelay(pcdelay));
+  
+   ImmController immcontroller(.Opcode(opcodex), 
+			       .immA(immA), 
+			       .immB(immB), 
+			       .immC(immC), 
+			       .immD(immD), 
+			       .imm(imm));
+   Splitter splitter(.Instruction(inst), 
+		     .Opcode(opcodex), 
+		     .Funct3(funct3), 
+		     .Funct7(funct7), 
+		     .Rs1(rs1), 
+		     .Rs2(rs2),
+		     .Rd(rd), 
+		     .UTypeImm(immA), 
+		     .ITypeImm(immB), 
+		     .STypeImm1(immD), 
+		     .STypeImm2(immC));
+   Control control(.Opcode(opcodex),
+		   .Funct3(funct3),
+		   .Funct7(funct7),
+		   .Stall(stall),
+		   .Lui(lui2),
+		   .Pass(pass2),
+		   .ALUop(aluop),
+		   .ALUSrc2(ALUSrcB2),
+		   .Dest(dest),
+		   .Jal(isJAL),
+		   .Jalr(isJALR)
+		   );
+   BranchControl branchcontrol(.Opcode(opcodex), 
+			       .Funct3(funct3), 
+			       .ALUOut(out),
+			       .Zero(zero),
+			       .Diverge(diverge));
+   
+   
     // Instantiate your datapath here
+   always @ (posedge clk) begin
+      // Fetch stage
+      //if (reset==0) PC<=PC_next;
+      //else PC <= 0;
+      PC<=PC_next;
+      
+      // Execute stage
+      inst<=inst_fetch_wire;
+      next_PC_execute <= PC+4;
+      PC_execute<=PC;
 
+      // Writeback stage
+      funct3_write <= funct3;
+      out_write<=out;
+      opcodew <= opcodex;
+      next_PC_write <= next_PC_execute;
+      AIUPC_imm <= PC_imm;
+      forwarded<=out;
+      rd_write <=rd;
+      CWE3<=CWE2;
+      
+      
+   end // always @ (posedge clk)
+   always @ (*) begin
+
+      // Fetch Stage
+      PC_next = (rst)? 12'b0:(diverge) ? PCJAL : ((pcdelay)? PC: PC+4);
+      inst_fetch = (noop)? `OPC_NOOP:inst_mem_out;
+
+      //Execute Stage
+      PC_imm = imm+PC_execute;
+      PCJAL = (isJAL)? (out & 12'b111111111110):(PC_imm);
+      a=(FA)? forwarded: ((pass2)? 0: ((lui2)? 12: rd1));
+      b = (FB)? forwarded: ((ALUSrcB2)? imm: rd2);
+
+
+      //Writeback Stage
+      Dmem_UART_Out = (uart_recv)?UART_out:Dmem_out;
+      AIUPC_out = AIUPC_imm+forwarded;
+      JALR_data = (isJALR)? next_PC_write:AIUPC_out;
+      Data_UART = (uart_trans)? UART_out:dmem_out;
+      if (dest == 2'b0) val = forwarded;
+      else if (dest == 2'b01) val = Proc_Mem_Out;
+      else if (dest == 2'b10) val = JALR_data;
+      
+      
+      
+
+
+   end
 endmodule
