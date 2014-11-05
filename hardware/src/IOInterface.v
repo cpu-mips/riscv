@@ -1,18 +1,18 @@
 //-----------------------------------------------------------------------------
-//  Module: UARTInterface.v
-//  Desc: Handles Communication with UART  
+//  Module: IOInterface.v
+//  Desc: Handles Communication with IO  
 //  Inputs Interface:
 //    A: Input address (asynchronous)
-//    Uart_trans: Signal for UART transmission (asynchronous)
-//    Uart_recv: Signal for UART receiving
+//    io_trans: Signal for IO transmission (asynchronous)
+//    io_recv: Signal for IO receiving
 //  Output Interface:
-//    Received: Received UART signal
+//    Received: Received IO signal
 //-----------------------------------------------------------------------------
 
-module UARTInterface(
+module IOInterface(
     input [31:0] A,
-    input [3:0] Uart_trans,
-    input Uart_recv,
+    input [3:0] io_trans,
+    input io_recv,
     output [31:0] Received);
 
 endmodule
