@@ -27,9 +27,9 @@ module HazardControllerTestbench();
     // Register and wires to test the HazardController
     reg [6:0] OpcodeX;
     reg [6:0]  OpcodeW;
-   reg [6:0]   rd;
-   reg [6:0]   rs1;
-   reg [6:0]   rs2;
+   reg [4:0]   rd;
+   reg [4:0]   rs1;
+   reg [4:0]   rs2;
    reg 	       isZero;
    reg 	       stall;
    wire 	       CWE2;
@@ -85,10 +85,10 @@ module HazardControllerTestbench();
 
     integer i;
     localparam loops = 3; // number of times to run the tests for
-   localparam A = 6'd0;
-   localparam B = 6'd1;
-   localparam C = 6'd2;
-   
+   localparam A = 4'd1;
+   localparam B = 4'd2;
+   localparam C = 4'd3;
+   localparam D = 4'd0;
     // Testing logic:
     initial begin
 	#1;
@@ -100,6 +100,19 @@ module HazardControllerTestbench();
 	rs2 = B;
 	isZero = 1;
         refForwardA = 1;
+	refForwardB = 0;
+	refnoop = 0;
+	refCWE2=1;
+	refPCDelay = 0;
+	#1;
+	checkOutput();
+       	OpcodeW=`OPC_ARI_RTYPE;
+	OpcodeX=`OPC_ARI_ITYPE;
+	rd = D;
+	rs1 = D;
+	rs2 = B;
+	isZero = 1;
+        refForwardA = 0;
 	refForwardB = 0;
 	refnoop = 0;
 	refCWE2=1;

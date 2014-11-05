@@ -23,13 +23,13 @@
 `include "ALUop.vh"
 `include "Opcode.vh"
 
-module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX, input[6:0] rd, input[6:0] rs1, input[6:0] rs2, input isZero, output reg CWE2, output reg noop, output reg ForwardA, output reg ForwardB, output reg PCDelay);
+module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX, input[4:0] rd, input[4:0] rs1, input[4:0] rs2, input isZero, output reg CWE2, output reg noop, output reg ForwardA, output reg ForwardB, output reg PCDelay);
 
 always @ (*) begin
    if (stall==0) begin
    if (OpcodeW == `OPC_ARI_RTYPE || OpcodeW == `OPC_ARI_ITYPE) begin
-      ForwardA = (rd==rs1)?1:0;
-      ForwardB = (rd==rs2)?1:0;
+      ForwardA = (rd==rs1 && rd != 0)?1:0;
+      ForwardB = (rd==rs2 && rd!=0)?1:0;
       if (OpcodeX!=`OPC_BRANCH) begin
 	 CWE2=1;
 	 PCDelay = 0;

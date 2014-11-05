@@ -25,7 +25,8 @@ module EchoTestbench();
     // Instantiate your Riscv CPU here and connect the FPGA_SERIAL_TX wires
     // to the UART we use for testing
 
-
+   assign stall = 0;
+   
     // Instantiate the UART
     UART          uart( .Clock(           Clock),
                         .Reset(           Reset),
@@ -37,7 +38,12 @@ module EchoTestbench();
                         .DataOutReady(    DataOutReady),
                         .SIn(             FPGA_SERIAL_TX),
                         .SOut(            FPGA_SERIAL_RX));
-
+   Riscv150 CPU(.clk(Clock),
+		  .rst(Reset),
+		  .stall(stall),
+		  .FPGA_SERIAL_RX(FPGA_SERIAL_RX),
+		  .FPGA_SERIAL_TX(FPGA_SERIAL_TX));
+   
     initial begin
         // Reset. Has to be long enough to not be eaten by the debouncer.
         Reset = 0;
