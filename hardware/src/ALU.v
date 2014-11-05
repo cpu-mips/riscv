@@ -49,7 +49,7 @@ module ALU(
 	  `ALU_COPY_B:
 	    Out=B;
 	  `ALU_LUI:
-	    Out = B<<A;
+	    Out = B<<12;
 	  `ALU_XXX: ;
 	  default: ;
 	 endcase

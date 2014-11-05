@@ -15,7 +15,7 @@
 `include "ALUop.vh"
 `include "Opcode.vh"
 
-module ImmController(input [6:0] Opcode, input [2:0] funct3, input [19:0] immA, input [11:0] immB, input [6:0] immC, input [4:0] immD, output reg [31:0] imm);
+module ImmController(input [6:0] Opcode, input [19:0] immA, input [11:0] immB, input [6:0] immC, input [4:0] immD, output reg [31:0] imm);
    
 
 always @ (*) begin
@@ -27,23 +27,23 @@ always @ (*) begin
      `OPC_JAL:
        imm = $signed({immA[19],immA[7:0],immA[8],immA[18:9]});
      `OPC_BRANCH: begin
-	if (funct3 == `FNC_BLTU || funct3 == `FNC_BGEU)
-	  imm = {immC[6],immD[0],immC[5:0],immD[4:1]};
-	else
+	//if (funct3 == `FNC_BLTU || funct3 == `FNC_BGEU)
+	  //imm = {immC[6],immD[0],immC[5:0],immD[4:1]};
+	//else
 	  imm = $signed({immC[6],immD[0],immC[5:0],immD[4:1]});
      end
      `OPC_JALR:
         imm = $signed(immB);
      `OPC_LOAD: begin
-	if (funct3 == `FNC_LBU || funct3 == `FNC_LHU)
-	  imm = immB;
-	else
+	//if (funct3 == `FNC_LBU || funct3 == `FNC_LHU)
+	  //imm = immB;
+	//else
 	  imm = $signed(immB);
      end
      `OPC_ARI_ITYPE: begin
-       if (funct3 == `FNC_SLTU)
-	 imm = immB;
-       else
+       //if (funct3 == `FNC_SLTU)
+	 //imm = immB;
+       //else
 	 imm = $signed(immB);
 	
      end
