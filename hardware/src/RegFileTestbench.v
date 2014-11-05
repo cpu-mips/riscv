@@ -33,18 +33,10 @@ module RegFileTestbench();
                 $display("FAIL: address 1, ra1=%d", ra1);
                 $display("is: %d, should be: %d", rd1, REFrd1);
             end
-            else
-            begin
-                $display("Here");
-            end
             if (rd2 !== REFrd2)
             begin
                 $display("FAIL: addres 2, ra2= %d", ra2);
                 $display("is: %d, should be: %d", rd2, REFrd2);
-            end
-            else
-            begin
-                $display("Here");
             end
         end
     endtask
