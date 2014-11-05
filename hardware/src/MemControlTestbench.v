@@ -30,9 +30,9 @@ module MemControlTestbench();
 
     // Task for checking output
     task checkOutput;
-        if ( REFImem_enable !== DUTImem_enable && 
-             REFDmem_enable !== DUTDmem_enable &&
-             REFIo_trans !== DUTIo_trans &&
+        if ( REFImem_enable !== DUTImem_enable || 
+             REFDmem_enable !== DUTDmem_enable ||
+             REFIo_trans !== DUTIo_trans ||
              REFIo_recv !== DUTIo_recv) begin
             $display("FAIL: Incorrect result for A 0x%h, opcode %b, Funct %b", A, opcode, funct3);
             $display("\tDUTImem_enable:%b, REFImem_enable:%b DUTDmem_enable:%b REFDmem_enable:%b", DUTImem_enable, REFImem_enable, DUTDmem_enable, REFDmem_enable);
