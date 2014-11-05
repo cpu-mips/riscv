@@ -15,6 +15,7 @@ module MemoryProc(
     input [31:0] Mem,
     input [6:0] Opcode,
     input [2:0] Funct3,
+    input [31:0] Address,
     output [31:0] Proc_Mem);
 
     reg [31:0] mem_reg;
