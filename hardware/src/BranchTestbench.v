@@ -92,32 +92,32 @@ module BranchTestbench();
             //Arithmetic right shift register(signed)
 
             funct3 = `FNC_BEQ;
-            REFout = if (A == B) 1 ? 0;
+            REFout =  (A == B) ? 1 : 0;
             #1;
             checkOutput();
 
             funct3 = `FNC_BNE;
-            REFout = if (A == B) 0 ? 1;
+            REFout =  (A == B) ? 0 : 1;
             #1;
             checkOutput();
 
             funct3 = `FNC_BLT;
-            REFout = if ($signed(A) < $signed(B)) 1 ? 0;
+            REFout =  ($signed(A) < $signed(B)) ? 1 : 0;
             #1;
             checkOutput();
 
             funct3 = `FNC_BGE;
-            REFout = if ($signed(A) < $signed(B)) 0 ? 1;
+            REFout =  ($signed(A) < $signed(B)) ? 0 : 1;
             #1;
             checkOutput();
 
             funct3 = `FNC_BLTU;
-            REFout = if (A < B) 1 ? 0;
+            REFout =  (A < B) ? 1 : 0;
             #1;
             checkOutput();
 
             funct3 = `FNC_BGEU;
-            REFout = if (A < B) 0 ? 1;
+            REFout =  (A < B) ? 0 : 1;
             #1;
             checkOutput();
         end
