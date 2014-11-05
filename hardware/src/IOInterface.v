@@ -20,7 +20,7 @@ module IOInterface(
     output [31:0] Received);
 
     wire dout_valid, din_ready, reset;
-   reg 	 dout_ready, din_valid;
+    reg  dout_ready, din_valid;
     wire [7:0] dout;
 
     reg [7:0] din;
