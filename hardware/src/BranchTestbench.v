@@ -20,8 +20,8 @@ module BranchTestbench();
     
     // Register and wires to test the adder
     reg [2:0] funct3;
-    reg [31:0] A, B, rand31;
-    reg [14:0] rand15;
+    reg [31:0] A, B, rand_31;
+    reg [14:0] rand_15;
     reg REFout;
 
     wire [6:0] opcode;
