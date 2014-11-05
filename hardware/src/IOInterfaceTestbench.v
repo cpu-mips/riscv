@@ -6,7 +6,7 @@
 
 `include "Opcode.vh"
 
-module BranchTestbench();
+module IOInterfaceTestbench();
 
     parameter Halfcycle = 5; //half period is 5ns
     
