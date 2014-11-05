@@ -69,6 +69,7 @@ module RegFileTestbench();
        wa=3;
        wd=3;
        #10
+       we = 1'b0;
        ra1 = 0;
        ra2 = 1;
        REFrd1 = 32'b0;
@@ -83,7 +84,6 @@ module RegFileTestbench();
        #1
        checkOutput();
 
-       we = 1'b0;
        wa = 5;
        wd = 5;
        #10
@@ -94,7 +94,6 @@ module RegFileTestbench();
 
 
        
-        //end
        $display("ALL TESTS PASS");
        $finish();
        
