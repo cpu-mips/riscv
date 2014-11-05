@@ -24,7 +24,7 @@ module IOInterfaceTestbench();
     reg io_recv, din_valid, dout_ready;
     reg [7:0] din, REFout;
 
-    wire Reset, uart_to_io, io_to_uart, din_ready, dou_valid;
+    wire Reset, uart_to_io, io_to_uart, din_ready, dout_valid;
     wire [31:0] recieve_out;
     wire  [7:0] dout, DUTout;
 
