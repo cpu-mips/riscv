@@ -33,12 +33,12 @@ module IOInterfaceTestbench();
     // Task for checking output
     task checkOutput;
         if ( REFout !== DUTout ) begin
-            $display("FAIL: Incorrect result for Addr:0x%h, DataIn:%b", Addr, DataIn);
+            $display("FAIL: Incorrect result for Addr:0x%h, Input:%b", Addr, din);
             $display("\tDUTout:%h, REFout:%b", DUTout, REFout);
             $finish();
         end
         else begin
-            $display("PASS: Correct result for Addr:0x%h, DataIn:%b", Addr, DataIn);
+            $display("PASS: Correct result for Addr:0x%h, Input:%b", Addr, rd2);
             $display("\tDUTout:%h, REFout:%b", DUTout, REFout);
         end
     endtask
