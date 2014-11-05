@@ -30,7 +30,7 @@ module IOInterface(
         .Clock(Clock),
         .Reset(reset),
         .DataIn(din),
-        .DataInvalid(din_valid),
+        .DataInValid(din_valid),
         .DataInReady(din_ready),
         .DataOut(dout),
         .DataOutValid(dout_valid),

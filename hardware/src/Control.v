@@ -20,12 +20,12 @@
 
 module Control(
     input [6:0] Opcode,
-    input [3:0] Funct3,
+    input [2:0] Funct3,
     input [6:0] Funct7,
     input Stall,
     output Lui,
     output Pass,
-    output ALUop,
+    output [3:0] ALUop,
     output ALUSrc2,
     output [1:0] Dest, 
     output Jal,
