@@ -47,7 +47,7 @@ module MemControlTestbench();
     endtask
 
     MemControl DUT(
-        .opcode(opcode),
+        .Opcode(opcode),
         .Funct3(funct3),
         .A(A),
         .Dmem_enable(DUTDmem_enable),
