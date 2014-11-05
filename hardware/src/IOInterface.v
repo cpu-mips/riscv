@@ -19,7 +19,8 @@ module IOInterface(
     output FPGA_Sout,
     output [31:0] Received);
 
-    wire dout_valid, dout_ready, din_valid, din_ready, reset;
+    wire dout_valid, din_ready, reset;
+   reg 	 dout_ready, din_valid;
     wire [7:0] dout;
 
     reg [7:0] din;
@@ -67,7 +68,7 @@ module IOInterface(
                 if (1'b1 == IO_recv && 1'b0 == IO_trans[0])
                 begin
                     dout_ready = 1'b1;
-                    if (1'b1 == DataOutValid)
+                    if (1'b1 == dout_valid)
                     begin
                         io_out = {24'b0, dout};
                     end
@@ -89,7 +90,7 @@ module IOInterface(
                 if (1'b1 == IO_trans[0] && 1'b0 == IO_recv)
                 begin
                     din = rd2[7:0];
-                    if (1'b1 == DataInReady)
+                    if (1'b1 == din_ready)
                     begin
                         din_valid = 1'b1;
                     end
