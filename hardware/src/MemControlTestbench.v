@@ -4,7 +4,7 @@
 // 1ns rather than 1ps
 `timescale 1ns / 1ps
 
-`include "opcode.vh"
+`include "Opcode.vh"
 
 module MemControlTestbench();
 
