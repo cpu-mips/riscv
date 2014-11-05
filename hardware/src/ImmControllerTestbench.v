@@ -25,7 +25,6 @@ module ImmControllerTestbench();
     always #(Halfcycle) Clock = ~Clock;
     
     // Register and wires to test the ALU
-    reg [2:0] funct3;
    reg [6:0]  Opcode;
    reg [19:0] immA;
    reg [11:0] immB;
@@ -39,13 +38,13 @@ module ImmControllerTestbench();
     // Task for checking output
     task checkOutput;
         if (imm !== refimm ) begin
-            $display("FAIL: Incorrect result for opcode %b, funct3: %b", Opcode, funct3);
+            $display("FAIL: Incorrect result for opcode %b", Opcode);
             $display("\tIs Imm: %b",imm);
 	   $display("\tShould Be: Imm %b", refimm);
             $finish();
         end
         else begin
-            $display("PASS: Result for opcode %b, funct3: %b", Opcode, funct3);
+            $display("PASS: Result for opcode %b", Opcode);
             $display("\tIs Imm: %b",imm);
         end
     endtask
@@ -53,7 +52,6 @@ module ImmControllerTestbench();
     //This is where the modules being tested are instantiated. 
 
     ImmController DUT( .Opcode(Opcode),
-        .funct3(funct3),
         .immA(immA),
 	.immB(immB),
         .immC(immC),
@@ -89,32 +87,14 @@ module ImmControllerTestbench();
 	     #1;
 	     checkOutput();
 	     Opcode = `OPC_BRANCH;
-	     funct3 = `FNC_BLTU;
-	     refimm = {immC[6],immD[0],immC[5:0],immD[4:1]};
-	     #1;
-	     checkOutput();
-	     Opcode = `OPC_BRANCH;
-	     funct3 = `FNC_BLT;
 	     refimm = $signed({immC[6],immD[0],immC[5:0],immD[4:1]});
 	     #1;
 	     checkOutput();
 	     Opcode = `OPC_LOAD;
-	     funct3 = `FNC_LBU;
-	     refimm =immB;
-	     #1;
-	     checkOutput();
-	      Opcode = `OPC_LOAD;
-	     funct3 = `FNC_LB;
 	     refimm =$signed(immB);
 	     #1;
 	     checkOutput();
 	     Opcode = `OPC_ARI_ITYPE;
-	     funct3 = `FNC_SLTU;
-	     refimm = immB;
-	     #1;
-	     checkOutput();
-	      Opcode = `OPC_ARI_ITYPE;
-	     funct3 = `FNC_SLT;
 	     refimm = $signed(immB);
 	     #1;
 	     checkOutput();

@@ -92,8 +92,8 @@ module ALUTestbench();
             rand_31 = {$random} & 31'h7FFFFFFF;
             rand_15 = {$random} & 15'h7FFF;
             // Hard-wire 16 1's in front of B for sign extension
-            A = 12;
-            B = {16'hFFFF, 1'b1, rand_15};
+	   A = {1'b1, rand_31};
+           B = {16'hFFFF, 1'b1, rand_15};
             // Set funct random to test that it doesn't affect non-R-type insts
 
             // Tests for the non R-Type and I-Type instructions.
@@ -106,7 +106,7 @@ module ALUTestbench();
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
-            A = {1'b1, rand_31};
+            
             opcode = `OPC_AUIPC;
             funct = $random & 3'b111;
             add_rshift_type = $random & 1'b1;
@@ -227,28 +227,28 @@ module ALUTestbench();
             checkOutput(opcode, funct, add_rshift_type);
 
             //Logical left shift immediate
-            /*opcode = `OPC_ARI_ITYPE;
+            opcode = `OPC_ARI_ITYPE;
             funct = `FNC_SLL;
             add_rshift_type = $random & 1'b1;
             REFout = A << B[4:0];
             #1;
-            checkOutput(opcode, funct, add_rshift_type);*/
+            checkOutput(opcode, funct, add_rshift_type);
 
             //Logical right shift immediate
-            /*opcode = `OPC_ARI_ITYPE;
+            opcode = `OPC_ARI_ITYPE;
             funct = `FNC_SRL_SRA;
             add_rshift_type = `FNC2_SRL;
-            REFout = A >> B;
+            REFout = A >> B[4:0];
             #1;
-            checkOutput(opcode, funct, add_rshift_type);*/
+            checkOutput(opcode, funct, add_rshift_type);
 
             //Arithmetic right shift immediate(signed)
-            /*opcode = `OPC_ARI_ITYPE;
+            opcode = `OPC_ARI_ITYPE;
             funct = `FNC_SRL_SRA;
             add_rshift_type = `FNC2_SRA;
-            REFout = $signed(A) >>> B;
+            REFout = $signed(A) >>> B[4:0];
             #1;
-            checkOutput(opcode, funct, add_rshift_type);*/
+            checkOutput(opcode, funct, add_rshift_type);
 
             //R Type Instructions
 
