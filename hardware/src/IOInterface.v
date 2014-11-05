@@ -51,7 +51,7 @@ module IOInterface(
             begin
                 din = 7'bx;
                 din_valid = 1'b0;
-                dout_ready = 1'b0;
+                dout_ready = 1'b1;
                 if (1'b1 == IO_recv && 1'b0 == IO_trans[0])
                 begin
                     io_out = {30'b0, dout_valid, din_ready};
@@ -67,7 +67,7 @@ module IOInterface(
                 din_valid = 1'b0;
                 if (1'b1 == IO_recv && 1'b0 == IO_trans[0])
                 begin
-                    dout_ready = 1'b1;
+                    dout_ready = 1'b0;
                     if (1'b1 == dout_valid)
                     begin
                         io_out = {24'b0, dout};
@@ -81,12 +81,12 @@ module IOInterface(
                 begin
                     io_out = 32'bx;
                 end
-                dout_ready = 1'b0;
+                dout_ready = 1'b1;
             end
             32'h80000008:
             begin
                 io_out = 32'bx;
-                dout_ready = 1'b0;
+                dout_ready = 1'b1;
                 if (1'b1 == IO_trans[0] && 1'b0 == IO_recv)
                 begin
                     din = rd2[7:0];
@@ -108,6 +108,7 @@ module IOInterface(
             default:
             begin
                 io_out = 32'hxxxxxxxx;
+                dout_ready = 1'b1;
             end
         endcase
     end
