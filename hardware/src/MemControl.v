@@ -8,8 +8,8 @@
 //  Output Interface:
 //    Dmem_enable: Enable for dmem write
 //    Imem_enable: Enable for imem write
-//    Uart_trans: Transmit signal for UART
-//    Uart_recv: Receive signal for UART
+//    io_trans: Transmit signal for io
+//    io_recv: Receive signal for io
 //-----------------------------------------------------------------------------
 
 `include "Opcode.vh"
@@ -20,16 +20,16 @@ module MemControl(
     input [31:0] A,
     output [3:0] Dmem_enable,
     output [3:0] Imem_enable,
-    output [3:0] Uart_trans,
-    output Uart_recv);
+    output [3:0] Io_trans,
+    output Io_recv);
 
-    reg [3:0] dmem_reg, imem_reg, mask_reg, uart_trans_reg;
-    reg uart_recv_reg;
+    reg [3:0] dmem_reg, imem_reg, mask_reg, io_trans_reg;
+    reg io_recv_reg;
 
     assign Dmem_enable = dmem_reg;
     assign Imem_enable = imem_reg;
-    assign Uart_trans = uart_trans_reg;
-    assign Uart_recv = uart_recv_reg;
+    assign Io_trans = io_trans_reg;
+    assign Io_recv = io_recv_reg;
 
     always@(*)
     begin
@@ -38,14 +38,14 @@ module MemControl(
             begin
                 dmem_reg = 4'b000;
                 imem_reg = 4'b000;
-                uart_trans_reg = 4'b000;
+                io_trans_reg = 4'b000;
                 if (4'b1000 == A[31:28])
                 begin
-                    uart_recv_reg = 1'b1;
+                    io_recv_reg = 1'b1;
                 end
                 else
                 begin
-                    uart_recv_reg = 1'b0;
+                    io_recv_reg = 1'b0;
                 end
             end
             `OPC_STORE:
@@ -73,19 +73,19 @@ module MemControl(
                 end
                 if (4'b1000 == A[31:28])
                 begin
-                    uart_trans_reg = mask_reg;
+                    io_trans_reg = mask_reg;
                 end
                 else
                 begin
-                    uart_trans_reg = 4'b000;
+                    io_trans_reg = 4'b000;
                 end
             end
             default:
             begin
                 dmem_reg = 4'b000;
                 imem_reg = 4'b000;
-                uart_trans_reg = 4'b000;
-                uart_recv_reg = 1'b0;
+                io_trans_reg = 4'b000;
+                io_recv_reg = 1'b0;
             end
         endcase
     end
