@@ -55,18 +55,18 @@ module MemControl(
                     `FNC_SB:
                     begin
                         case (A[1:0])
-                            00:mask_reg = 4'b0001;
-                            01:mask_reg = 4'b0010;
-                            10:mask_reg = 4'b0100;
-                            11:mask_reg = 4'b1000;
+                            2'b00:mask_reg = 4'b0001;
+                            2'b01:mask_reg = 4'b0010;
+                            2'b10:mask_reg = 4'b0100;
+                            2'b11:mask_reg = 4'b1000;
                             default:mask_reg = 4'bx;
                         endcase
                     end
                     `FNC_SH:
                     begin
                         case (A[1:0])
-                            00:mask_reg = 4'b0011;
-                            10:mask_reg = 4'b1100;
+                            2'b00:mask_reg = 4'b0011;
+                            2'b10:mask_reg = 4'b1100;
                             default:mask_reg = 4'bx;
                         endcase
                     end
