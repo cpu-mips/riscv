@@ -50,6 +50,7 @@ module IOInterfaceTestbench();
         .IO_trans(io_trans),
         .IO_recv(io_recv),
         .Clock(Clock),
+        .Reset(Reset),
         .FPGA_Sin(uart_to_io),
         .FPGA_Sout(io_to_uart), 
         .Received(recieve_out)
