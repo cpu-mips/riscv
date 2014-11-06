@@ -104,7 +104,7 @@ module IOInterfaceTestbench();
         Addr = 32'h80000008;
         REFout = rd2;
         #(2 * Cycle)
-        Addr 32'h80000000;
+        Addr = 32'h80000000;
         (#Cycle);
         while (1'b0 == recieve_out[0])
         begin
