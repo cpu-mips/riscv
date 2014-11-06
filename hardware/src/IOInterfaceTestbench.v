@@ -33,13 +33,14 @@ module IOInterfaceTestbench();
 
     // Task for checking output
     task checkOutput;
+        input [31:0] ipt;
         if ( REFout !== DUTout ) begin
-            $display("FAIL: Incorrect result for Addr:0x%h, Input:0x%h", Addr, din);
+            $display("FAIL: Incorrect result for Addr:0x%h, Input:0x%h", Addr, ipt);
             $display("\tDUTout:%b, REFout:%b", DUTout, REFout);
             $finish();
         end
         else begin
-            $display("PASS: Correct result for Addr:0x%h, Input:0x%h", Addr, rd2);
+            $display("PASS: Correct result for Addr:0x%h, Input:0x%h", Addr, ipt);
             $display("\tDUTout:%b, REFout:%b", DUTout, REFout);
         end
     endtask
@@ -94,7 +95,7 @@ module IOInterfaceTestbench();
         end
         Addr = 32'h80000004;
         #(Cycle);
-        checkOutput();
+        checkOutput({24'b0, din});
 
         //Checking transmit
         rd2 = 32'hffffffff;
@@ -103,7 +104,11 @@ module IOInterfaceTestbench();
         Addr = 32'h80000008;
         REFout = rd2;
         #(2 * Cycle)
-        checkOutput();
+        while (1'b0 == recieve_out[0])
+        begin
+            #(Cycle);
+        end
+        checkOutput(rd2);
 
         $display("\n\nALL TESTS PASSED!");
         $finish();
