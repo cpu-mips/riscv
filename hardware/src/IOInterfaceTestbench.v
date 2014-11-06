@@ -83,9 +83,9 @@ module IOInterfaceTestbench();
         Addr = 32'h80000000;
         REFout = din;
         Reset = 1'b1;
-        #1
+        #(2 * Cycle)
         Reset = 1'b0;
-        #(Cycle)
+        #(2 * Cycle)
         while (1'b0 == recieve_out[1])
         begin
             #(Cycle);
