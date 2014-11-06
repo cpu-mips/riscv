@@ -56,7 +56,7 @@ module UATransmit(
     end
     else
     begin
-        BitCounter = BitCounter;
+        BitCounter <= BitCounter;
     end
    end
 
