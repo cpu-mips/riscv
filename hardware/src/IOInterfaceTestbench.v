@@ -97,15 +97,13 @@ module IOInterfaceTestbench();
         checkOutput();
 
         //Checking transmit
-        /* rd2 = 32'hxxxxxxff; */
-        /* io_trans = 4'bxx1; */
-        /* io_recv = 1'b0; */
-        /* dout_ready = 1'b1; */
-        /* Addr = 32'h80000008; */
-        /* REFout = dout; */
-        /* #(Cycle) */
-        /* dout_ready = 1'b0; */
-        /* checkOutput(); */
+        rd2 = 32'hffffffff;
+        io_trans = 4'b001;
+        io_recv = 1'b0;
+        Addr = 32'h80000008;
+        REFout = dout;
+        #(2 * Cycle)
+        checkOutput();
 
         $display("\n\nALL TESTS PASSED!");
         $finish();
