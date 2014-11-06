@@ -55,9 +55,9 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-   reg [31:0] 	   inst, a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_fetch;
-   wire [31:0] 	   out, imm, Dmem_out, Proc_Mem_Out, inst_fetch_wire, rd1, rd2, UART_out;
-   reg [11:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
+   reg [31:0] 	   inst, a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_fetch_wire;
+   wire [31:0] 	   out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, inst_fetch;
+   reg [13:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
    reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
    reg [6:0] 	   opcodew;
@@ -87,8 +87,8 @@ module Riscv150(
 		     .addra(rd2_mem),
 		     .dina(rd2),
 		     .clkb(clk),
-		     .addrb(PC),
-		     .doutb(inst_fetch_wire));
+		     .addrb(PC[13:2]),
+		     .doutb(inst_fetch));
     // Instantiate the data memory here (checkpoint 1 only)
    dmem_blk_ram dmem(.clka(clk),
            .ena(ena_hardwire),
@@ -221,9 +221,9 @@ module Riscv150(
       end
       else
       begin
-          PC = PC + 4;
+          PC_next = PC + 4;
       end
-      inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch_wire;
+      inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch;
 
       //Execute Stage
       PC_imm = imm + PC_execute;
