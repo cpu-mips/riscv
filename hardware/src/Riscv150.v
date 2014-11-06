@@ -223,10 +223,10 @@ module Riscv150(
       begin
           PC = PC + 4;
       end
-      inst_fetch = (noop) ? `OPC_NOOP : inst_mem_out;
+      inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch_wire;
 
       //Execute Stage
-      PC_imm = imm+PC_execute;
+      PC_imm = imm + PC_execute;
       PCJAL = (isJAL) ? (out & 12'b111111111110) : PC_imm;
       if (FA)
       begin
