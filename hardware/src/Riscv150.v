@@ -279,7 +279,7 @@ module Riscv150(
       end
       else
       begin
-          val = 32'bx;;
+          val = 32'bx;
       end
    end
 endmodule
