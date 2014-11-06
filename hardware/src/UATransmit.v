@@ -81,7 +81,7 @@ module UATransmit(
     end
     else
     begin
-        Sout <= SOut;
+        SOut <= SOut;
     end
   end
 endmodule
