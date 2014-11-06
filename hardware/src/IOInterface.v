@@ -55,7 +55,7 @@ module IOInterface(
             32'h80000000:
             begin
                 din = 7'bx;
-                din_valid = 1'b0;
+                din_valid = 1'b1;
                 dout_ready = 1'b1;
                 if (1'b1 == IO_recv && 1'b0 == IO_trans[0])
                 begin
@@ -92,9 +92,9 @@ module IOInterface(
                 end
                 else
                 begin
-                    din_valid = 1'b0;
+                    din_valid = 1'b1;
                 end
-                din_valid = 1'b0;
+                din_valid = 1'b1;
             end
             default:
             begin
