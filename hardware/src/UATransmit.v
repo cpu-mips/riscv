@@ -25,7 +25,7 @@ module UATransmit(
    //wire 	Sample;
    wire 	Start;
    wire 	TXRunning;
-   wire [9:0] 	TXShift;
+   reg [9:0] 	TXShift;
    reg [3:0] 	BitCounter;
    reg [ClockCounterWidth-1:0] ClockCounter;
    reg 			       hold;
@@ -33,55 +33,45 @@ module UATransmit(
    assign Start = DataInValid && !TXRunning;
    
    assign  SymbolEdge   = (ClockCounter == SymbolEdgeTime - 1);
-   assign TXShift = (DataInValid || hold)?{1'b1,DataIn,1'b0}:10'b0;
    assign DataInReady = !TXRunning;
    assign  TXRunning     = BitCounter != 4'd0;
    
-   always @ (posedge Clock) begin
+   always @ (posedge Clock) 
+   begin
       ClockCounter <= (Start || Reset || SymbolEdge) ? 0 : ClockCounter + 1;
    end
 
-   always @ (posedge Clock) begin
-    if (Reset) 
-    begin
-      BitCounter <= 0;       
-    end 
-    else if (Start) 
-    begin
-      BitCounter <= 10;
-    end 
-    else if (SymbolEdge && TXRunning) 
-    begin
-      BitCounter <= BitCounter - 1;
-    end
-    else
-    begin
-        BitCounter <= BitCounter;
-    end
+   always @ (posedge Clock) 
+   begin
+        if (Reset) 
+        begin
+          BitCounter <= 0;       
+          TXShift <= 10'b0;
+        end 
+        else if (Start) 
+        begin
+          BitCounter <= 10;
+          TXShift <= {1'b1, DataIn, 1'b0};
+        end 
+        else if (SymbolEdge && TXRunning) 
+        begin
+          BitCounter <= BitCounter - 1;
+        end
+        else
+        begin
+            BitCounter <= BitCounter;
+        end
    end
 
-   always @ (posedge Clock) begin
-      if (!Reset)begin
-	 if (!TXRunning)
-	   hold<=0;
-	 else
-	   hold<=1;
-      end
-      else
-	hold <= 0;
-      
-      
+   always @(posedge Clock) 
+   begin
+        if (TXRunning)
+        begin
+          SOut <= TXShift[10-BitCounter];
+        end
+        else
+        begin
+            SOut <= SOut;
+        end
    end
-   
-
-   always @(posedge Clock) begin
-    if (TXRunning)
-    begin
-      SOut <= TXShift[10-BitCounter];
-    end
-    else
-    begin
-        SOut <= SOut;
-    end
-  end
 endmodule
