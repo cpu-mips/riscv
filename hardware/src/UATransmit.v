@@ -30,7 +30,7 @@ module UATransmit(
    reg [ClockCounterWidth-1:0] ClockCounter;
    reg 			       hold;
 
-   assign Start = !TXRunning;
+   assign Start = DataInValid && !TXRunning;
    
    assign  SymbolEdge   = (ClockCounter == SymbolEdgeTime - 1);
    assign TXShift = (DataInValid || hold)?{1'b1,DataIn,1'b0}:10'b0;
