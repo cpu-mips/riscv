@@ -91,8 +91,8 @@ module IOInterfaceTestbench();
             #(Cycle);
         end
         Addr = 32'h80000004;
-        DUTout = recieve_out[7:0];
         #(2 * Cycle);
+        DUTout = recieve_out[7:0];
         checkOutput({24'b0, din});
 
         //Checking transmit
