@@ -22,14 +22,11 @@ module IOInterfaceTestbench();
     reg [31:0] rd2, Addr;
     reg [3:0] io_trans;
     reg io_recv, din_valid, dout_ready, Reset;
-    reg [7:0] din, REFout;
+    reg [7:0] din, REFout, DUTout;
 
     wire uart_to_io, io_to_uart, din_ready, dout_valid;
     wire [31:0] recieve_out;
-    wire  [7:0] dout, DUTout;
-
-    assign DUTout = recieve_out[7:0];
-
+    wire  [7:0] dout;
 
     // Task for checking output
     task checkOutput;
@@ -94,6 +91,7 @@ module IOInterfaceTestbench();
             #(Cycle);
         end
         Addr = 32'h80000004;
+        DUTout = recieve_out[7:0];
         #(Cycle);
         checkOutput({24'b0, din});
 
@@ -107,6 +105,7 @@ module IOInterfaceTestbench();
         Addr = 32'h80000000;
         io_recv = 1'b1;
         io_trans = 4'b000;
+        DUTout = dout;
         #(2 * Cycle);
         while (1'b0 == recieve_out[0])
         begin
