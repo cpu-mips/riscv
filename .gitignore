@@ -30,3 +30,7 @@ hardware/sim/results/
 *.swp
 *~
 hardware/sim2
+hardware/src/dmem_blk_ram/*
+hardware/src/imem_blk_ram/*
+hardware/src/dmem_blk_ram/dmem_blk_ram.xco
+hardware/src/imem_blk_ram/imem_blk_ram.xco
