@@ -57,7 +57,7 @@ module Riscv150(
 );
    reg [31:0] 	   inst, a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_fetch_wire;
    wire [31:0] 	   out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, inst_fetch;
-   reg [13:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
+   reg [13:0] 	   PC, PC_next, next_PC_execute, PC_execute,PC_execute_JAL,  next_PC_write, PCJAL;
    reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
    reg [6:0] 	   opcodew;
@@ -116,6 +116,7 @@ module Riscv150(
 		  .IO_trans(uart_trans),
 		  .IO_recv(uart_recv),
 		  .Clock(clk),
+		  .Reset(rst),
                   .FPGA_Sin(FPGA_Serial_Rx),
                   .FPGA_Sout(FPGA_Serial_Tx),
 		  .Received(UART_out));
@@ -226,8 +227,9 @@ module Riscv150(
       inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch;
 
       //Execute Stage
-      PC_imm = imm + PC_execute;
-      PCJAL = (isJAL) ? (out & 12'b111111111110) : PC_imm;
+      PC_execute_JAL = (isJAL) ? 0 : PC_execute;
+      PC_imm = imm + PC_execute_JAL;
+      PCJAL = (isJALR) ? (out & 12'b111111111110) : PC_imm;
       if (FA)
       begin
           a = forwarded;
@@ -262,7 +264,7 @@ module Riscv150(
       //Writeback Stage
       Dmem_UART_Out = (uart_recv) ? UART_out : Dmem_out;
       AIUPC_out = AIUPC_imm + forwarded;
-      JALR_data = (isJALR) ? next_PC_write : AIUPC_out;
+      JALR_data = (isJAL) ? next_PC_write : AIUPC_out;
       Data_UART = (uart_trans) ? UART_out : dmem_out;
       if (dest == 2'b00) 
       begin
