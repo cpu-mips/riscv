@@ -21,14 +21,13 @@ module IOInterfaceTestbench();
     // Register and wires to test the adder
     reg [31:0] rd2, Addr;
     reg [3:0] io_trans;
-    reg io_recv, din_valid, dout_ready;
+    reg io_recv, din_valid, dout_ready, Reset;
     reg [7:0] din, REFout;
 
-    wire Reset, uart_to_io, io_to_uart, din_ready, dout_valid;
+    wire uart_to_io, io_to_uart, din_ready, dout_valid;
     wire [31:0] recieve_out;
     wire  [7:0] dout, DUTout;
 
-    assign Reset = 1'b0;
     assign DUTout = recieve_out[7:0];
 
 
@@ -83,6 +82,9 @@ module IOInterfaceTestbench();
         din_valid = 1'b1;
         Addr = 32'h80000000;
         REFout = din;
+        Reset = 1'b1;
+        #1
+        Reset = 1'b0;
         #(Cycle)
         while (1'b0 == recieve_out[1])
         begin
