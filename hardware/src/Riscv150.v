@@ -234,7 +234,7 @@ module Riscv150(
       end
       else if (pass2)
       begin
-          a = 0;
+          a = 32'b0;
       end
       else if (lui2)
       begin
