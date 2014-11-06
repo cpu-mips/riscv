@@ -57,7 +57,6 @@ module Riscv150(
 );
    reg [31:0] 	   inst, a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_fetch;
    wire [31:0] 	   out, imm, Dmem_out, Proc_Mem_Out, inst_fetch_wire, rd1, rd2, UART_out;
-   
    reg [11:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
    reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
@@ -77,9 +76,11 @@ module Riscv150(
    wire 	   zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
+
    assign ena_hardwire = 1;
    assign inst_fetch_wire = inst_fetch;
    assign rd2_mem = rd2[13:2];
+
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(ena_hardwire),
@@ -90,12 +91,12 @@ module Riscv150(
 		     .addrb(PC),
 		     .doutb(inst_fetch_wire));
     // Instantiate the data memory here (checkpoint 1 only)
-     dmem_blk_ram dmem(.clka(clk),
-		       .ena(ena_hardwire),
-		       .wea(dmem_enable),
-		       .addra(rd2_mem),
-		       .dina(rd2),
-		       .douta(Dmem_out));
+   dmem_blk_ram dmem(.clka(clk),
+           .ena(ena_hardwire),
+           .wea(dmem_enable),
+           .addra(rd2_mem),
+           .dina(rd2),
+           .douta(Dmem_out));
    RegFile regfile(.clk(clk),
 		   .we(CWE3),
 		   .ra1(rs1),
@@ -183,10 +184,9 @@ module Riscv150(
    
    
     // Instantiate your datapath here
-   always @ (posedge clk) begin
+   always @ (posedge clk) 
+   begin
       // Fetch stage
-      //if (reset==0) PC<=PC_next;
-      //else PC <= 0;
       PC<=PC_next;
       
       // Execute stage
@@ -203,34 +203,83 @@ module Riscv150(
       forwarded<=out;
       rd_write <=rd;
       CWE3<=CWE2;
-      
-      
-   end // always @ (posedge clk)
-   always @ (*) begin
-
+   end 
+   
+   always @ (*) 
+   begin
       // Fetch Stage
-      PC_next = (rst)? 12'b0:(diverge) ? PCJAL : ((pcdelay)? PC: PC+4);
-      inst_fetch = (noop)? `OPC_NOOP:inst_mem_out;
+      if (rst)
+      begin
+          PC_next = 12'b0;
+      end
+      else if (diverge)
+      begin
+          PC_next = PCJAL;
+      end
+      else if (pcdelay)
+      begin
+          PC_next = PC;
+      end
+      else
+      begin
+          PC = PC + 4;
+      end
+      inst_fetch = (noop) ? `OPC_NOOP : inst_mem_out;
 
       //Execute Stage
       PC_imm = imm+PC_execute;
-      PCJAL = (isJAL)? (out & 12'b111111111110):(PC_imm);
-      a=(FA)? forwarded: ((pass2)? 0: ((lui2)? 12: rd1));
-      b = (FB)? forwarded: ((ALUSrcB2)? imm: rd2);
+      PCJAL = (isJAL) ? (out & 12'b111111111110) : PC_imm;
+      if (FA)
+      begin
+          a = forwarded;
+      end
+      else if (pass2)
+      begin
+          a = 0;
+      end
+      else if (lui2)
+      begin
+          a = 12;
+      end
+      else
+      begin
+          a = rd1;
+      end
+
+      if (FB)
+      begin
+          b = forwarded;
+      end
+      else if (ALUSrcB2)
+      begin
+          b = imm;
+      end
+      else
+      begin
+          b = rd2;
+      end
 
 
       //Writeback Stage
-      Dmem_UART_Out = (uart_recv)?UART_out:Dmem_out;
-      AIUPC_out = AIUPC_imm+forwarded;
-      JALR_data = (isJALR)? next_PC_write:AIUPC_out;
-      Data_UART = (uart_trans)? UART_out:dmem_out;
-      if (dest == 2'b0) val = forwarded;
-      else if (dest == 2'b01) val = Proc_Mem_Out;
-      else if (dest == 2'b10) val = JALR_data;
-      
-      
-      
-
-
+      Dmem_UART_Out = (uart_recv) ? UART_out : Dmem_out;
+      AIUPC_out = AIUPC_imm + forwarded;
+      JALR_data = (isJALR) ? next_PC_write : AIUPC_out;
+      Data_UART = (uart_trans) ? UART_out : dmem_out;
+      if (dest == 2'b00) 
+      begin
+          val = forwarded;
+      end
+      else if (dest == 2'b01) 
+      begin
+          val = Proc_Mem_Out;
+      end
+      else if (dest == 2'b10) 
+      begin
+          val = JALR_data;
+      end
+      else
+      begin
+          val = 32'bx;;
+      end
    end
 endmodule
