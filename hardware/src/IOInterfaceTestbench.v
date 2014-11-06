@@ -83,6 +83,7 @@ module IOInterfaceTestbench();
         din_valid = 1'b1;
         Addr = 32'h80000000;
         REFout = din;
+        #(Cycle)
         while (1'b0 == recieve_out[1])
         begin
             #(Cycle);
