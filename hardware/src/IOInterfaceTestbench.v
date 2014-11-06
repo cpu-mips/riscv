@@ -34,13 +34,13 @@ module IOInterfaceTestbench();
     // Task for checking output
     task checkOutput;
         if ( REFout !== DUTout ) begin
-            $display("FAIL: Incorrect result for Addr:0x%h, Input:%b", Addr, din);
-            $display("\tDUTout:%h, REFout:%b", DUTout, REFout);
+            $display("FAIL: Incorrect result for Addr:0x%h, Input:0x%h", Addr, din);
+            $display("\tDUTout:%b, REFout:%b", DUTout, REFout);
             $finish();
         end
         else begin
-            $display("PASS: Correct result for Addr:0x%h, Input:%b", Addr, rd2);
-            $display("\tDUTout:%h, REFout:%b", DUTout, REFout);
+            $display("PASS: Correct result for Addr:0x%h, Input:0x%h", Addr, rd2);
+            $display("\tDUTout:%b, REFout:%b", DUTout, REFout);
         end
     endtask
 
@@ -75,6 +75,10 @@ module IOInterfaceTestbench();
         // Hard coded tests go here
         ///////////////////////////////
 
+        Reset = 1'b1;
+        #(2 * Cycle)
+        Reset = 1'b0;
+
         //Checking receive
         rd2 = 32'bx;
         io_trans = 4'bxxx0;
@@ -83,9 +87,6 @@ module IOInterfaceTestbench();
         din_valid = 1'b1;
         Addr = 32'h80000000;
         REFout = din;
-        Reset = 1'b1;
-        #(2 * Cycle)
-        Reset = 1'b0;
         #(2 * Cycle)
         while (1'b0 == recieve_out[1])
         begin
