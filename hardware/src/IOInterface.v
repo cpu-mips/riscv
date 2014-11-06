@@ -54,8 +54,6 @@ module IOInterface(
         case (Addr)
             32'h80000000:
             begin
-                din = 7'bx;
-                din_valid = 1'b0;
                 dout_ready = 1'b1;
                 if (1'b1 == IO_recv && 1'b0 == IO_trans[0])
                 begin
@@ -94,7 +92,6 @@ module IOInterface(
                 begin
                     din_valid = 1'b0;
                 end
-                din_valid = 1'b0;
             end
             default:
             begin
