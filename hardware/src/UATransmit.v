@@ -42,14 +42,22 @@ module UATransmit(
    end
 
    always @ (posedge Clock) begin
-    if (Reset) begin
+    if (Reset) 
+    begin
       BitCounter <= 0;       
-    end else if (Start) begin
+    end 
+    else if (Start) 
+    begin
       BitCounter <= 10;
-    end else if (SymbolEdge && TXRunning) begin
+    end 
+    else if (SymbolEdge && TXRunning) 
+    begin
       BitCounter <= BitCounter - 1;
     end
-    
+    else
+    begin
+        BitCounter = BitCounter;
+    end
    end
 
    always @ (posedge Clock) begin
@@ -67,17 +75,13 @@ module UATransmit(
    
 
    always @(posedge Clock) begin
-    if (TXRunning)begin
-       //SOut <= 1;
-       
+    if (TXRunning)
+    begin
       SOut <= TXShift[10-BitCounter];
-       //TXShift <= {SOut, TXShift[9:1]};
-       
+    end
+    else
+    begin
+        Sout <= SOut;
     end
   end
-
-   //always @ (posedge Clock) begin
-     // if (!TXRunning && DataInValid)
-   
-
 endmodule
