@@ -25,7 +25,7 @@ module IOInterface(
     wire [7:0] dout;
 
     reg [7:0] din;
-    reg [31:0] io_out;
+    reg [31:0] io_out, synch_io_out;
 
     UART uart(
         .Clock(Clock),
@@ -40,9 +40,12 @@ module IOInterface(
         .SOut(FPGA_Sout)
     );
 
+
+    assign Received = synch_io_out;
+
     always@(posedge Clock)
     begin
-        Received <= io_out;
+        synch_io_out <= io_out;
     end
 
 
