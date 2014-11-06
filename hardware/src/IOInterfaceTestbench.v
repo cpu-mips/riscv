@@ -101,7 +101,7 @@ module IOInterfaceTestbench();
         io_trans = 4'b001;
         io_recv = 1'b0;
         Addr = 32'h80000008;
-        REFout = dout;
+        REFout = rd2;
         #(2 * Cycle)
         checkOutput();
 
