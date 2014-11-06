@@ -40,8 +40,10 @@ module IOInterface(
         .SOut(FPGA_Sout)
     );
 
-
-    assign Received = io_out;
+    always@(posedge Clock)
+    begin
+        Received <= io_out;
+    end
 
 
     always@(*)
