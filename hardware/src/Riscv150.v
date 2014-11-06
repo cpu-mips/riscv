@@ -78,7 +78,7 @@ module Riscv150(
    wire [11:0] 	   rd2_mem;
 
    assign ena_hardwire = 1;
-   assign inst_fetch_wire = inst_fetch;
+   assign inst_fetch_wire = 32'b00010000000000000000011100110111;
    assign rd2_mem = rd2[13:2];
 
     // Instantiate the instruction memory here (checkpoint 1 only)
