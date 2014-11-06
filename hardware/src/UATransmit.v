@@ -44,7 +44,7 @@ module UATransmit(
    always @ (posedge Clock) begin
     if (Reset) begin
       BitCounter <= 0;       
-    end else if (DataInValid) begin
+    end else if (Start) begin
       BitCounter <= 10;
     end else if (SymbolEdge && TXRunning) begin
       BitCounter <= BitCounter - 1;
