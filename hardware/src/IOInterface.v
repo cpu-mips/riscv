@@ -15,6 +15,7 @@ module IOInterface(
     input [3:0] IO_trans,
     input IO_recv,
     input Clock,
+    input Reset,
     input FPGA_Sin,
     output FPGA_Sout,
     output [31:0] Received);
@@ -28,7 +29,7 @@ module IOInterface(
 
     UART uart(
         .Clock(Clock),
-        .Reset(reset),
+        .Reset(Reset),
         .DataIn(din),
         .DataInValid(din_valid),
         .DataInReady(din_ready),
@@ -40,7 +41,6 @@ module IOInterface(
     );
 
 
-    assign reset = 1'b0;
     assign Received = io_out;
 
 
