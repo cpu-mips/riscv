@@ -22,7 +22,6 @@ module UATransmit(
 
   //--|Solution|----------------------------------------------------------------
    wire 	SymbolEdge;
-   //wire 	Sample;
    wire 	Start;
    wire 	TXRunning;
    wire [9:0] 	TXShift;
@@ -32,10 +31,10 @@ module UATransmit(
 
    assign Start = DataInValid && !TXRunning;
    
-   assign  SymbolEdge   = (ClockCounter == SymbolEdgeTime - 1);
-   assign TXShift = (DataInValid || hold)?{1'b1,DataIn,1'b0}:10'b0;
+   assign SymbolEdge = (ClockCounter == SymbolEdgeTime - 1);
+   assign TXShift = (DataInValid || hold) ? {1'b0,DataIn,1'b1} : 10'b0;
    assign DataInReady = !TXRunning;
-   assign  TXRunning     = BitCounter != 4'd0;
+   assign TXRunning = BitCounter != 4'd0;
    
    always @ (posedge Clock) begin
       ClockCounter <= (Start || Reset || SymbolEdge) ? 0 : ClockCounter + 1;
