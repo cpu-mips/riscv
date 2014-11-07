@@ -42,7 +42,7 @@ module Control(
 
 
     reg lui_reg, pass_reg, alusrc2_reg, jal_reg, jalr_reg;
-    reg [1:0] = dest_reg;
+    reg [1:0] dest_reg;
     
     assign Lui = lui_reg;
     assign Pass = pass_reg;
