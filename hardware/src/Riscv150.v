@@ -72,8 +72,8 @@ module Riscv150(
    reg [2:0] 	   funct3_write;
    wire [1:0] 	   dest;
    wire [3:0] 	   aluop;
-   reg 		   CWE2, CWE3;
-   wire 	   zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv;
+   reg 		   CWE3;
+   wire 	   zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
 
@@ -141,7 +141,7 @@ module Riscv150(
 			   .rs1(rs1), 
 			   .rs2(rs2), 
 			   .isZero(diverge), 
-			   .CWE2(cwe2),
+			   .CWE2(CWE2),
 			   .noop(noop),
 			   .ForwardA(FA), 
 			   .ForwardB(FB), 
