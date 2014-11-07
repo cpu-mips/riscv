@@ -79,7 +79,7 @@ module ALUdec(
                endcase // case (funct)
 	        
           `OPC_JALR: ALUop = `ALU_ADD;
-          `OPC_JAL: ALUop = `ALU_ADD;
+          `OPC_JAL: ALUop = `ALU_COPY_B;
           default: ALUop = `ALU_XXX;
         endcase
     end
