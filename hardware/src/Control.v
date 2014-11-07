@@ -76,7 +76,7 @@ module Control(
                 lui_reg = 1'b0;
                 pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
-                dest_reg = 2'bxx;
+                dest_reg = 2'b10;
                 jal_reg = 1'b1;
                 jalr_reg = 1'b0;
             end
