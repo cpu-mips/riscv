@@ -66,7 +66,7 @@ module Control(
             `OPC_AUIPC:
             begin
                 lui_reg = 1'b1;
-                pass_reg = 1'b1;
+                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b10;
                 jal_reg = 1'b0;
