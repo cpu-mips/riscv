@@ -227,8 +227,7 @@ module Riscv150(
       inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch;
 
       //Execute Stage
-      PC_execute_JAL = (isJAL) ? 0 : PC_execute;
-      PC_imm = imm + PC_execute_JAL;
+      PC_imm = PC_execute + imm<<1;
       PCJAL = (isJALR) ? (out & 12'b111111111110) : PC_imm;
       if (FA)
       begin
