@@ -227,7 +227,7 @@ module Riscv150(
       inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch;
 
       //Execute Stage
-      PC_imm = PC_execute + imm<<1;
+      PC_imm = $signed(PC_execute) + $signed(imm<<1);
       PCJAL = (isJALR) ? (out & 12'b111111111110) : PC_imm;
       if (FA)
       begin
@@ -262,7 +262,7 @@ module Riscv150(
 
       //Writeback Stage
       Dmem_UART_Out = (uart_recv) ? UART_out : Dmem_out;
-      AIUPC_out = AIUPC_imm + forwarded;
+      AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
       JALR_data = (isJAL) ? next_PC_write : AIUPC_out;
       Data_UART = (uart_trans) ? UART_out : dmem_out;
       if (dest == 2'b00) 
