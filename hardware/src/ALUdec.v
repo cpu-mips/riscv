@@ -21,7 +21,7 @@ module ALUdec(
     begin
         case (opcode)
             `OPC_LUI: ALUop = `ALU_LUI;
-            `OPC_AUIPC: ALUop =`ALU_ADD;
+            `OPC_AUIPC: ALUop =`ALU_LUI;
             `OPC_BRANCH: 
             begin
                 case (funct)
