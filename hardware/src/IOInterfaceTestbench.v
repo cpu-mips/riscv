@@ -105,12 +105,12 @@ module IOInterfaceTestbench();
         Addr = 32'h80000000;
         io_recv = 1'b1;
         io_trans = 4'b000;
-        DUTout = dout;
         #(2 * Cycle);
         while (1'b0 == recieve_out[0])
         begin
             #(Cycle);
         end
+        DUTout = dout;
         checkOutput(rd2);
 
         $display("\n\nALL TESTS PASSED!");
