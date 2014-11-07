@@ -199,7 +199,7 @@ module Riscv150(
       out_write<=out;
       opcodew <= opcodex;
       next_PC_write <= next_PC_execute;
-      AIUPC_imm <= PC_imm;
+      AIUPC_imm <= PC_execute;
       forwarded<=out;
       rd_write <=rd;
       CWE3<=CWE2;
