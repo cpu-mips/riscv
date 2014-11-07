@@ -57,7 +57,7 @@ module Riscv150(
 );
    reg [31:0] 	   inst, a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_fetch_wire;
    wire [31:0] 	   out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, inst_fetch;
-   reg [13:0] 	   PC, PC_next, next_PC_execute, PC_execute,PC_execute_JAL,  next_PC_write, PCJAL;
+   reg [13:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
    reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
    reg [6:0] 	   opcodew;
