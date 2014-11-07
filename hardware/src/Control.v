@@ -73,7 +73,7 @@ module Control(
             end
             `OPC_JAL:
             begin
-                lui_reg = 1'b1;
+                lui_reg = 1'b0;
                 pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'bxx;
@@ -82,7 +82,7 @@ module Control(
             end
             `OPC_JALR:
             begin
-                lui_reg = 1'b1;
+                lui_reg = 1'b0;
                 pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b10;
