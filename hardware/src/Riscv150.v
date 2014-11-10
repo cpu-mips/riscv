@@ -76,7 +76,8 @@ module Riscv150(
    wire 	   zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
-
+   
+   parameter NOP=32'd19;
    assign ena_hardwire = 1;
    assign rd2_mem = rd2[13:2];
 
@@ -224,7 +225,7 @@ module Riscv150(
       begin
           PC_next = PC + 4;
       end
-      inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch;
+      inst_fetch_wire = (noop) ? NOOP : inst_fetch;
 
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
