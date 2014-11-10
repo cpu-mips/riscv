@@ -3,7 +3,7 @@
 
 module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX, 
 	input [4:0] rd, input[4:0] rs1, input[4:0] rs2, input diverge, 
-	output reg CWE2, output reg  ForwardA, output reg ForwardB, output reg delayW, output regdelayX);
+	output reg CWE2, output reg  ForwardA, output reg ForwardB, output reg delayW, output reg delayX);
 
 always @(*) begin
     if (stall == 0) begin
