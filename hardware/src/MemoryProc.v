@@ -19,7 +19,7 @@ module MemoryProc(
     output [31:0] Proc_Mem);
 
     reg [31:0] mem_reg;
-    wire [1:0] = offset;
+    wire [1:0] offset;
 
     assign offset = Address[1:0];
     assign Proc_Mem = mem_reg;
