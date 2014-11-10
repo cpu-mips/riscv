@@ -19,7 +19,9 @@ module MemoryProc(
     output [31:0] Proc_Mem);
 
     reg [31:0] mem_reg;
+    wire [1:0] offset;
 
+    assign offset = Address[1:0];
     assign Proc_Mem = mem_reg;
 
     always@(*)
@@ -28,10 +30,34 @@ module MemoryProc(
             `OPC_LOAD:
             begin
                 case (Funct3)
-                    `FNC_LB:mem_reg = $signed(Mem[7:0]);
-                    `FNC_LH:mem_reg = $signed(Mem[15:0]);
-                    `FNC_LBU:mem_reg = Mem[7:0];
-                    `FNC_LHU:mem_reg = Mem[15:0];
+                    `FNC_LB:
+                        case (offset)
+                            00:mem_reg = $signed(Mem[7:0]);
+                            01:mem_reg = $signed(Mem[15:8]);
+                            10:mem_reg = $signed(Mem[23:16]);
+                            11:mem_reg = $signed(Mem[31:24]);
+                            default: mem_reg = 32'bx;
+                        endcase
+                    `FNC_LH:
+                        case (offset)
+                            00:mem_reg = $signed(Mem[15:0]);
+                            10:mem_reg = $signed(Mem[31:16]);
+                            default: mem_reg = 32'bx;
+                        endcase
+                    `FNC_LBU:
+                        case (offset)
+                            00:mem_reg = Mem[7:0];
+                            01:mem_reg = Mem[15:8];
+                            10:mem_reg = Mem[23:16];
+                            11:mem_reg = Mem[31:24];
+                            default: mem_reg = 32'bx;
+                        endcase
+                    `FNC_LHU:
+                        case (offset)
+                            00:mem_reg = Mem[15:0];
+                            10:mem_reg = Mem[31:16];
+                            default: mem_reg = 32'bx;
+                        endcase
                     default:mem_reg = Mem;
                 endcase
             end
