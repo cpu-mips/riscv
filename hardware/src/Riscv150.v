@@ -137,7 +137,7 @@ module Riscv150(
    HazardController hazard(.stall(stall), 
 			   .OpcodeW(opcodew), 
 			   .OpcodeX(opcodex), 
-			   .rd(rd), 
+			   .rd(rd_write), 
 			   .rs1(rs1), 
 			   .rs2(rs2), 
 			   .isZero(diverge), 
