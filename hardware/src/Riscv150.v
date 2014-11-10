@@ -89,7 +89,7 @@ module Riscv150(
 		     .dina(rd2),
 		     .clkb(clk),
 		     .addrb(PC[13:2]),
-		     .doutb(inst_fetch));
+		     .doutb(inst));
     // Instantiate the data memory here (checkpoint 1 only)
    dmem_blk_ram dmem(.clka(clk),
            .ena(delayW),
@@ -192,7 +192,7 @@ module Riscv150(
       PC<=PC_next;
       
       // Execute stage
-      inst<=inst_fetch_wire;
+      //inst<=inst_fetch_wire;
       next_PC_execute <= PC+4;
       PC_execute<=PC;
       end
@@ -229,7 +229,6 @@ module Riscv150(
           PC_next = PC + 4;
       end
       //inst_fetch_wire = (noop) ? NOOP : inst_fetch;
-      inst_fetch_wire = inst_fetch;
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
       PCJAL = (isJALR) ? (out & 12'b111111111110) : PC_imm;
