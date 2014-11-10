@@ -28,10 +28,34 @@ module MemoryProc(
             `OPC_LOAD:
             begin
                 case (Funct3)
-                    `FNC_LB:mem_reg = $signed(Mem[7:0]);
-                    `FNC_LH:mem_reg = $signed(Mem[15:0]);
-                    `FNC_LBU:mem_reg = Mem[7:0];
-                    `FNC_LHU:mem_reg = Mem[15:0];
+                    `FNC_LB:
+                        case (Address[1:0])
+                            00:mem_reg = $signed(Mem[7:0]);
+                            01:mem_reg = $signed(Mem[15:8]);
+                            10:mem_reg = $signed(Mem[23:16]);
+                            11:mem_reg = $signed(Mem[31:24]);
+                            default: mem_reg = 32'bx;
+                        endcase
+                    `FNC_LH:
+                        case ()
+                            00:mem_reg = $signed(Mem[15:0]);
+                            10:mem_reg = $signed(Mem[31:16]);
+                            default: mem_reg = 32'bx;
+                        endcase
+                    `FNC_LBU:
+                        case ()
+                            00:mem_reg = Mem[7:0];
+                            01:mem_reg = Mem[15:8];
+                            10:mem_reg = Mem[23:16];
+                            11:mem_reg = Mem[31:24];
+                            default: mem_reg = 32'bx;
+                        endcase
+                    `FNC_LHU:
+                        case ()
+                            00:mem_reg = Mem[15:0];
+                            10:mem_reg = Mem[31:16];
+                            default: mem_reg = 32'bx;
+                        endcase
                     default:mem_reg = Mem;
                 endcase
             end
