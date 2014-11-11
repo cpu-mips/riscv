@@ -73,7 +73,7 @@ module Riscv150(
    wire [1:0] 	   dest;
    wire [3:0] 	   aluop;
    reg 		   CWE3, noop_next;
-   wire 	   noop, zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX;
+   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
    
@@ -199,7 +199,6 @@ module Riscv150(
       noop_next<=noop;
       end
       // Writeback stage
-      if (~delayW) begin
       funct3_write <= funct3;
       out_write<=out;
       opcodew <= opcodex;
@@ -208,7 +207,6 @@ module Riscv150(
       forwarded<=out;
       rd_write <=rd;
       CWE3<=CWE2;
-      end
    end 
    
    always @ (*) 
