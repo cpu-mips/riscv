@@ -191,11 +191,11 @@ module Riscv150(
    begin
       // Fetch stage
       if (enaX) begin
-      PC_next<=PC;
+      PC<=PC_next;
       
       // Execute stage
-      next_PC_execute <= PC_next+4;
-      PC_execute<=PC_next;
+      next_PC_execute <= PC+4;
+      PC_execute<=PC;
       noop_next<=noop;
       end
       // Writeback stage
@@ -217,14 +217,14 @@ module Riscv150(
       // Fetch Stage
       if (rst)
       begin
-          PC = 12'b0;
+          PC_next = 12'b0;
       end
       else if (diverge)
       begin
-          PC = PCJAL;
+          PC_next = PCJAL;
       end
       else
-          PC = PC_next+4;
+          PC_next = PC+4;
       inst_wire = (noop_next) ? NOP : inst;
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
