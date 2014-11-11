@@ -73,26 +73,25 @@ module Riscv150(
    wire [1:0] 	   dest;
    wire [3:0] 	   aluop;
    reg 		   CWE3;
-   wire 	   zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX;
+   wire 	   zero, pcdelay, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
-   
-   parameter NOP=32'd19;
-   assign enaX = ~(delayX||delayW)
+
+   assign ena_hardwire = 1;
    assign rd2_mem = rd2[13:2];
 
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
-		     .ena(enaX),
+		     .ena(ena_hardwire),
 		     .wea(imem_enable),
 		     .addra(rd2_mem),
 		     .dina(rd2),
 		     .clkb(clk),
 		     .addrb(PC[13:2]),
-		     .doutb(inst));
+		     .doutb(inst_fetch));
     // Instantiate the data memory here (checkpoint 1 only)
    dmem_blk_ram dmem(.clka(clk),
-           .ena(delayW),
+           .ena(ena_hardwire),
            .wea(dmem_enable),
            .addra(rd2_mem),
            .dina(rd2),
@@ -141,12 +140,12 @@ module Riscv150(
 			   .rd(rd_write), 
 			   .rs1(rs1), 
 			   .rs2(rs2), 
-			   .diverge(diverge), 
+			   .isZero(diverge), 
 			   .CWE2(CWE2),
+			   .noop(noop),
 			   .ForwardA(FA), 
 			   .ForwardB(FB), 
-			   .delayW(delayW),
-			   .delayX(delayX));
+			   .PCDelay(pcdelay));
   
    ImmController immcontroller(.Opcode(opcodex), 
 			       .immA(immA), 
@@ -188,16 +187,14 @@ module Riscv150(
    always @ (posedge clk) 
    begin
       // Fetch stage
-      if (enaX) begin
       PC<=PC_next;
       
       // Execute stage
-      //inst<=inst_fetch_wire;
+      inst<=inst_fetch_wire;
       next_PC_execute <= PC+4;
       PC_execute<=PC;
-      end
+
       // Writeback stage
-      if (~delayW) begin
       funct3_write <= funct3;
       out_write<=out;
       opcodew <= opcodex;
@@ -206,7 +203,6 @@ module Riscv150(
       forwarded<=out;
       rd_write <=rd;
       CWE3<=CWE2;
-      end
    end 
    
    always @ (*) 
@@ -228,7 +224,8 @@ module Riscv150(
       begin
           PC_next = PC + 4;
       end
-      //inst_fetch_wire = (noop) ? NOOP : inst_fetch;
+      inst_fetch_wire = (noop) ? `OPC_NOOP : inst_fetch;
+
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
       PCJAL = (isJALR) ? (out & 12'b111111111110) : PC_imm;
