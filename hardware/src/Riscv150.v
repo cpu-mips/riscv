@@ -56,7 +56,7 @@ module Riscv150(
 `endif
 );
    reg [31:0] 	   a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_wire;
-   wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, inst_fetch;
+   wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out;
    reg [13:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
    reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
@@ -71,8 +71,9 @@ module Riscv150(
    wire [2:0] 	   funct3;
    reg [2:0] 	   funct3_write;
    wire [1:0] 	   dest;
+   reg [1:0]       dest_write;
    wire [3:0] 	   aluop;
-   reg 		   CWE3, noop_next;
+   reg 		   CWE3, noop_next, uart_recv_write, isJAL_write;
    wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
@@ -193,12 +194,14 @@ module Riscv150(
       PC<=PC_next;
       
       // Execute stage
-      //inst<=inst_fetch_wire;
       next_PC_execute <= PC+4;
       PC_execute<=PC;
       noop_next<=noop;
       end
       // Writeback stage
+      isJAL_write <= isJAL;
+      dest_write<=dest;
+      uart_recv_write <= uart_recv; 
       funct3_write <= funct3;
       out_write<=out;
       opcodew <= opcodex;
@@ -258,19 +261,19 @@ module Riscv150(
 
 
       //Writeback Stage
-      Dmem_UART_Out = (uart_recv) ? UART_out : Dmem_out;
+      Dmem_UART_Out = (uart_recv_write) ? UART_out : Dmem_out;
       AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
       JALR_data = (isJAL) ? next_PC_write : AIUPC_out;
       Data_UART = (uart_trans) ? UART_out : dmem_out;
-      if (dest == 2'b00) 
+      if (dest_write == 2'b00) 
       begin
           val = forwarded;
       end
-      else if (dest == 2'b01) 
+      else if (dest_write == 2'b01) 
       begin
           val = Proc_Mem_Out;
       end
-      else if (dest == 2'b10) 
+      else if (dest_write == 2'b10) 
       begin
           val = JALR_data;
       end
