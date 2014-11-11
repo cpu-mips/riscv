@@ -24,6 +24,7 @@ hardware/src/bios_mem/bios_mem.xco
 hardware/build/
 hardware/sim/build/
 hardware/sim/results/
+hardware/sim/tests//
 *flist.txt
 *gen_readme.txt
 *.elf
