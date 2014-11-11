@@ -74,7 +74,7 @@ module Riscv150(
    reg [1:0]       dest_write;
    wire [3:0] 	   aluop;
    reg 		   CWE3, noop_next, uart_recv_write, isJAL_write;
-   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX;
+   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
    
@@ -93,7 +93,7 @@ module Riscv150(
 		     .doutb(inst));
     // Instantiate the data memory here (checkpoint 1 only)
    dmem_blk_ram dmem(.clka(clk),
-           .ena(delayW),
+           .ena(~delayW),
            .wea(dmem_enable),
            .addra(rd2_mem),
            .dina(rd2),
@@ -191,7 +191,8 @@ module Riscv150(
    begin
       // Fetch stage
       if (enaX) begin
-      PC_next <= PC+4;      
+      PC_next <= PC+4;
+      //PC_next <=(pcdelay)?PC: PC+4;      
 
       // Execute stage
       next_PC_execute <= PC+4;
@@ -223,6 +224,8 @@ module Riscv150(
       begin
           PC = PCJAL;
       end
+      //else if (pcdelay)
+	//PC = PC;
       else
           PC = PC_next;
       inst_wire = (noop_next) ? NOP : inst;
@@ -263,7 +266,7 @@ module Riscv150(
       //Writeback Stage
       Dmem_UART_Out = (uart_recv_write) ? UART_out : Dmem_out;
       AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
-      JALR_data = (isJAL) ? next_PC_write : AIUPC_out;
+      JALR_data = (isJAL_write) ? next_PC_write : AIUPC_out;
       Data_UART = (uart_trans) ? UART_out : dmem_out;
       if (dest_write == 2'b00) 
       begin
