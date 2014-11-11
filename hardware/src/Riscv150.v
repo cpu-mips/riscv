@@ -57,7 +57,7 @@ module Riscv150(
 );
    reg [31:0] 	   a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_wire;
    wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out;
-   reg [13:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
+   reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
    reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
    reg [6:0] 	   opcodew;
@@ -191,8 +191,8 @@ module Riscv150(
    begin
       // Fetch stage
       if (enaX) begin
-      PC<=PC_next;
-      
+      PC_next <= PC+4;      
+
       // Execute stage
       next_PC_execute <= PC+4;
       PC_execute<=PC;
@@ -217,14 +217,14 @@ module Riscv150(
       // Fetch Stage
       if (rst)
       begin
-          PC_next = 12'b0;
+          PC = 12'b0;
       end
       else if (diverge)
       begin
-          PC_next = PCJAL;
+          PC = PCJAL;
       end
       else
-          PC_next = PC+4;
+          PC = PC_next;
       inst_wire = (noop_next) ? NOP : inst;
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
