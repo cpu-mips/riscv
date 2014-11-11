@@ -222,7 +222,8 @@ module Riscv150(
       begin
           PC_next = PCJAL;
       end
-      PC_next = PC+4;
+      else
+          PC_next = PC+4;
       inst_wire = (noop_next) ? NOP : inst;
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
