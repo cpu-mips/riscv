@@ -55,7 +55,7 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-   reg [31:0] 	   a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out, inst_wire;
+   reg [31:0] 	   a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out;
    wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out;
    reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL;
    reg [31:0] 	   PC_imm, AIUPC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
@@ -73,8 +73,8 @@ module Riscv150(
    wire [1:0] 	   dest;
    reg [1:0]       dest_write;
    wire [3:0] 	   aluop;
-   reg 		   CWE3, noop_next, uart_recv_write, isJAL_write;
-   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay;
+   reg 		   CWE3, uart_recv_write, isJAL_write;
+   wire 	   zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
    
@@ -147,8 +147,8 @@ module Riscv150(
 			   .ForwardA(FA), 
 			   .ForwardB(FB), 
 			   .delayW(delayW),
-			   .delayX(delayX),
-			   .noop(noop));
+			   .delayX(delayX)
+			   );
   
    ImmController immcontroller(.Opcode(opcodex), 
 			       .immA(immA), 
@@ -156,7 +156,7 @@ module Riscv150(
 			       .immC(immC), 
 			       .immD(immD), 
 			       .imm(imm));
-   Splitter splitter(.Instruction(inst_wire), 
+   Splitter splitter(.Instruction(inst), 
 		     .Opcode(opcodex), 
 		     .Funct3(funct3), 
 		     .Funct7(funct7), 
@@ -198,7 +198,6 @@ module Riscv150(
       // Execute stage
       next_PC_execute <= PC+4;
       PC_execute<=PC;
-      noop_next<=noop;
       end
       // Writeback stage
       isJAL_write <= isJAL;
@@ -224,7 +223,7 @@ module Riscv150(
       else if (!enaX) PC = PC_execute;
       else
           PC = PC_next;
-      inst_wire = (noop_next) ? NOP : inst;
+
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
       PCJAL = (isJALR) ? (out & 12'b111111111110) : PC_imm;
