@@ -191,7 +191,8 @@ module Riscv150(
    begin
       // Fetch stage
       if (enaX) begin
-      PC_next <= PC+4;
+      if (rst) PC_next <= 12'b0;
+      else PC_next <= PC+4;
       //PC_next <=(pcdelay)?PC: PC+4;      
 
       // Execute stage
@@ -216,16 +217,11 @@ module Riscv150(
    always @ (*) 
    begin
       // Fetch Stage
-      if (rst)
-      begin
-          PC = 12'b0;
-      end
-      else if (diverge)
+      if (diverge)
       begin
           PC = PCJAL;
       end
-      //else if (pcdelay)
-	//PC = PC;
+      else if (!enaX) PC = PC_execute;
       else
           PC = PC_next;
       inst_wire = (noop_next) ? NOP : inst;
