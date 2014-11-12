@@ -21,14 +21,26 @@ always @(*) begin
 	  delayW = 0;
 	  CWE2 = 1;
        end 
-      `OPC_ARI_LUI: begin
+      `OPC_LUI: begin
           ForwardA = (rd == rs1 && rd != 0)?1:0;
           ForwardB = (rd == rs2 && rd != 0)?1:0;
           delayW = 0;
           CWE2 = 1;
       end
-      `OPC_ARI_AUIPC: begin
+      `OPC_AUIPC: begin
           ForwardA = (rd == rs1 && rd != 0)?1:0; 
+          ForwardB = (rd == rs2 && rd != 0)?1:0;
+          delayW = 0;
+          CWE2 = 1;
+      end
+      `OPC_JAL: begin
+          ForwardA = (rd == rs1 && rd != 0)?1:0;
+          ForwardB = (rd == rs2 && rd != 0)?1:0;
+          delayW = 0;
+          CWE2 = 1;
+      end
+      `OPC_JALR: begin
+          ForwardA = (rd == rs1 && rd != 0)?1:0;
           ForwardB = (rd == rs2 && rd != 0)?1:0;
           delayW = 0;
           CWE2 = 1;
