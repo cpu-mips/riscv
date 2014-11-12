@@ -11,16 +11,40 @@ always @(*) begin
     case (OpcodeW) 
        `OPC_ARI_RTYPE: begin
 	  ForwardA = (rd == rs1 && rd != 0)?1:0;
-	  ForwardB = (rd == rs2 && OpcodeX != `OPC_ARI_ITYPE &&  rd != 0)?1:0;
+	  ForwardB = (rd == rs2 &&  rd != 0)?1:0;
 	  delayW = 0;
 	  CWE2 = 1;    
        end
        `OPC_ARI_ITYPE: begin
 	  ForwardA = (rd == rs1 && rd != 0)?1:0;
-	  ForwardB = (rd == rs2 && OpcodeX != `OPC_ARI_ITYPE && rd != 0)?1:0;
+	  ForwardB = (rd == rs2 && rd != 0)?1:0;
 	  delayW = 0;
 	  CWE2 = 1;
        end 
+      `OPC_LUI: begin
+          ForwardA = (rd == rs1 && rd != 0)?1:0;
+          ForwardB = (rd == rs2 && rd != 0)?1:0;
+          delayW = 0;
+          CWE2 = 1;
+      end
+      `OPC_AUIPC: begin
+          ForwardA = (rd == rs1 && rd != 0)?1:0; 
+          ForwardB = (rd == rs2 && rd != 0)?1:0;
+          delayW = 0;
+          CWE2 = 1;
+      end
+      `OPC_JAL: begin
+          ForwardA = (rd == rs1 && rd != 0)?1:0;
+          ForwardB = (rd == rs2 && rd != 0)?1:0;
+          delayW = 0;
+          CWE2 = 1;
+      end
+      `OPC_JALR: begin
+          ForwardA = (rd == rs1 && rd != 0)?1:0;
+          ForwardB = (rd == rs2 && rd != 0)?1:0;
+          delayW = 0;
+          CWE2 = 1;
+      end
       `OPC_LOAD: begin
 	  ForwardA = 0;
 	  ForwardB = 0;
