@@ -143,6 +143,8 @@ module Riscv150(
 			   .rs1(rs1), 
 			   .rs2(rs2), 
 			   .diverge(diverge), 
+                           .PC_X(PC_execute),
+                           .PC_W(AIUPC_imm),
 			   .CWE2(CWE2),
 			   .ForwardA(FA), 
 			   .ForwardB(FB), 
@@ -262,7 +264,6 @@ module Riscv150(
       Dmem_UART_Out = (uart_recv_write) ? UART_out : Dmem_out;
       AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
       JALR_data = (isJAL_write) ? next_PC_write : AIUPC_out;
-      Data_UART = (uart_trans) ? UART_out : dmem_out;
       if (dest_write == 2'b00) 
       begin
           val = forwarded;
