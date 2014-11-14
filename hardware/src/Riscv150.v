@@ -80,7 +80,7 @@ module Riscv150(
    
    parameter NOP=32'd19;
    assign enaX = ~(delayX||delayW);
-   assign rd2_mem = rd2[13:2];
+   assign rd2_mem = out[13:2];
    assign ena_hardwire = 1;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
@@ -131,6 +131,7 @@ module Riscv150(
    MemControl memcontrol(.Opcode(opcodex),
 			 .Funct3(funct3),
 			 .A(out),
+             .haz_ena(enaX),
 			 .Dmem_enable(dmem_enable),
 			 .Imem_enable(imem_enable),
 			 .Io_trans(uart_trans),

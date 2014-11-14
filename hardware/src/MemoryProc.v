@@ -32,30 +32,30 @@ module MemoryProc(
                 case (Funct3)
                     `FNC_LB:
                         case (offset)
-                            00:mem_reg = $signed(Mem[7:0]);
-                            01:mem_reg = $signed(Mem[15:8]);
-                            10:mem_reg = $signed(Mem[23:16]);
-                            11:mem_reg = $signed(Mem[31:24]);
+                            2'b00:mem_reg = $signed(Mem[7:0]);
+                            2'b01:mem_reg = $signed(Mem[15:8]);
+                            2'b10:mem_reg = $signed(Mem[23:16]);
+                            2'b11:mem_reg = $signed(Mem[31:24]);
                             default: mem_reg = 32'bx;
                         endcase
                     `FNC_LH:
                         case (offset)
-                            00:mem_reg = $signed(Mem[15:0]);
-                            10:mem_reg = $signed(Mem[31:16]);
+                            2'b00:mem_reg = $signed(Mem[15:0]);
+                            2'b10:mem_reg = $signed(Mem[31:16]);
                             default: mem_reg = 32'bx;
                         endcase
                     `FNC_LBU:
                         case (offset)
-                            00:mem_reg = Mem[7:0];
-                            01:mem_reg = Mem[15:8];
-                            10:mem_reg = Mem[23:16];
-                            11:mem_reg = Mem[31:24];
+                            2'b00:mem_reg = Mem[7:0];
+                            2'b01:mem_reg = Mem[15:8];
+                            2'b10:mem_reg = Mem[23:16];
+                            2'b11:mem_reg = Mem[31:24];
                             default: mem_reg = 32'bx;
                         endcase
                     `FNC_LHU:
                         case (offset)
-                            00:mem_reg = Mem[15:0];
-                            10:mem_reg = Mem[31:16];
+                            2'b00:mem_reg = Mem[15:0];
+                            2'b10:mem_reg = Mem[31:16];
                             default: mem_reg = 32'bx;
                         endcase
                     default:mem_reg = Mem;

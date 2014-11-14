@@ -18,6 +18,7 @@ module MemControl(
     input [6:0] Opcode,
     input [2:0] Funct3,
     input [31:0] A,
+    input haz_ena,
     output [3:0] Dmem_enable,
     output [3:0] Imem_enable,
     output [3:0] Io_trans,
@@ -90,7 +91,14 @@ module MemControl(
                 end
                 if (4'b1000 == A[31:28])
                 begin
+                    if (1'b1 == haz_ena)
+                    begin
                     io_trans_reg = mask_reg;
+                    end
+                    else
+                    begin
+                        io_trans_reg = 4'b000;
+                    end
                 end
                 else
                 begin

@@ -8,4 +8,5 @@ add wave EchoTestbench/CPU/io/*
 add wave EchoTestbench/CPU/io/uart/*
 add wave EchoTestbench/CPU/io/uart/uatransmit/*
 add wave EchoTestbench/CPU/io/uart/uareceive/*
+add wave EchoTestbench/CPU/memoryproc/*
 run 10000us
