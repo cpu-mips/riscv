@@ -58,11 +58,14 @@ module EchoTestbench();
 
         // Wait until transmit is ready
         while (!DataInReady) #(Cycle);
+        $display("Transmit is ready!");
         DataInValid = 1'b1;
         #(Cycle)
         DataInValid = 1'b0;
+        $display("Transmission complete");
 
         // Wait for something to come back
+        $display("Standing by for data");
         while (!DataOutValid) #(Cycle);
         $display("Got %d", DataOut);
 

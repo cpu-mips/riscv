@@ -119,8 +119,8 @@ module Riscv150(
 		  .IO_recv(uart_recv),
 		  .Clock(clk),
 		  .Reset(rst),
-                  .FPGA_Sin(FPGA_Serial_Rx),
-                  .FPGA_Sout(FPGA_Serial_Tx),
+                  .FPGA_Sin(FPGA_SERIAL_RX),
+                  .FPGA_Sout(FPGA_SERIAL_TX),
 		  .Received(UART_out));
    MemoryProc memoryproc(.Mem(Dmem_UART_Out),
 			 .Opcode(opcodew),
