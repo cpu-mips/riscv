@@ -74,14 +74,14 @@ module Riscv150(
    reg [1:0]       dest_write;
    wire [3:0] 	   aluop;
    reg 		   CWE3, uart_recv_write, isJAL_write;
-   wire 	   zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay;
+   wire 	   zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay, ena_hardwire;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
    
    parameter NOP=32'd19;
    assign enaX = ~(delayX||delayW);
    assign rd2_mem = rd2[13:2];
-
+   assign ena_hardwire = 1;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(enaX),
@@ -93,7 +93,7 @@ module Riscv150(
 		     .doutb(inst));
     // Instantiate the data memory here (checkpoint 1 only)
    dmem_blk_ram dmem(.clka(clk),
-           .ena(~delayW),
+           .ena(ena_hardwire),
            .wea(dmem_enable),
            .addra(rd2_mem),
            .dina(rd2),
