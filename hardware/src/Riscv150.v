@@ -231,7 +231,7 @@ module Riscv150(
 
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
-      PCJAL = (isJALR) ? (out & 12'b111111111110) : PC_imm;
+      PCJAL = (isJALR) ? (out[13:0] & 14'b11111111111110) : PC_imm[13:0];
       if (FA)
       begin
           a = forwarded;

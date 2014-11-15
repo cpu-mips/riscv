@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module asmtestbench();
+module AsmTestbench();
 
     reg Clock, Reset;
     wire FPGA_SERIAL_RX, FPGA_SERIAL_TX;
@@ -47,7 +47,6 @@ module asmtestbench();
     initial begin
         // Reset. Has to be long enough to not be eaten by the debouncer.
         Reset = 0;
-        DataIn = 8'h7a;
         DataInValid = 0;
         DataOutReady = 0;
         #(100*Cycle)
@@ -56,8 +55,17 @@ module asmtestbench();
         #(30*Cycle)
         Reset = 0;
 
-	#(200*Cycle)
-
+        $display("Standing by for UART");
+        while(!DataOutValid) #(Cycle);
+        while("\n" != DataOut)
+        begin
+            while(!DataOutValid) #(Cycle);
+            $display("%s", DataOut);
+            DataOutReady = 1'b1;
+            #(Cycle);
+            DataOutReady = 1'b0;
+        end
+        $display("You got UART!"); 
         $finish();
     end
 
