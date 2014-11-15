@@ -84,7 +84,13 @@ module IOInterface(
                 dout_ready = 1'b0;
                 if (1'b1 == IO_trans[0])
                 begin
-                    din = rd2[7:0];
+                    case (Addr[1:0])
+                        2'b00:din = rd2[7:0];
+                        2'b01:din = rd2[15:8];
+                        2'b10:din = rd2[23:16];
+                        2'b11:din = rd2[31:24];
+                        default:din = 8'bx;
+                    endcase
                     din_valid = 1'b1;
                 end
                 else

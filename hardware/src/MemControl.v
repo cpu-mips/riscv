@@ -18,12 +18,15 @@ module MemControl(
     input [6:0] Opcode,
     input [2:0] Funct3,
     input [31:0] A,
+    input [31:0] rd2,
     input haz_ena,
     output [3:0] Dmem_enable,
     output [3:0] Imem_enable,
     output [3:0] Io_trans,
-    output Io_recv);
+    output Io_recv,
+    output [31:0] shifted_rd2);
 
+    reg [31:0] out_rd2_reg;
     reg [3:0] dmem_reg, imem_reg, mask_reg, io_trans_reg;
     reg io_recv_reg;
 
@@ -31,6 +34,7 @@ module MemControl(
     assign Imem_enable = imem_reg;
     assign Io_trans = io_trans_reg;
     assign Io_recv = io_recv_reg;
+    assign shifted_rd2 = out_rd2_reg;
 
     always@(*)
     begin
@@ -56,22 +60,58 @@ module MemControl(
                     `FNC_SB:
                     begin
                         case (A[1:0])
-                            2'b00:mask_reg = 4'b0001;
-                            2'b01:mask_reg = 4'b0010;
-                            2'b10:mask_reg = 4'b0100;
-                            2'b11:mask_reg = 4'b1000;
-                            default:mask_reg = 4'bx;
+                            2'b00:
+                            begin
+                                mask_reg = 4'b0001;
+                                out_rd2_reg = rd2;
+                            end
+                            2'b01:
+                            begin
+                                mask_reg = 4'b0010;
+                                out_rd2_reg = rd2 << 8;
+                            end
+                            2'b10:
+                            begin
+                                mask_reg = 4'b0100;
+                                out_rd2_reg = rd2 << 16;
+                            end
+                            2'b11:
+                            begin
+                                mask_reg = 4'b1000;
+                                out_rd2_reg = rd2 << 24;
+                            end
+                            default:
+                            begin
+                                mask_reg = 4'bx;
+                                out_rd2_reg = rd2;
+                            end
                         endcase
                     end
                     `FNC_SH:
                     begin
                         case (A[1:0])
-                            2'b00:mask_reg = 4'b0011;
-                            2'b10:mask_reg = 4'b1100;
-                            default:mask_reg = 4'bx;
+                            2'b00:
+                            begin
+                                mask_reg = 4'b0011;
+                                out_rd2_reg = rd2;
+                            end
+                            2'b10:
+                            begin
+                                mask_reg = 4'b1100;
+                                out_rd2_reg = rd2 << 8;
+                            end
+                            default:
+                            begin
+                                mask_reg = 4'bx;
+                                out_rd2_reg = rd2;
+                            end
                         endcase
                     end
-                    default:mask_reg = 4'b1111;
+                    default:
+                    begin
+                        mask_reg = 4'b1111;
+                        out_rd2_reg = rd2;
+                    end
                 endcase
                 if (1'b0 == A[31] && 1'b1 == A[28])
                 begin

@@ -56,7 +56,7 @@ module Riscv150(
 `endif
 );
    reg [31:0] 	   a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out;
-   wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out;
+   wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in;
    reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
    reg [31:0] 	   PC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
@@ -87,7 +87,7 @@ module Riscv150(
 		     .ena(enaX),
 		     .wea(imem_enable),
 		     .addra(rd2_mem),
-		     .dina(rd2),
+		     .dina(mem_in),
 		     .clkb(clk),
 		     .addrb(PC[13:2]),
 		     .doutb(inst));
@@ -96,7 +96,7 @@ module Riscv150(
            .ena(ena_hardwire),
            .wea(dmem_enable),
            .addra(rd2_mem),
-           .dina(rd2),
+           .dina(mem_in),
            .douta(Dmem_out));
    RegFile regfile(.clk(clk),
 		   .we(CWE3),
@@ -113,7 +113,7 @@ module Riscv150(
 	   .ALUop(aluop), 
 	   .Out(out), 
 	   .Zero(zero));
-   IOInterface io(.rd2(rd2),
+   IOInterface io(.rd2(mem_in),
 		  .Addr(out),
 		  .IO_trans(uart_trans),
 		  .IO_recv(uart_recv),
@@ -131,11 +131,13 @@ module Riscv150(
    MemControl memcontrol(.Opcode(opcodex),
 			 .Funct3(funct3),
 			 .A(out),
+             .rd2(rd2),
              .haz_ena(enaX),
 			 .Dmem_enable(dmem_enable),
 			 .Imem_enable(imem_enable),
 			 .Io_trans(uart_trans),
-			 .Io_recv(uart_recv));
+			 .Io_recv(uart_recv),
+             .shifted_rd2(mem_in));
    
    HazardController hazard(.stall(stall), 
 			   .OpcodeW(opcodew), 
