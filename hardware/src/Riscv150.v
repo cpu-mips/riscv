@@ -55,7 +55,7 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-   reg [31:0] 	   a,out_write, b, forwarded, val, dmem_out, Data_UART, inst_mem_out;
+   reg [31:0] 	   a,out_write, b, forwarded, val, Data_UART, inst_mem_out;
    wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in;
    reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
    reg [31:0] 	   PC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
