@@ -210,6 +210,12 @@ module Riscv150(
           next_PC_execute <= PC+4;
           PC_execute<=PC;
       end
+      else
+      begin
+          PC_next <= PC_next;
+          next_PC_execute <= next_PC_execute;
+          PC_execute <= PC_execute;
+      end
 
       // Writeback stage
       isJAL_write <= isJAL;
