@@ -130,7 +130,7 @@ module Control(
             begin
                 lui_reg = 1'b0;
                 pass_reg = 1'b0;
-                alusrc2_reg = 1'b1;
+                alusrc2_reg = 1'b0;
                 dest_reg = 2'b00;
                 jal_reg = 1'b0;
                 jalr_reg = 1'b0;
