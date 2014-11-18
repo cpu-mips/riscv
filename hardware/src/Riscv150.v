@@ -248,10 +248,6 @@ module Riscv150(
       begin
           a = forwarded;
       end
-      else if (pass2)
-      begin
-          a = 32'b0;
-      end
       else if (lui2)
       begin
           a = 12;
