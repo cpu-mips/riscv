@@ -217,7 +217,7 @@ module Riscv150(
       end
       else
       begin
-          PC <= PC_excute;
+          PC <= PC_execute;
           next_PC_execute <= next_PC_execute;
           PC_execute <= PC_execute;
       end
