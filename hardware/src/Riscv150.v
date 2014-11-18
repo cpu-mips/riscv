@@ -201,9 +201,13 @@ module Riscv150(
           begin
               PC <= 12'b0;
           end
+          else if (diverge)
+          begin
+            PC <= PCJAL;
+          end
           else 
           begin
-              PC <= PC_next;
+              PC <= PC + 4;
           end
 
           // Execute stage
@@ -213,7 +217,7 @@ module Riscv150(
       end
       else
       begin
-          PC <= PC;
+          PC <= PC_execute;
           next_PC_execute <= next_PC_execute;
           PC_execute <= PC_execute;
       end
@@ -234,15 +238,6 @@ module Riscv150(
    
    always @ (*) 
    begin
-      // Fetch Stage
-      if (diverge)
-      begin
-          PC_next = PCJAL;
-      end
-      else
-      begin
-          PC_next = PC+4;
-      end
 
       //Execute Stage
       inst_final = (noop_final)? NOP:inst;
