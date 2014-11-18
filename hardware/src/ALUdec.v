@@ -31,6 +31,7 @@ module ALUdec(
                     `FNC_BGE: ALUop = `ALU_SLT;
                     `FNC_BLTU: ALUop = `ALU_SLTU;
                     `FNC_BGEU: ALUop = `ALU_SLTU;
+                    default: ALUop = `ALU_XXX;
                 endcase
             end
             `OPC_STORE: ALUop = `ALU_ADD;
@@ -43,6 +44,7 @@ module ALUdec(
                         case(add_rshift_type) 
                             `FNC2_ADD: ALUop = `ALU_ADD;
                             `FNC2_SUB: ALUop = `ALU_SUB;
+                            default: ALUop = `ALU_XXX;
                         endcase
                     end
                     `FNC_SLL: ALUop = `ALU_SLL;
@@ -56,8 +58,10 @@ module ALUdec(
                         case(add_rshift_type) 
                             `FNC2_SRL: ALUop = `ALU_SRL;
                             `FNC2_SRA: ALUop = `ALU_SRA;
+                            default: ALUop = `ALU_XXX;
                         endcase
                     end
+                    default: ALUop = `ALU_XXX;
                 endcase
             end
             `OPC_ARI_ITYPE: 
@@ -74,8 +78,10 @@ module ALUdec(
                     case(add_rshift_type)
                       `FNC2_SRL: ALUop = `ALU_SRL;
                       `FNC2_SRA: ALUop = `ALU_SRA;
+                      default: ALUop = `ALU_XXX;
                     endcase // case (add_rshift_type)
-                   end
+                 end
+                 default: ALUop = `ALU_XXX;
                endcase // case (funct)
 	        
           `OPC_JALR: ALUop = `ALU_ADD;
