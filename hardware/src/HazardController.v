@@ -60,7 +60,7 @@ always @(*) begin
     endcase // case (OpcodeW)
     case (OpcodeX)
        `OPC_BRANCH: begin
-            noop = 1;
+            noop = (diverge)?1:0;
 	 end
        `OPC_JALR: begin
             noop = 1;
