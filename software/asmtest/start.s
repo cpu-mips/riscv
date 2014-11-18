@@ -30,13 +30,57 @@ addi x7, x7, 0x1
 bne x2, x12, Error
 
 # Add more tests here!
-# Test 3
+# Test 3: AIUPC
 auipc x8, 0x00001
 addi x9, x0, 0x34
 addi x10, x0, 0x00001
 slli x10, x10, 0xc
 add x10, x10, x9
 bne x8, x10, Error
+
+#Test 4: SLT
+addi x8, x0, 0x8
+add x9, x8, x7
+slt x10, x9, x8
+bne x10, x0, Error
+slt x10, x8, x9
+beq x10, x0, Error
+slti x10, x9, 0x8
+bne x10, x0, Error
+
+#Test 5: shifts
+srli x9, x8, 0x3
+addi x10, x0, 0x1
+bne x9, x10, Error
+sll x9, x9, x10
+addi x11, x0, 0x2
+bne x11, x9, Error
+
+#Test 6: logic operations
+addi x9,x0,0xf
+or x10, x9, x0
+bne x9, x10, Error
+xor x10, x9, x0
+bne x10, x9, Error
+and x10, x9, x0
+bne x10, x0, Error
+
+#Test 7: Stores, loads
+sw x9, 0(x12)
+lw x10, 0(x12)
+bne x9, x10, Error
+
+#Test 8: Mother-of-all Hazards
+#lw x11, 0(x12)
+#add x9, x11, x10
+
+#Test 9: Writing to x0
+add x9, x0, x0
+j Test
+
+Test:
+bne x0, x9, Error
+
 j Pass
 
 Error:
