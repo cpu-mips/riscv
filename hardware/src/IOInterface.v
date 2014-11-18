@@ -48,7 +48,7 @@ module IOInterface(
     begin
         if (Reset)
         begin
-            synch_io_out <= 32'b0;
+            synch_io_out <= 32'b0;;
             Addr_reg <= 32'b0;
         end
         else
