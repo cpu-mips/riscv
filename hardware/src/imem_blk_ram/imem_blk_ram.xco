@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 14.6
-# Date: Thu Nov  6 02:40:15 2014
+# Date: Tue Nov 18 07:01:28 2014
 #
 ##############################################################
 #
@@ -43,7 +43,7 @@ CSET additional_inputs_for_power_estimation=false
 CSET algorithm=Minimum_Area
 CSET assume_synchronous_clk=false
 CSET byte_size=8
-CSET coe_file=./example.coe
+CSET coe_file=./echo.coe
 CSET collision_warnings=ALL
 CSET component_name=imem_blk_ram
 CSET disable_collision_warnings=false
@@ -97,4 +97,4 @@ CSET write_width_b=32
 MISC pkg_timestamp=2013-06-08T23:00:50Z
 # END Extra information
 GENERATE
-# CRC: 9eb4b2d2
+# CRC: 18e748ff
