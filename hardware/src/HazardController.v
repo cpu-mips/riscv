@@ -3,8 +3,8 @@
 
 module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX, 
 	input [4:0] rd, input[4:0] rs1, input[4:0] rs2, input diverge, input [13:0] PC_X,
-        input [13:0] PC_W, output reg CWE2, output reg  ForwardA, output reg ForwardB, 
-        output reg delayW, output reg delayX);
+        input [13:0] PC_W, output reg noop, output reg CWE2, output reg  ForwardA, output
+        reg ForwardB, output reg delayW);
 
 always @(*) begin
     //if (stall == 0) begin
@@ -60,11 +60,16 @@ always @(*) begin
     endcase // case (OpcodeW)
     case (OpcodeX)
        `OPC_BRANCH: begin
-	    //delayX = (diverge)?1:0;
-	    delayX = 0;
+            noop = 1;
 	 end
+       `OPC_JALR: begin
+            noop = 1;
+        end
+       `OPC_JAL: begin
+	    noop = 1;
+	end
 	 default: begin
-	    delayX = 0;
+	    noop = 0;
          end
        endcase // case (OpcodeX)
     //end // if (stall == 0)
