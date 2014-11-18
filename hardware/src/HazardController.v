@@ -7,7 +7,7 @@ module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX,
         output reg delayW, output reg delayX);
 
 always @(*) begin
-    if (stall == 0) begin
+    //if (stall == 0) begin
     case (OpcodeW) 
        `OPC_ARI_RTYPE: begin
 	  ForwardA = (rd == rs1 && rd != 0 && PC_X != PC_W)?1:0;
@@ -67,13 +67,13 @@ always @(*) begin
 	    delayX = 0;
          end
        endcase // case (OpcodeX)
-    end // if (stall == 0)
+ /*   end // if (stall == 0)
     else begin
       ForwardA = 0;
        ForwardB = 0;
        delayW = 1;
        delayX = 1;
-    end // else: !if(stall == 0)
+    end // else: !if(stall == 0)*/
 end // always @ (*)
    
    endmodule // HazardController

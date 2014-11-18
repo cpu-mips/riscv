@@ -194,16 +194,23 @@ module Riscv150(
     // Instantiate your datapath here
    always @ (posedge clk) 
    begin
-      // Fetch stage
-      if (enaX) begin
-      if (rst) PC_next <= 12'b0;
-      else PC_next <= PC+4;
-      //PC_next <=(pcdelay)?PC: PC+4;      
+      if (enaX) 
+      begin
+          // Fetch stage
+          if (rst) 
+          begin
+              PC_next <= 12'b0;
+          end
+          else 
+          begin
+              PC_next <= PC+4;
+          end
 
-      // Execute stage
-      next_PC_execute <= PC+4;
-      PC_execute<=PC;
+          // Execute stage
+          next_PC_execute <= PC+4;
+          PC_execute<=PC;
       end
+
       // Writeback stage
       isJAL_write <= isJAL;
       dest_write<=dest;
@@ -225,9 +232,14 @@ module Riscv150(
       begin
           PC = PCJAL;
       end
-      else if (!enaX) PC = PC_execute;
+      else if (!enaX) 
+      begin
+          PC = PC_execute;
+      end
       else
+      begin
           PC = PC_next;
+      end
 
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
