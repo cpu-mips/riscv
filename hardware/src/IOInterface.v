@@ -98,6 +98,7 @@ module IOInterface(
                 end
                 else
                 begin
+                    din = 8'bx;
                     din_valid = 1'b0;
                 end
             end
