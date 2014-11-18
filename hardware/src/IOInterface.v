@@ -97,7 +97,6 @@ module IOInterface(
                 begin
                     din_valid = 1'b0;
                 end
-                din_valid = 1'b1;
             end
             default:
             begin
