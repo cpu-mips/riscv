@@ -55,7 +55,7 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-   reg [31:0] 	   a,out_write, b, forwarded, val, Data_UART, inst_mem_out;
+   reg [31:0] 	   inst_final,a,out_write, b, forwarded, val, Data_UART, inst_mem_out;
    wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in;
    reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
    reg [31:0] 	   PC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
@@ -73,13 +73,13 @@ module Riscv150(
    wire [1:0] 	   dest;
    reg [1:0]       dest_write;
    wire [3:0] 	   aluop;
-   reg 		   CWE3, uart_recv_write, isJAL_write;
-   wire 	   zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay, ena_hardwire;
+   reg 		   CWE3,noop_final, uart_recv_write, isJAL_write;
+   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay, ena_hardwire;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
    
    parameter NOP=32'd19;
-   assign enaX = ~(delayX||delayW);
+   assign enaX = ~(delayW);
    assign rd2_mem = out[13:2];
    assign ena_hardwire = 1;
     // Instantiate the instruction memory here (checkpoint 1 only)
@@ -152,7 +152,7 @@ module Riscv150(
 			   .ForwardA(FA), 
 			   .ForwardB(FB), 
 			   .delayW(delayW),
-			   .delayX(delayX)
+			   .noop(noop)
 			   );
   
    ImmController immcontroller(.Opcode(opcodex), 
@@ -161,7 +161,7 @@ module Riscv150(
 			       .immC(immC), 
 			       .immD(immD), 
 			       .imm(imm));
-   Splitter splitter(.Instruction(inst), 
+   Splitter splitter(.Instruction(inst_final), 
 		     .Opcode(opcodex), 
 		     .Funct3(funct3), 
 		     .Funct7(funct7), 
@@ -199,20 +199,21 @@ module Riscv150(
           // Fetch stage
           if (rst) 
           begin
-              PC_next <= 12'b0;
+              PC <= 12'b0;
           end
           else 
           begin
-              PC_next <= PC+4;
+              PC <= PC_next;
           end
 
           // Execute stage
           next_PC_execute <= PC + 4;
           PC_execute<=PC;
+          noop_final<=noop;
       end
       else
       begin
-          PC_next <= PC_next;
+          PC <= PC;
           next_PC_execute <= next_PC_execute;
           PC_execute <= PC_execute;
       end
@@ -236,18 +237,15 @@ module Riscv150(
       // Fetch Stage
       if (diverge)
       begin
-          PC = PCJAL;
-      end
-      else if (!enaX) 
-      begin
-          PC = PC_execute;
+          PC_next = PCJAL;
       end
       else
       begin
-          PC = PC_next;
+          PC_next = PC+4;
       end
 
       //Execute Stage
+      inst_final = (noop_final)? NOP:inst;
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
       PCJAL = (isJALR) ? {out[13:1], 1'b0}  : PC_imm[13:0];
       if (FA)
