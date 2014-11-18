@@ -30,7 +30,13 @@ addi x7, x7, 0x1
 bne x2, x12, Error
 
 # Add more tests here!
-
+# Test 3
+auipc x8, 0x00001
+addi x9, x0, 0x34
+addi x10, x0, 0x00001
+slli x10, x10, 0xc
+add x10, x10, x9
+bne x8, x10, Error
 j Pass
 
 Error:
