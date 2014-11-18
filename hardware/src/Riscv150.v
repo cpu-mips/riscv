@@ -207,7 +207,7 @@ module Riscv150(
           end
 
           // Execute stage
-          next_PC_execute <= PC+4;
+          next_PC_execute <= PC + 4;
           PC_execute<=PC;
       end
       else
@@ -249,7 +249,7 @@ module Riscv150(
 
       //Execute Stage
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
-      PCJAL = (isJALR) ? (out[13:0] & 14'b11111111111110) : PC_imm[13:0];
+      PCJAL = (isJALR) ? {out[13:1], 1'b0}  : PC_imm[13:0];
       if (FA)
       begin
           a = forwarded;
@@ -284,7 +284,7 @@ module Riscv150(
       //Writeback Stage
       Dmem_UART_Out = (uart_recv_write) ? UART_out : Dmem_out;
       AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
-      JALR_data = (isJAL_write) ? next_PC_write : AIUPC_out;
+      JALR_data = (isJAL_write) ? {18'b0, next_PC_write} : AIUPC_out;
       if (dest_write == 2'b00) 
       begin
           val = forwarded;
