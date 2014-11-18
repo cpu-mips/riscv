@@ -20,7 +20,7 @@ module IOInterface(
     output FPGA_Sout,
     output [31:0] Received);
 
-    wire dout_valid, din_ready, reset;
+    wire dout_valid, din_ready;
     reg  dout_ready, din_valid;
     wire [7:0] dout;
 

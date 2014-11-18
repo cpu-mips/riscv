@@ -67,8 +67,8 @@ always @(*) begin
 	    delayX = 0;
          end
        endcase // case (OpcodeX)
- /*   end // if (stall == 0)
-    else begin
+    //end // if (stall == 0)
+    /*else begin
       ForwardA = 0;
        ForwardB = 0;
        delayW = 1;
