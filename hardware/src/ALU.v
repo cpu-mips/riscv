@@ -50,8 +50,10 @@ module ALU(
 	    Out=B;
 	  `ALU_LUI:
 	    Out = B<<12;
-	  `ALU_XXX: Out = 32'bx;
-	  default: 32'bx;
+	  `ALU_XXX: 
+          Out = 32'bx;
+	  default: 
+          Out = 32'bx;
 	 endcase
 	 end 
 endmodule
