@@ -78,6 +78,7 @@ module IOInterface(
                 else
                 begin
                     io_out = 32'bx;
+                    dout_ready = 1'b0;
                 end
             end
             32'h80000008:
