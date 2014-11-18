@@ -7,8 +7,8 @@ CS150_CHKPNT := CS150_CHKPNT_1
 # Set the processor clock speed (in MHz) here.
 # Uncomment the appropriate line to set the desired speed.
 # These are the only 2 speeds supported.
-RISCV_CLK := RISCV_CLK_100
-#RISCV_CLK := RISCV_CLK_50
+#RISCV_CLK := RISCV_CLK_100
+RISCV_CLK := RISCV_CLK_50
 
 # Set a flag if checkpoint 2 or 3 is enabled. Do not change these lines.
 ifeq ($(CS150_CHKPNT), CS150_CHKPNT_2)
