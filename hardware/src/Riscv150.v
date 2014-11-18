@@ -220,6 +220,7 @@ module Riscv150(
           PC <= PC_execute;
           next_PC_execute <= next_PC_execute;
           PC_execute <= PC_execute;
+          noop_final <= noop;
       end
 
       // Writeback stage
