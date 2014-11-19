@@ -1,6 +1,6 @@
 SECTIONS
 {
-    . = 0x10000000;
+    . = 0x00002000;
     .text : {
         * (.start);
         * (.text);
