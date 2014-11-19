@@ -175,7 +175,6 @@ module Riscv150(
    Control control(.Opcode(opcodex),
 		   .Funct3(funct3),
 		   .Funct7(funct7),
-		   .Stall(stall),
 		   .Lui(lui2),
 		   .Pass(pass2),
 		   .ALUop(aluop),
@@ -274,7 +273,13 @@ module Riscv150(
       Dmem_UART_Out = (uart_recv_write) ? UART_out : Dmem_out;
       AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
       JALR_data = (isJAL_write) ? {18'b0, next_PC_write} : AIUPC_out;
-      if (dest_write == 2'b00) 
+      case (dest_write)
+          2'b00: val = forwarded;
+          2'b01: val = Proc_Mem_Out;
+          2'b10: val = JALR_data;
+          default: val = 32'bx;
+      endcase
+      /*if (dest_write == 2'b00) 
       begin
           val = forwarded;
       end
@@ -289,6 +294,6 @@ module Riscv150(
       else
       begin
           val = 32'bx;
-      end
+      end*/
    end
 endmodule

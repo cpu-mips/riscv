@@ -22,7 +22,6 @@ module Control(
     input [6:0] Opcode,
     input [2:0] Funct3,
     input [6:0] Funct7,
-    input Stall,
     output Lui,
     output Pass,
     output [3:0] ALUop,
