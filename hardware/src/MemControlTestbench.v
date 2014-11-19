@@ -160,6 +160,16 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
+        haz_ena = 1'b0;
+        A = 32'h8xxxxxx4;
+        opcode = `OPC_STORE;
+        funct3 = `FNC_SB;
+        REFImem_enable = 4'b0;
+        REFDmem_enable = 4'b0;
+        REFIo_trans = 4'b0000;
+        REFIo_recv = 1'bx;
+        #1;
+        checkOutput();
         $display("\n\nALL TESTS PASSED!");
         $finish();
     end
