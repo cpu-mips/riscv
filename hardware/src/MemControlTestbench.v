@@ -21,11 +21,13 @@ module MemControlTestbench();
     // Register and wires to test the adder
     reg [6:0] opcode;
     reg [2:0] funct3;
-    reg [31:0] A;
+    reg [31:0] A, rd2;
+    reg haz_ena;
     reg [3:0] REFImem_enable, REFDmem_enable, REFIo_trans;
     reg REFIo_recv;
 
     wire [3:0] DUTImem_enable, DUTDmem_enable, DUTIo_trans;
+    wire [31:0] rd2_out;
     wire DUTIo_recv;
 
     // Task for checking output
@@ -50,10 +52,13 @@ module MemControlTestbench();
         .Opcode(opcode),
         .Funct3(funct3),
         .A(A),
+        .rd2(32'bx),
+        .haz_ena(haz_ena),
         .Dmem_enable(DUTDmem_enable),
         .Imem_enable(DUTImem_enable),
         .Io_trans(DUTIo_trans),
-        .Io_recv(DUTIo_recv)
+        .Io_recv(DUTIo_recv),
+        .shifted_rd2(rd2_out)
     );
 
     // Testing logic:
@@ -61,6 +66,8 @@ module MemControlTestbench();
         ///////////////////////////////
         // Hard coded tests go here
         ///////////////////////////////
+
+        haz_ena = 1'b1;
 
         //Checking unsigned vs signed for negatives
         A = 32'h8xxxxxxx;

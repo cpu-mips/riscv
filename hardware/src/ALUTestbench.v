@@ -110,7 +110,7 @@ module ALUTestbench();
             opcode = `OPC_AUIPC;
             funct = $random & 3'b111;
             add_rshift_type = $random & 1'b1;
-            REFout = A + B;
+            REFout = B << 12;
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
