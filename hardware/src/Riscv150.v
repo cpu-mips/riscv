@@ -74,7 +74,7 @@ module Riscv150(
    reg [1:0]       dest_write;
    wire [3:0] 	   aluop;
    reg 		   CWE3,noop_final, uart_recv_write, isJAL_write;
-   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay, ena_hardwire;
+   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   rd2_mem;
    
@@ -139,8 +139,7 @@ module Riscv150(
 			 .Io_recv(uart_recv),
              .shifted_rd2(mem_in));
    
-   HazardController hazard(.stall(stall), 
-			   .OpcodeW(opcodew), 
+   HazardController hazard(.OpcodeW(opcodew), 
 			   .OpcodeX(opcodex), 
 			   .rd(rd_write), 
 			   .rs1(rs1), 
