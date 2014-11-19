@@ -55,8 +55,8 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-   reg [31:0] 	   inst_final,a,out_write, b, forwarded, val, Data_UART, inst_mem_out;
-   wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in;
+   reg [31:0] 	   inst_final,a,out_write, forwarded, val, Data_UART, inst_mem_out, rd2_or_forwarded;
+   wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in, b;
    reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
    reg [31:0] 	   PC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
@@ -76,17 +76,18 @@ module Riscv150(
    reg 		   CWE3,noop_final, uart_recv_write, isJAL_write;
    wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, delayX, pcdelay, ena_hardwire;
    wire [3:0] 	   imem_enable, dmem_enable;
-   wire [11:0] 	   rd2_mem;
+   wire [11:0] 	   addr;
    
    parameter NOP=32'd19;
    assign enaX = ~(delayW);
-   assign rd2_mem = out[13:2];
+   assign addr = out[13:2];
    assign ena_hardwire = 1;
+   assign b = (ALUSrcB2) ? imm : rd2_or_forwarded; 
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(enaX),
 		     .wea(imem_enable),
-		     .addra(rd2_mem),
+		     .addra(addr),
 		     .dina(mem_in),
 		     .clkb(clk),
 		     .addrb(PC[13:2]),
@@ -95,7 +96,7 @@ module Riscv150(
    dmem_blk_ram dmem(.clka(clk),
            .ena(ena_hardwire),
            .wea(dmem_enable),
-           .addra(rd2_mem),
+           .addra(addr),
            .dina(mem_in),
            .douta(Dmem_out));
    RegFile regfile(.clk(clk),
@@ -131,7 +132,7 @@ module Riscv150(
    MemControl memcontrol(.Opcode(opcodex),
 			 .Funct3(funct3),
 			 .A(out),
-             .rd2(rd2),
+             .rd2(rd2_or_forwarded),
              .haz_ena(enaX),
 			 .Dmem_enable(dmem_enable),
 			 .Imem_enable(imem_enable),
@@ -259,15 +260,11 @@ module Riscv150(
 
       if (FB)
       begin
-          b = forwarded;
-      end
-      else if (ALUSrcB2)
-      begin
-          b = imm;
+          rd2_or_forwarded = forwarded;
       end
       else
       begin
-          b = rd2;
+          rd2_or_forwarded = rd2;
       end
 
 
