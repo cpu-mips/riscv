@@ -194,47 +194,50 @@ module Riscv150(
     // Instantiate your datapath here
    always @ (posedge clk) 
    begin
-      if (enaX) 
-      begin
-          // Fetch stage
-          if (rst) 
+       if (~stall)
+       begin
+          if (enaX) 
           begin
-              PC <= 12'b0;
+              // Fetch stage
+              if (rst) 
+              begin
+                  PC <= 12'b0;
+              end
+              else if (diverge)
+              begin
+                PC <= PCJAL;
+              end
+              else 
+              begin
+                  PC <= PC + 4;
+              end
+
+              // Execute stage
+              next_PC_execute <= PC + 4;
+              PC_execute<=PC;
+              noop_final<=noop;
           end
-          else if (diverge)
+          else
           begin
-            PC <= PCJAL;
-          end
-          else 
-          begin
-              PC <= PC + 4;
+              PC <= PC_execute;
+              next_PC_execute <= next_PC_execute;
+              PC_execute <= PC_execute;
+              noop_final <= noop;
           end
 
-          // Execute stage
-          next_PC_execute <= PC + 4;
-          PC_execute<=PC;
-          noop_final<=noop;
+          // Writeback stage
+          isJAL_write <= isJAL;
+          dest_write<=dest;
+          uart_recv_write <= uart_recv; 
+          funct3_write <= funct3;
+          out_write<=out;
+          opcodew <= opcodex;
+          next_PC_write <= next_PC_execute;
+          AIUPC_imm <= PC_execute;
+          forwarded<=out;
+          rd_write <=rd;
+          CWE3<=CWE2;
       end
-      else
-      begin
-          PC <= PC_execute;
-          next_PC_execute <= next_PC_execute;
-          PC_execute <= PC_execute;
-          noop_final <= noop;
-      end
-
-      // Writeback stage
-      isJAL_write <= isJAL;
-      dest_write<=dest;
-      uart_recv_write <= uart_recv; 
-      funct3_write <= funct3;
-      out_write<=out;
-      opcodew <= opcodex;
-      next_PC_write <= next_PC_execute;
-      AIUPC_imm <= PC_execute;
-      forwarded<=out;
-      rd_write <=rd;
-      CWE3<=CWE2;
    end 
    
    always @ (*) 
