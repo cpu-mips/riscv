@@ -1,7 +1,7 @@
 `include "ALUop.vh"
 `include "Opcode.vh"
 
-module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX, 
+module HazardController(input [6:0]OpcodeW, input [6:0] OpcodeX, 
 	input [4:0] rd, input[4:0] rs1, input[4:0] rs2, input diverge, input [13:0] PC_X,
         input [13:0] PC_W, output noop, output CWE2, output reg ForwardA, output 
 	reg ForwardB, output reg delayW);
@@ -9,7 +9,6 @@ reg noopX, noopW, CWE2_temp;
 assign noop = noopX | noopW;
 assign CWE2 = (OpcodeX == `OPC_BRANCH || OpcodeX == `OPC_STORE) ? 0:CWE2_temp;
 always @(*) begin
-    //if (stall == 0) begin
     case (OpcodeW) 
        `OPC_ARI_RTYPE: begin
 	  ForwardA = (rd == rs1 && rd != 0 && PC_X != PC_W)?1:0;
@@ -82,13 +81,6 @@ always @(*) begin
 	    noopX = 0;
          end
        endcase // case (OpcodeX)
-    //end // if (stall == 0)
-    /*else begin
-      ForwardA = 0;
-       ForwardB = 0;
-       delayW = 1;
-       delayX = 1;
-    end // else: !if(stall == 0)*/
 end // always @ (*)
    
    endmodule // HazardController
