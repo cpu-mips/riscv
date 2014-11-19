@@ -27,9 +27,9 @@ module ALU(
    always @ (*) begin
         case(ALUop)
 	  `ALU_ADD:
-	    Out = A+B;
+	    Out = $signed(A)+$signed(B);
 	  `ALU_SUB:
-	    Out=A-B;
+	    Out=$signed(A)-$signed(B);
 	  `ALU_AND:
 	    Out=A&B;
 	  `ALU_OR:
