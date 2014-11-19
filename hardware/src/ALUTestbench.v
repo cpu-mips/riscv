@@ -117,7 +117,7 @@ module ALUTestbench();
             opcode = `OPC_BRANCH;
             funct = `FNC_BEQ;
             add_rshift_type = $random & 1'b1;
-            REFout = A - B;
+            REFout = $signed(A) - $signed(B);
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -159,14 +159,14 @@ module ALUTestbench();
             opcode = `OPC_LOAD;
             funct = $random & 3'b111;
             add_rshift_type = $random & 1'b1;
-            REFout = A + B;
+            REFout = $signed(A) + $signed(B);
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
             opcode = `OPC_STORE;
             funct = $random & 3'b111;
             add_rshift_type = $random & 1'b1;
-            REFout = A + B;
+            REFout = $signed(A) + $signed(B);
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -174,7 +174,7 @@ module ALUTestbench();
             opcode = `OPC_JALR;
             funct = 3'b000;
             add_rshift_type = $random & 1'b1;
-            REFout = A + B;
+            REFout = $signed(A) + $signed(B);
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -182,7 +182,7 @@ module ALUTestbench();
             opcode = `OPC_ARI_ITYPE;
             funct = `FNC_ADD_SUB;
             add_rshift_type = $random & 1'b1;
-            REFout = A + B;
+            REFout = $signed(A) + $signed(B);
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -256,7 +256,7 @@ module ALUTestbench();
             opcode = `OPC_ARI_RTYPE;
             funct = `FNC_ADD_SUB;
             add_rshift_type = 1'b0;
-            REFout = A + B;
+            REFout = $signed(A) + $signed(B);
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -264,7 +264,7 @@ module ALUTestbench();
             opcode = `OPC_ARI_RTYPE;
             funct = `FNC_ADD_SUB;
             add_rshift_type = 1'b1;
-            REFout = A - B;
+            REFout = $signed(A) - $signed(B);
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -309,10 +309,10 @@ module ALUTestbench();
             checkOutput(opcode, funct, add_rshift_type);
 
             //Logical left shift register
-            /*opcode = `OPC_ARI_RTYPE;
+            opcode = `OPC_ARI_RTYPE;
             funct = `FNC_SLL;
             add_rshift_type = $random & 1'b1;
-            REFout = A << B;
+            REFout = A << B[4:0];
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -320,7 +320,7 @@ module ALUTestbench();
             opcode = `OPC_ARI_RTYPE;
             funct = `FNC_SRL_SRA;
             add_rshift_type = `FNC2_SRL;
-            REFout = A >> B;
+            REFout = A >> B[4:0];
             #1;
             checkOutput(opcode, funct, add_rshift_type);
 
@@ -328,9 +328,9 @@ module ALUTestbench();
             opcode = `OPC_ARI_RTYPE;
             funct = `FNC_SRL_SRA;
             add_rshift_type = `FNC2_SRA;
-            REFout = $signed(A) >>> B;
+            REFout = $signed(A) >>> B[4:0];
             #1;
-            checkOutput(opcode, funct, add_rshift_type);*/
+            checkOutput(opcode, funct, add_rshift_type);
 
         end
         ///////////////////////////////
