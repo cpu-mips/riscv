@@ -4,7 +4,7 @@
 _start:
 
 # Counter to keep track of how many tests pass
-addi x7, x0, 0x0
+addi x7, x0, 0x1
 
 # Load some test values into registers
 lui x1, 0x10000
@@ -31,14 +31,16 @@ bne x2, x12, Error
 
 # Add more tests here!
 # Test 3: AIUPC
+addi x7, x7, 0x1
 auipc x8, 0x00001
-addi x9, x0, 0x34
+addi x9, x0, 0x38
 addi x10, x0, 0x00001
 slli x10, x10, 0xc
 add x10, x10, x9
 bne x8, x10, Error
 
 #Test 4: SLT
+addi x7, x7, 0x1
 addi x8, x0, 0x8
 add x9, x8, x7
 slt x10, x9, x8
@@ -49,6 +51,8 @@ slti x10, x9, 0x8
 bne x10, x0, Error
 
 #Test 5: shifts
+addi x7, x7, 0x1
+addi x8, x0, 0x8 
 srli x9, x8, 0x3
 addi x10, x0, 0x1
 bne x9, x10, Error
@@ -57,6 +61,7 @@ addi x11, x0, 0x2
 bne x11, x9, Error
 
 #Test 6: logic operations
+addi x7, x7, 0x1
 addi x9,x0,0xf
 or x10, x9, x0
 bne x9, x10, Error
@@ -65,21 +70,36 @@ bne x10, x9, Error
 and x10, x9, x0
 bne x10, x0, Error
 
-#Test 7: Stores, loads
-sw x9, 0(x12)
-lw x10, 0(x12)
-bne x9, x10, Error
+#Test 7: Mother-of-all Hazards
+addi x7, x7, 0x1
+lw x11, 0(x10)
+add x9, x11, x10
+sw x9, 0(x11)
+beq x9, x11, Test9
+nop
 
-#Test 8: Mother-of-all Hazards
-#lw x11, 0(x12)
-#add x9, x11, x10
-
-#Test 9: Writing to x0
-add x9, x0, x0
+#Test 8: Jumping and writing to x0
+Test9:
+addi x7, x7, 0x1
+addi x9, x0, 0x0
 j Test
 
 Test:
-bne x0, x9, Error
+addi x8, x0, 0x0
+bne x8, x9, Error
+add x0, x7, x8
+bne x0, x8, Error
+
+#Test 9: Branches Galore
+addi x10, x7, 0x0
+addi x7, x7, 0x1
+beq x10, x7, Error
+blt x7, x10, Error
+bge x10, x7, Error
+bne x7, x7, Error
+#bltu x7, x10, Error
+#bgeu x7, x10, Error
+
 
 j Pass
 
