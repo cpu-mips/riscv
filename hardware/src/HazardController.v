@@ -7,7 +7,7 @@ module HazardController(input stall, input [6:0]OpcodeW, input [6:0] OpcodeX,
 	reg ForwardB, output reg delayW);
 reg noopX, noopW, CWE2_temp;
 assign noop = noopX | noopW;
-assign CWE2 = (OpcodeX == `OPC_BRANCH) ? 0:CWE2_temp;
+assign CWE2 = (OpcodeX == `OPC_BRANCH || OpcodeX == `OPC_STORE) ? 0:CWE2_temp;
 always @(*) begin
     //if (stall == 0) begin
     case (OpcodeW) 
