@@ -30,7 +30,7 @@ module RegFile(input clk,
            begin
                if (1'b1 == we)
                begin
-                   if (1'b0 !== wa)
+                   if (5'b0 !== wa)
                    begin
                        regfile[wa] <= wd;
                    end
