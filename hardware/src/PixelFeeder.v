@@ -48,6 +48,7 @@ module PixelFeeder( //System:
     assign request_max = buffered_count > 14'd8000;
     reg has_been_rst;
     reg video_ready_cpu_clk;
+    reg video_ready_reg;
 
     // State transition logic:
     always @(*) begin
@@ -99,13 +100,14 @@ module PixelFeeder( //System:
         // 50 or 100 MHz. If the CPU runs at 100MHz, cpu_clk will be twice the rate       
         // at which video_ready is clocked. In this case, we need to generate a
         // video_ready_cpu_clk signal, which only goes high every second cycle
+        video_ready_reg <= video_ready;
         if(rst)
             video_ready_cpu_clk <= 0;
         else
         `ifdef RISCV_CLK_50
             video_ready_cpu_clk <= video_ready;
         `endif `ifdef RISCV_CLK_100
-            video_ready_cpu_clk <= video_ready_cpu_clk + video_ready;
+            video_ready_cpu_clk <= video_ready_cpu_clk + video_ready_reg;
         `endif
 
         // Actual count logic: keeps track of the actual number of 32-bit words in the FIFO.
