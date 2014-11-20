@@ -13,8 +13,8 @@ module ButtonSyncDebounce(
   end
 
   // Debounce the button
-  localparam DEB_DUR = 100000;
-  reg [17:0] cnt;
+  localparam DEB_DUR = 1000000;
+  reg [20:0] cnt;
 
   always@ (posedge clk) begin
 
