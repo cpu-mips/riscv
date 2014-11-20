@@ -30,18 +30,18 @@ module HazardControllerTestbench();
    reg [4:0]   rd;
    reg [4:0]   rs1;
    reg [4:0]   rs2;
-   reg 	       isZero;
-   reg 	       stall;
+   reg 	       diverge;
+   reg [13:0] pc_x, pc_w;
    wire 	       CWE2;
    wire 	       noop;
    wire 	       ForwardA;
    wire 	       ForwardB;
-   wire 	       PCDelay;
+   wire 	       delayW;
    reg 	       refCWE2;
    reg 	       refnoop;
    reg 	       refForwardA;
    reg 	       refForwardB;
-   reg 	       refPCDelay;
+   reg 	       refdelayW;
    
     
 
@@ -56,32 +56,34 @@ module HazardControllerTestbench();
 
     // Task for checking output
     task checkOutput;
-        if ( CWE2 !== refCWE2 || noop !== refnoop || ForwardA !== refForwardA || ForwardB !== refForwardB || PCDelay !== refPCDelay ) begin
+        if ( CWE2 !== refCWE2 || noop !== refnoop || ForwardA !== refForwardA || ForwardB !== refForwardB || delayW !== refdelayW ) begin
             $display("FAIL: Incorrect result for opcodeX %b, opcodeW %b, rd %b, rs1 %b, rs2 %b", OpcodeX, OpcodeW, rd, rs1, rs2);
-            $display("\t Is CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", CWE2, noop, ForwardA, ForwardB, PCDelay);
+            $display("\t Is CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, delayW: 0x%b", CWE2, noop, ForwardA, ForwardB, delayW);
 
-	   $display("\t Should be CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", refCWE2, refnoop, refForwardA,refForwardB, refPCDelay);
+	   $display("\t Should be CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, delayW: 0x%b", refCWE2, refnoop, refForwardA,refForwardB, refdelayW);
             $finish();
         end
         else begin
             $display("PASS: Result for opcodeX %b, opcodeW %b, rd %b, rs1 %b, rs2 %b", OpcodeX, OpcodeW, rd, rs1, rs2);
-            $display("\t Is CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, PCdelay: 0x%b", CWE2, noop, ForwardA, ForwardB, PCDelay);
+            $display("\t Is CWE2: 0x%b, noop: 0x%b, forwardA: 0x%b, forwardB: 0x%b, delayW: 0x%b", CWE2, noop, ForwardA, ForwardB, delayW);
         end
     endtask
 
     //This is where the modules being tested are instantiated. 
 
-    HazardController DUT( .stall(stall),.OpcodeW(OpcodeW),
+    HazardController DUT(.OpcodeW(OpcodeW),
         .OpcodeX(OpcodeX),
         .rd(rd),
         .rs1(rs1),
 	.rs2(rs2),
-	.isZero(isZero),
+	.diverge(diverge),
+	.PC_X(pc_x),
+	.PC_W(pc_w),
         .CWE2(CWE2),
         .noop(noop),
         .ForwardA(ForwardA),
         .ForwardB(ForwardB),
-        .PCDelay(PCDelay));
+        .delayW(delayW));
 
     integer i;
     localparam loops = 3; // number of times to run the tests for
@@ -89,21 +91,25 @@ module HazardControllerTestbench();
    localparam B = 4'd2;
    localparam C = 4'd3;
    localparam D = 4'd0;
+   localparam pc1 = 14'd10;
+   localparam pc2 = 14'd11;
+   localparam pc3 = 14'd12;
     // Testing logic:
     initial begin
 	#1;
-       stall = 0;
 	OpcodeW=`OPC_ARI_RTYPE;
 	OpcodeX=`OPC_ARI_ITYPE;
 	rd = A;
 	rs1 = A;
 	rs2 = B;
-	isZero = 1;
+	diverge = 1;
+	pc_x = pc1;
+	pc_w = pc2;
         refForwardA = 1;
 	refForwardB = 0;
 	refnoop = 0;
 	refCWE2=1;
-	refPCDelay = 0;
+	refdelayW = 0;
 	#1;
 	checkOutput();
        	OpcodeW=`OPC_ARI_RTYPE;
@@ -111,25 +117,44 @@ module HazardControllerTestbench();
 	rd = D;
 	rs1 = D;
 	rs2 = B;
-	isZero = 1;
+	pc_x = pc1;
+	pc_w = pc2;
+	diverge = 1;
         refForwardA = 0;
 	refForwardB = 0;
 	refnoop = 0;
 	refCWE2=1;
-	refPCDelay = 0;
+	refdelayW = 0;
 	#1;
 	checkOutput();
+	OpcodeW = `OPC_ARI_RTYPE;
+	OpcodeX = `OPC_ARI_ITYPE;
+	rd = A;
+	rs1 = A;
+	rs2 = B;
+	pc_x = pc1;
+	pc_w = pc1;
+	diverge = 1;
+	refForwardA = 0;
+	refForwardB = 0;
+	refnoop = 0;
+	refCWE2 = 1;
+	refdelayW = 0;
+	#1;
+	checkOutput();	
 	OpcodeW=`OPC_ARI_ITYPE;
 	OpcodeX=`OPC_ARI_RTYPE;
 	rd = A;
 	rs1 = A;
 	rs2 = A;
-	isZero = 1;
+	pc_x = pc1;
+	pc_w = pc2;
+	diverge = 1;
 	refForwardA = 1;
 	refForwardB = 1;
 	refnoop = 0;
 	refCWE2=1;
-	refPCDelay = 0;
+	refdelayW = 0;
 	#1;
 	checkOutput();
 	OpcodeW=`OPC_ARI_RTYPE;
@@ -137,12 +162,12 @@ module HazardControllerTestbench();
 	rd = A;
 	rs1 = A;
 	rs2 = C;
-	isZero = 1;
+	diverge = 1;
 	refForwardA = 1;
 	refForwardB = 0;
 	refnoop = 1;
-	refCWE2=1;
-	refPCDelay = 0;
+	refCWE2=0;
+	refdelayW = 0;
 	#1;
 	checkOutput();
 	OpcodeW=`OPC_ARI_RTYPE;
@@ -150,12 +175,12 @@ module HazardControllerTestbench();
 	rd = A;
 	rs1 = C;
 	rs2 = B;
-	isZero = 1;
+	diverge = 1;
 	refForwardA = 0;
 	refForwardB = 0;
 	refnoop = 1;
-	refCWE2=1;
-	refPCDelay = 0;
+	refCWE2=0;
+	refdelayW = 0;
 	#1;
 	checkOutput();
 	OpcodeW=`OPC_ARI_RTYPE;
@@ -163,12 +188,12 @@ module HazardControllerTestbench();
 	rd = A;
 	rs1 = C;
 	rs2 = B;
-	isZero = 0;
+	diverge = 0;
 	refForwardA = 0;
 	refForwardB = 0;
 	refnoop = 0;
-	refCWE2=1;
-	refPCDelay = 0;
+	refCWE2=0;
+	refdelayW = 0;
 	#1;
 	checkOutput();
 	OpcodeW = `OPC_LOAD;
@@ -176,12 +201,12 @@ module HazardControllerTestbench();
 	rd = A;
 	rs1=A;
 	rs2=B;
-        isZero=0;
+        diverge=0;
 	refForwardA=0;
 	refForwardB=0;
 	refnoop = 1;
 	refCWE2 = 0;
-	refPCDelay=1;
+	refdelayW=1;
 	#1;
 	checkOutput();
 	OpcodeW = `OPC_LOAD;
@@ -189,12 +214,12 @@ module HazardControllerTestbench();
 	rd = A;
 	rs1=A;
 	rs2=B;
-	isZero=1;
+	diverge=1;
 	refForwardA=0;
 	refForwardB=0;
        refnoop = 1;
        refCWE2 = 0;
-       refPCDelay=1;
+       refdelayW=1;
        #1;
        checkOutput();
        OpcodeW = `OPC_LOAD;
@@ -202,12 +227,12 @@ module HazardControllerTestbench();
        rd = A;
        rs1=B;
        rs2=C;
-       isZero=1;
+       diverge=1;
        refForwardA=0;
        refForwardB=0;
        refnoop = 0;
        refCWE2 = 1;
-       refPCDelay=0;
+       refdelayW=0;
        #1;
        checkOutput();
        OpcodeW = `OPC_LOAD;
@@ -215,24 +240,23 @@ module HazardControllerTestbench();
        rd = A;
        rs1=C;
        rs2=B;
-       isZero=0;
+       diverge=0;
        refForwardA=0;
        refForwardB=0;
        refnoop = 0;
-       refCWE2 = 1;
-       refPCDelay=0;
+       refCWE2 = 0;
+       refdelayW=0;
        #1;
        checkOutput();
-       stall = 1;
         rd = A;
        rs1=C;
        rs2=B;
-       isZero=1;
+       diverge=1;
        refForwardA=0;
        refForwardB=0;
        refnoop = 1;
        refCWE2 = 0;
-       refPCDelay=1;
+       refdelayW=0;
        #1;
        checkOutput();
         $display("\n\nALL TESTS PASSED!");
