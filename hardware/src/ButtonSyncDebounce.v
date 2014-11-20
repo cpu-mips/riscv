@@ -13,8 +13,8 @@ module ButtonSyncDebounce(
   end
 
   // Debounce the button
-  localparam DEB_DUR = 1000;
-  reg [10:0] cnt;
+  localparam DEB_DUR = 100000;
+  reg [17:0] cnt;
 
   always@ (posedge clk) begin
 
@@ -24,13 +24,13 @@ module ButtonSyncDebounce(
     // If button pressed, increment the count
     else if(button_sr[2]) begin
       if(cnt < 2*DEB_DUR)
-        cnt += 1;
+        cnt <= cnt + 1;
     end
 
     // If button not pressed, decrease the count
     else begin
       if(cnt > 0)
-        cnt -= 1;
+        cnt <= cnt - 1;
     end
   end
 
