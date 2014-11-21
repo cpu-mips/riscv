@@ -123,6 +123,7 @@ module Riscv150(
 		     .clkb(clk),
 		     .addrb(pc[13:2]),
 		     .doutb(inst));
+
     // Instantiate the data memory here (checkpoint 1 only)
    dmem_blk_ram dmem(.clka(clk),
            .ena(ena_hardwire),
@@ -130,6 +131,19 @@ module Riscv150(
            .addra(addr),
            .dina(mem_in),
            .douta(dmem_out));
+
+   Splitter splitter(.Instruction(inst_or_noop), 
+		     .Opcode(Xopcode), 
+		     .Funct3(Xfunct3), 
+		     .Funct7(funct7), 
+		     .Rs1(rs1), 
+		     .Rs2(rs2),
+		     .Rd(Xrd), 
+		     .UTypeImm(imm_inA), 
+		     .ITypeImm(imm_inB), 
+		     .STypeImm1(imm_inD), 
+		     .STypeImm2(imm_inC));
+
    RegFile regfile(.clk(clk),
 		   .we(Wreg_write),
 		   .ra1(rs1),
@@ -139,25 +153,34 @@ module Riscv150(
 		   .rd1(rd1),
 		   .rd2(rd2));
    
+   ImmController immcontroller(.Opcode(Xopcode), 
+			       .immA(imm_inA), 
+			       .immB(imm_inB), 
+			       .immC(imm_inC), 
+			       .immD(imm_inD), 
+			       .imm(imm));
+
+   Control control(.Opcode(Xopcode),
+		   .Funct3(Xfunct3),
+		   .Funct7(funct7),
+		   .Lui(lui),
+		   .ALUop(aluop),
+		   .ALUSrc2(alu_src_b),
+		   .Dest(Xdest),
+		   .Jal(Xjal),
+		   .Jalr(jalr));
+
    ALU alu(.A(a), 
 	   .B(b), 
 	   .ALUop(aluop), 
 	   .Out(Xalu_out), 
 	   .Zero(zero));
-   IOInterface io(.rd2(mem_in),
-		  .Addr(Xalu_out),
-		  .IO_trans(io_trans),
-		  .IO_recv(Xio_recv),
-		  .Clock(clk),
-		  .Reset(rst),
-                  .FPGA_Sin(FPGA_SERIAL_RX),
-                  .FPGA_Sout(FPGA_SERIAL_TX),
-		  .Received(io_out));
-   MemoryProc memoryproc(.Mem(mem_out),
-			 .Opcode(Wopcode),
-			 .Funct3(Wfunct3),
-			 .Address(Walu_out),
-			 .Proc_Mem(aligned_mem_out));
+
+   BranchControl branchcontrol(.Opcode(Xopcode), 
+			       .Funct3(Xfunct3), 
+			       .ALUOut(Xalu_out),
+			       .Zero(zero),
+			       .Diverge(diverge));
    
    MemControl memcontrol(.Opcode(Xopcode),
 			 .Funct3(Xfunct3),
@@ -170,53 +193,35 @@ module Riscv150(
 			 .Io_recv(Xio_recv),
              .shifted_rd2(mem_in));
    
+   IOInterface io(.rd2(mem_in),
+		  .Addr(Xalu_out),
+		  .IO_trans(io_trans),
+		  .IO_recv(Xio_recv),
+		  .Clock(clk),
+		  .Reset(rst),
+          .FPGA_Sin(FPGA_SERIAL_RX),
+          .FPGA_Sout(FPGA_SERIAL_TX),
+		  .Received(io_out));
+
    HazardController hazard(.OpcodeW(Wopcode), 
 			   .OpcodeX(Xopcode), 
 			   .rd(Wrd), 
 			   .rs1(rs1), 
 			   .rs2(rs2), 
 			   .diverge(diverge), 
-                           .PC_X(Xpc),
-                           .PC_W(Wpc),
+               .PC_X(Xpc),
+               .PC_W(Wpc),
 			   .CWE2(Xreg_write),
 			   .ForwardA(forward_a), 
 			   .ForwardB(forward_b), 
 			   .delayW(delay),
-			   .noop(Fnoop)
-			   );
-  
-   ImmController immcontroller(.Opcode(Xopcode), 
-			       .immA(imm_inA), 
-			       .immB(imm_inB), 
-			       .immC(imm_inC), 
-			       .immD(imm_inD), 
-			       .imm(imm));
-   Splitter splitter(.Instruction(inst_or_noop), 
-		     .Opcode(Xopcode), 
-		     .Funct3(Xfunct3), 
-		     .Funct7(funct7), 
-		     .Rs1(rs1), 
-		     .Rs2(rs2),
-		     .Rd(Xrd), 
-		     .UTypeImm(imm_inA), 
-		     .ITypeImm(imm_inB), 
-		     .STypeImm1(imm_inD), 
-		     .STypeImm2(imm_inC));
-   Control control(.Opcode(Xopcode),
-		   .Funct3(Xfunct3),
-		   .Funct7(funct7),
-		   .Lui(lui),
-		   .ALUop(aluop),
-		   .ALUSrc2(alu_src_b),
-		   .Dest(Xdest),
-		   .Jal(Xjal),
-		   .Jalr(jalr)
-		   );
-   BranchControl branchcontrol(.Opcode(Xopcode), 
-			       .Funct3(Xfunct3), 
-			       .ALUOut(Xalu_out),
-			       .Zero(zero),
-			       .Diverge(diverge));
+			   .noop(Fnoop));
+
+   MemoryProc memoryproc(.Mem(mem_out),
+			 .Opcode(Wopcode),
+			 .Funct3(Wfunct3),
+			 .Address(Walu_out),
+			 .Proc_Mem(aligned_mem_out));
    
    
    always @ (posedge clk) 
