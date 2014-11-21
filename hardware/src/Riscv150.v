@@ -76,19 +76,16 @@ module Riscv150(
    wire diverge, Xjal, jalr;
 
    //Execute registers
-   reg [31:0] inst_or_noop;
-   reg [31:0] a;
-   reg [13:0] Xnext_pc, Xpc;
+   reg [31:0] inst_or_noop, rd2_or_forwarded, a, branch_jal_target;
+   reg [13:0] Xnext_pc, Xpc, jump_vector;
 
    //Execute wires
    wire [6:0] Xopcode, funct7;
    wire [2:0] Xfunct3;
-   wire [31:0] inst, imm, rd1, rd2, rd2_or_forwarded, b, Xalu_out, mem_in; 
+   wire [31:0] inst, imm, rd1, rd2, b, Xalu_out, mem_in; 
    wire zero;
    wire [4:0] rs1, rs2, Xrd;
    wire [11:0] addr;
-   wire [31:0] branch_jal_target;
-   wire [13:0] jump_vector;
    wire [19:0] imm_inA;
    wire [11:0] imm_inB;
    wire [6:0] imm_inC;
@@ -96,38 +93,26 @@ module Riscv150(
 
    //Writeback control signals
    reg [1:0] Wdest;
-   reg Wreg_write, Wio_recv;
-   reg Wjal;
-   wire forward_a, forward_b;
-   wire delay;
+   reg Wreg_write, Wio_recv, Wjal;
+   wire forward_a, forward_b, delay;
    //Writeback registers
-   reg [31:0] Walu_out, rd_val;
-   reg [31:0] pc_writeback;
-   reg [13:0] Wnext_pc, Wpc;
-   reg [6:0] Wopcode;
-   reg [2:0] Wfunct3;
-   reg [4:0] Wrd;
+   reg [31:0] 	   Walu_out, rd_val;
+   reg [31:0] 	   auipc_out, pc_writeback, mem_out;
+   reg [13:0] 	   Wnext_pc, Wpc;
+   reg [6:0] 	   Wopcode;
+   reg [2:0] 	   Wfunct3;
+   reg [4:0] 	   Wrd;
    //Writeback wires
-   wire [31:0] auipc_out;
-   wire [31:0] aligned_mem_out, mem_out, dmem_out, io_out;
+   wire [31:0] 	   aligned_mem_out, dmem_out, io_out;
    wire load_haz;
    
    //Fetch Assignments
-   assign ena_hardwire = 1;
-   assign inst_or_noop = (Xnoop) ? NOP : inst;
-
    //Execute Assignments
-   assign rd2_or_forwarded = (forward_b) ? Walu_out : rd2; 
-   assign b = (alu_src_b) ? imm : rd2_or_forwarded; 
-   assign addr = Xalu_out[13:2];
-   assign branch_jal_target = $signed(Xpc) + $signed(imm<<1);
-   assign jump_vector = (jalr) ? {Xalu_out[13:1], 1'b0}  : branch_jal_target[13:0];
-
    //WritebackAssignments
    assign load_haz = ~(delay);
-   assign mem_out = (Wio_recv) ? io_out : dmem_out;
-   assign auipc_out = $signed(Wpc) + $signed(Walu_out);
-   assign pc_writeback = (Wjal) ? {18'b0, Wnext_pc} : auipc_out;
+   assign addr = Xalu_out[13:2];
+   assign ena_hardwire = 1;
+   assign b = (alu_src_b) ? imm : rd2_or_forwarded; 
 
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
@@ -288,7 +273,11 @@ module Riscv150(
    
    always @ (*) 
    begin
+
       //Execute Stage
+      inst_or_noop = (Xnoop) ? NOP : inst;
+      branch_jal_target = $signed(Xpc) + $signed(imm<<1);
+      jump_vector = (jalr) ? {Xalu_out[13:1], 1'b0}  : branch_jal_target[13:0];
       if (forward_a)
       begin
           a = Walu_out;
@@ -302,7 +291,20 @@ module Riscv150(
           a = rd1;
       end
 
+      if (forward_b)
+      begin
+          rd2_or_forwarded = Walu_out;
+      end
+      else
+      begin
+          rd2_or_forwarded = rd2;
+      end
+
+
       //Writeback Stage
+      mem_out = (Wio_recv) ? io_out : dmem_out;
+      auipc_out = $signed(Wpc) + $signed(Walu_out);
+      pc_writeback = (Wjal) ? {18'b0, Wnext_pc} : auipc_out;
       case (Wdest)
           2'b00: rd_val = Walu_out;
           2'b01: rd_val = aligned_mem_out;
