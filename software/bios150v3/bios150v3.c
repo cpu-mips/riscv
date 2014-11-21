@@ -49,7 +49,7 @@ int main(void)
     uwrite_int8s("\r\n");
 
     for ( ; ; ) {
-        uwrite_int8s("150> ");
+        uwrite_int8s("Hell> ");
 
         int8_t buffer[BUFFER_LEN];
         int8_t* input = read_token(buffer, BUFFER_LEN, " \x0d");
@@ -123,7 +123,7 @@ int main(void)
             uint16_t y1 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
             swline(color, x0, y0, x1, y1);
         } else {
-            uwrite_int8s("\n\rUnrecognized token: ");
+            uwrite_int8s("\n\rGo fuck yourself: ");
             uwrite_int8s(input);
             uwrite_int8s("\n\r");
         }
