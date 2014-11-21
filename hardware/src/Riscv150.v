@@ -57,7 +57,7 @@ module Riscv150(
 );
    reg [31:0] 	   inst_final,a,out_write, forwarded, val, Data_UART, inst_mem_out, rd2_or_forwarded;
    wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in, b;
-   reg [31:0]       inst_bios_imem, out_bios_dmem;
+   reg [31:0]       inst_bios_imem, out_bios_dmem, mem_in_write;
    reg [31:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
    reg [31:0] 	   PC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
@@ -85,7 +85,7 @@ module Riscv150(
    assign ena_hardwire = 1;
    assign b = (ALUSrcB2) ? imm : rd2_or_forwarded; 
    assign select_bios = (PC[31:28] == 4'b0100)?1:0;
-   assign select_bios_X = (mem_in[31:28] == 4'b0100 && ~dmem_enable)?1:0;
+   assign select_bios_X = (mem_in_write[31:28] == 4'b0100 && opcodew == `OPC_LOAD)?1:0;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(enaX),
@@ -235,6 +235,7 @@ module Riscv150(
           end
 
           // Writeback stage
+          mem_in_write<=mem_in;
           isJAL_write <= isJAL;
           dest_write<=dest;
           uart_recv_write <= uart_recv; 
@@ -256,7 +257,6 @@ module Riscv150(
       inst_bios_imem = (select_bios) ? inst_bios:inst;
       inst_final = (noop_final)? NOP:inst_bios_imem;
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
-      //PCJAL = (isJALR) ? {out[13:1], 1'b0}  : PC_imm[13:0];
       PCJAL = (isJALR) ? {out[31:1], 1'b0}  : PC_imm;
       if (FA)
       begin
@@ -285,7 +285,6 @@ module Riscv150(
       out_bios_dmem = (select_bios_X) ? Bios_out : Dmem_out;
       Dmem_UART_Out = (uart_recv_write) ? UART_out : out_bios_dmem;
       AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
-      //JALR_data = (isJAL_write) ? {18'b0, next_PC_write} : AIUPC_out;
       JALR_data = (isJAL_write) ?  next_PC_write : AIUPC_out;
       case (dest_write)
           2'b00: val = forwarded;
