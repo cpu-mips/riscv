@@ -66,7 +66,7 @@ module Riscv150(
    reg [13:0] PC, PC_temp, PC_next; 
 
    //Execute control signals
-   wire noop_final, lui2, pass2, ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire;
+   wire noop_final, lui2, ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire;
    wire [3:0] imem_enable, dmem_enable;
    wire [3:0] aluop;
    wire [1:0] dest;
@@ -202,7 +202,6 @@ module Riscv150(
 		   .Funct3(funct3),
 		   .Funct7(funct7),
 		   .Lui(lui2),
-		   .Pass(pass2),
 		   .ALUop(aluop),
 		   .ALUSrc2(ALUSrcB2),
 		   .Dest(dest),

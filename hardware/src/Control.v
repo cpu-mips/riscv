@@ -10,7 +10,6 @@
 // 						
 // Outputs:
 //    Lui: Control signal for lui mux.
-//    Pass: Control signal for mux to determine if value passes through ALU
 //    ALUop: Control signal for ALU
 //    ALUSrc2: Control signal to determine whether to use immediate or reg
 //    Dest: Control signal for mux to determine destination
@@ -23,7 +22,6 @@ module Control(
     input [2:0] Funct3,
     input [6:0] Funct7,
     output Lui,
-    output Pass,
     output [3:0] ALUop,
     output ALUSrc2,
     output [1:0] Dest, 
@@ -40,11 +38,10 @@ module Control(
         .ALUop(ALUop));
 
 
-    reg lui_reg, pass_reg, alusrc2_reg, jal_reg, jalr_reg;
+    reg lui_reg, alusrc2_reg, jal_reg, jalr_reg;
     reg [1:0] dest_reg;
     
     assign Lui = lui_reg;
-    assign Pass = pass_reg;
     assign ALUSrc2 = alusrc2_reg;
     assign Dest = dest_reg;
     assign Jal = jal_reg;
@@ -56,7 +53,6 @@ module Control(
             `OPC_LUI:
             begin
                 lui_reg = 1'b1;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b00;
                 jal_reg = 1'b0;
@@ -65,7 +61,6 @@ module Control(
             `OPC_AUIPC:
             begin
                 lui_reg = 1'b1;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b10;
                 jal_reg = 1'b0;
@@ -74,7 +69,6 @@ module Control(
             `OPC_JAL:
             begin
                 lui_reg = 1'b0;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b10;
                 jal_reg = 1'b1;
@@ -83,7 +77,6 @@ module Control(
             `OPC_JALR:
             begin
                 lui_reg = 1'b0;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b10;
                 jal_reg = 1'b1;
@@ -92,7 +85,6 @@ module Control(
             `OPC_BRANCH:
             begin
                 lui_reg = 1'b0;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b0;
                 dest_reg = 2'bxx;
                 jal_reg = 1'b0;
@@ -101,7 +93,6 @@ module Control(
             `OPC_STORE:
             begin
                 lui_reg = 1'b0;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'bxx;
                 jal_reg = 1'b0;
@@ -110,7 +101,6 @@ module Control(
             `OPC_LOAD:
             begin
                 lui_reg = 1'b0;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b01;
                 jal_reg = 1'b0;
@@ -119,7 +109,6 @@ module Control(
             `OPC_ARI_ITYPE:
             begin
                 lui_reg = 1'b0;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b1;
                 dest_reg = 2'b00;
                 jal_reg = 1'b0;
@@ -128,7 +117,6 @@ module Control(
             `OPC_ARI_RTYPE:
             begin
                 lui_reg = 1'b0;
-                pass_reg = 1'b0;
                 alusrc2_reg = 1'b0;
                 dest_reg = 2'b00;
                 jal_reg = 1'b0;
@@ -137,7 +125,6 @@ module Control(
             default:
             begin
                 lui_reg = 1'bx;
-                pass_reg = 1'bx;
                 alusrc2_reg = 1'bx;
                 dest_reg = 2'bxx;
                 jal_reg = 1'bx;
