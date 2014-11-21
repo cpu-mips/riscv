@@ -85,7 +85,7 @@ module Riscv150(
    assign ena_hardwire = 1;
    assign b = (ALUSrcB2) ? imm : rd2_or_forwarded; 
    assign select_bios = (PC[31:28] == 4'b0100)?1:0;
-   assign select_bios_X = (mem_in[31:28] == 4'b0100 && ~imem_enable)?1:0;
+   assign select_bios_X = (mem_in[31:28] == 4'b0100 && ~dmem_enable)?1:0;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(enaX),
