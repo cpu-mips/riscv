@@ -63,7 +63,7 @@ module Riscv150(
    wire noop;
 
    //Fetch registers    
-   reg [13:0] PC, PC_temp, PC_next; 
+   reg [13:0] PC; 
    reg noop_final;
 
    //Execute control signals
@@ -91,6 +91,7 @@ module Riscv150(
    //Writeback control signals
    reg [1:0] dest_write;
    reg CWE3, uart_recv_write, isJAL_write;
+   wire FA, FB;
    //Writeback registers
    reg [31:0] 	   out_write, forwarded, val;
    reg [31:0] 	   AIUPC_out, JALR_data, Dmem_UART_Out;
@@ -101,6 +102,7 @@ module Riscv150(
    //Writeback wires
    wire [31:0] 	   Proc_Mem_Out, Dmem_out, UART_out;
    wire [3:0] 	   uart_trans;
+   wire enaX;
    
    //Fetch Assignments
    //Execute Assignments
