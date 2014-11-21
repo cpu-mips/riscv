@@ -55,34 +55,60 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-   reg [31:0] 	   inst_final,a,out_write, forwarded, val, Data_UART, inst_mem_out, rd2_or_forwarded;
-   wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in, b;
-   reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
-   reg [31:0] 	   PC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
-   wire [19:0] 	   immA;
+
+   //NOP signal;
+   parameter NOP = 32'd19;
+
+   //Fetch control signals
+   wire noop;
+
+   //Fetch registers    
+   reg [13:0] PC, PC_temp, PC_next; 
+
+   //Execute control signals
+   wire noop_final, lui2, ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire;
+   wire [3:0] imem_enable, dmem_enable;
+   wire [3:0] aluop;
+   wire [1:0] dest;
+
+   //Execute registers
+   reg [31:0] inst_final, rd2_or_forwarded, a, PC_imm;
+   reg [13:0] next_PC_execute, PC_execute, PCJAL;
+
+   //Execute wires
+   wire [6:0] opcodex, funct7;
+   wire [2:0] funct3;
+   wire [31:0] inst, imm, rd1, rd2, b, out, mem_in; 
+   wire zero;
+   wire [4:0] rs1, rs2, rd;
+   wire [11:0] addr;
+   wire [19:0] immA;
+   wire [11:0] immB;
+   wire [6:0] immC;
+   wire [4:0] immD;
+
+   //Writeback control signals
+   reg [1:0] dest_write;
+   reg CWE3, uart_recv_write, isJAL_write;
+   //Writeback registers
+   reg [31:0] 	   out_write, forwarded, val;
+   reg [31:0] 	   AIUPC_out, JALR_data, Dmem_UART_Out;
+   reg [13:0] 	   next_PC_write, AIUPC_imm;
    reg [6:0] 	   opcodew;
-   wire [6:0] 	   opcodex, funct7, immC;
-   wire [4:0] 	   rs1, rs2;
-   wire [11:0] 	   immB;
-   reg [4:0] 	   rd_write;
-   wire [4:0] 	   immD;
-   wire [4:0] 	   rd;
-   wire [3:0] 	   uart_trans;
-   wire [2:0] 	   funct3;
    reg [2:0] 	   funct3_write;
-   wire [1:0] 	   dest;
-   reg [1:0]       dest_write;
-   wire [3:0] 	   aluop;
-   reg 		   CWE3,noop_final, uart_recv_write, isJAL_write;
-   wire 	   noop, zero, lui2, pass2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire;
-   wire [3:0] 	   imem_enable, dmem_enable;
-   wire [11:0] 	   addr;
+   reg [4:0] 	   rd_write;
+   //Writeback wires
+   wire [31:0] 	   Proc_Mem_Out, UART_out;
+   wire [3:0] 	   uart_trans;
    
-   parameter NOP=32'd19;
+   //Fetch Assignments
+   //Execute Assignments
+   //WritebackAssignments
    assign enaX = ~(delayW);
    assign addr = out[13:2];
    assign ena_hardwire = 1;
    assign b = (ALUSrcB2) ? imm : rd2_or_forwarded; 
+
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(enaX),
@@ -176,7 +202,6 @@ module Riscv150(
 		   .Funct3(funct3),
 		   .Funct7(funct7),
 		   .Lui(lui2),
-		   .Pass(pass2),
 		   .ALUop(aluop),
 		   .ALUSrc2(ALUSrcB2),
 		   .Dest(dest),
@@ -279,21 +304,5 @@ module Riscv150(
           2'b10: val = JALR_data;
           default: val = 32'bx;
       endcase
-      /*if (dest_write == 2'b00) 
-      begin
-          val = forwarded;
-      end
-      else if (dest_write == 2'b01) 
-      begin
-          val = Proc_Mem_Out;
-      end
-      else if (dest_write == 2'b10) 
-      begin
-          val = JALR_data;
-      end
-      else
-      begin
-          val = 32'bx;
-      end*/
    end
 endmodule
