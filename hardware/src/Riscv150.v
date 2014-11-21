@@ -93,8 +93,8 @@ module Riscv150(
 
    //Writeback control signals
    reg [1:0] Wdest;
-   reg Wreg_write, Wio_recv, Wjal, delay;
-   wire forward_a, forward_b;
+   reg Wreg_write, Wio_recv, Wjal;
+   wire forward_a, forward_b, delay;
    //Writeback registers
    reg [31:0] 	   Walu_out, rd_val;
    reg [31:0] 	   auipc_out, pc_writeback, mem_out;
