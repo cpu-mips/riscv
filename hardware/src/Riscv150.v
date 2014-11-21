@@ -76,11 +76,11 @@ module Riscv150(
    wire diverge, Xjal, jalr;
 
    //Execute registers
-   reg [31:0] inst_or_noop;
    reg [31:0] a;
    reg [13:0] Xnext_pc, Xpc;
 
    //Execute wires
+   wire [31:0] inst_or_noop;
    wire [6:0] Xopcode, funct7;
    wire [2:0] Xfunct3;
    wire [31:0] inst, imm, rd1, rd2, rd2_or_forwarded, b, Xalu_out, mem_in; 
@@ -102,13 +102,12 @@ module Riscv150(
    wire delay;
    //Writeback registers
    reg [31:0] Walu_out, rd_val;
-   reg [31:0] pc_writeback;
    reg [13:0] Wnext_pc, Wpc;
    reg [6:0] Wopcode;
    reg [2:0] Wfunct3;
    reg [4:0] Wrd;
    //Writeback wires
-   wire [31:0] auipc_out;
+   wire [31:0] auipc_out, pc_writeback;
    wire [31:0] aligned_mem_out, mem_out, dmem_out, io_out;
    wire load_haz;
    
