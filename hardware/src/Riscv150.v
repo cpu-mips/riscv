@@ -57,7 +57,8 @@ module Riscv150(
 );
    reg [31:0] 	   inst_final,a,out_write, forwarded, val, Data_UART, inst_mem_out, rd2_or_forwarded;
    wire [31:0] 	   inst, out, imm, Dmem_out, Proc_Mem_Out, rd1, rd2, UART_out, mem_in, b;
-   reg [13:0] 	   PC, PC_temp, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
+   reg [31:0]       inst_bios_imem, out_bios_dmem;
+   reg [31:0] 	   PC, PC_next, next_PC_execute, PC_execute, next_PC_write, PCJAL, AIUPC_imm;
    reg [31:0] 	   PC_imm, AIUPC_out, JALR_data, Dmem_UART_Out;
    wire [19:0] 	   immA;
    reg [6:0] 	   opcodew;
@@ -74,7 +75,7 @@ module Riscv150(
    reg [1:0]       dest_write;
    wire [3:0] 	   aluop;
    reg 		   CWE3,noop_final, uart_recv_write, isJAL_write;
-   wire 	   noop, zero, lui2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire;
+   wire 	   noop, zero, lui2,ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire, select_bios, select_bios_X;
    wire [3:0] 	   imem_enable, dmem_enable;
    wire [11:0] 	   addr;
    
@@ -83,6 +84,8 @@ module Riscv150(
    assign addr = out[13:2];
    assign ena_hardwire = 1;
    assign b = (ALUSrcB2) ? imm : rd2_or_forwarded; 
+   assign select_bios = (PC[31:28] == 4'b0100)?1:0;
+   assign select_bios_X = (mem_in[31:28] == 4'b0100 && ~imem_enable)?1:0;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(enaX),
@@ -99,7 +102,15 @@ module Riscv150(
            .addra(addr),
            .dina(mem_in),
            .douta(Dmem_out));
-   RegFile regfile(.clk(clk),
+   bios_mem bios(.clka(clk),
+           .ena(enaX),
+           .addra(PC[13:2]),
+           .douta(inst_bios),
+	   .clkb(clk),
+           .enb(ena_hardwire),
+           .addrb(mem_in),
+           .doutb(Bios_out));
+    RegFile regfile(.clk(clk),
 		   .we(CWE3),
 		   .ra1(rs1),
 		   .ra2(rs2),
@@ -242,9 +253,11 @@ module Riscv150(
    begin
 
       //Execute Stage
-      inst_final = (noop_final)? NOP:inst;
+      inst_bios_imem = (select_bios) ? inst_bios:inst;
+      inst_final = (noop_final)? NOP:inst_bios_imem;
       PC_imm = $signed(PC_execute) + $signed(imm<<1);
-      PCJAL = (isJALR) ? {out[13:1], 1'b0}  : PC_imm[13:0];
+      //PCJAL = (isJALR) ? {out[13:1], 1'b0}  : PC_imm[13:0];
+      PCJAL = (isJALR) ? {out[31:1], 1'b0}  : PC_imm;
       if (FA)
       begin
           a = forwarded;
@@ -269,30 +282,16 @@ module Riscv150(
 
 
       //Writeback Stage
-      Dmem_UART_Out = (uart_recv_write) ? UART_out : Dmem_out;
+      out_bios_dmem = (select_bios_X) ? Bios_out : Dmem_out;
+      Dmem_UART_Out = (uart_recv_write) ? UART_out : out_bios_dmem;
       AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
-      JALR_data = (isJAL_write) ? {18'b0, next_PC_write} : AIUPC_out;
+      //JALR_data = (isJAL_write) ? {18'b0, next_PC_write} : AIUPC_out;
+      JALR_data = (isJAL_write) ?  next_PC_write : AIUPC_out;
       case (dest_write)
           2'b00: val = forwarded;
           2'b01: val = Proc_Mem_Out;
           2'b10: val = JALR_data;
           default: val = 32'bx;
       endcase
-      /*if (dest_write == 2'b00) 
-      begin
-          val = forwarded;
-      end
-      else if (dest_write == 2'b01) 
-      begin
-          val = Proc_Mem_Out;
-      end
-      else if (dest_write == 2'b10) 
-      begin
-          val = JALR_data;
-      end
-      else
-      begin
-          val = 32'bx;
-      end*/
    end
 endmodule
