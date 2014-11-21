@@ -60,66 +60,68 @@ module Riscv150(
    parameter NOP = 32'd19;
 
    //Fetch control signals
-   wire noop;
+   wire Fnoop, ena_hardwire;
 
    //Fetch registers    
-   reg [13:0] PC; 
-   reg noop_final;
+   reg [13:0] pc; 
 
    //Execute control signals
-   wire lui2, ALUSrcB2, diverge, isJAL, isJALR, uart_recv, CWE2, delayW, ena_hardwire;
-   wire [3:0] imem_enable, dmem_enable;
+   reg Xnoop;
+   wire lui, alu_src_b, Xreg_write;
    wire [3:0] aluop;
-   wire [1:0] dest;
+   wire [1:0] Xdest;
+   wire [3:0] io_trans;
+   wire Xio_recv;
+   wire [3:0] imem_enable, dmem_enable;
+   wire diverge, Xjal, jalr;
 
    //Execute registers
-   reg [31:0] inst_final, rd2_or_forwarded, a, PC_imm;
-   reg [13:0] next_PC_execute, PC_execute, PCJAL;
+   reg [31:0] inst_or_noop, rd2_or_forwarded, a, branch_jal_target;
+   reg [13:0] Xnext_pc, Xpc, jump_vector;
 
    //Execute wires
-   wire [6:0] opcodex, funct7;
-   wire [2:0] funct3;
-   wire [31:0] inst, imm, rd1, rd2, b, out, mem_in; 
+   wire [6:0] Xopcode, funct7;
+   wire [2:0] Xfunct3;
+   wire [31:0] inst, imm, rd1, rd2, b, Xalu_out, mem_in; 
    wire zero;
-   wire [4:0] rs1, rs2, rd;
+   wire [4:0] rs1, rs2, Xrd;
    wire [11:0] addr;
-   wire [19:0] immA;
-   wire [11:0] immB;
-   wire [6:0] immC;
-   wire [4:0] immD;
+   wire [19:0] imm_inA;
+   wire [11:0] imm_inB;
+   wire [6:0] imm_inC;
+   wire [4:0] imm_inD;
 
    //Writeback control signals
-   reg [1:0] dest_write;
-   reg CWE3, uart_recv_write, isJAL_write;
-   wire FA, FB;
+   reg [1:0] Wdest;
+   reg Wreg_write, Wio_recv, Wjal, delay;
+   wire forward_a, forward_b;
    //Writeback registers
-   reg [31:0] 	   out_write, forwarded, val;
-   reg [31:0] 	   AIUPC_out, JALR_data, Dmem_UART_Out;
-   reg [13:0] 	   next_PC_write, AIUPC_imm;
-   reg [6:0] 	   opcodew;
-   reg [2:0] 	   funct3_write;
-   reg [4:0] 	   rd_write;
+   reg [31:0] 	   Walu_out, rd_val;
+   reg [31:0] 	   auipc_out, pc_writeback, mem_out;
+   reg [13:0] 	   Wnext_pc, Wpc;
+   reg [6:0] 	   Wopcode;
+   reg [2:0] 	   Wfunct3;
+   reg [4:0] 	   Wrd;
    //Writeback wires
-   wire [31:0] 	   Proc_Mem_Out, Dmem_out, UART_out;
-   wire [3:0] 	   uart_trans;
-   wire enaX;
+   wire [31:0] 	   aligned_mem_out, dmem_out, io_out;
+   wire load_haz;
    
    //Fetch Assignments
    //Execute Assignments
    //WritebackAssignments
-   assign enaX = ~(delayW);
-   assign addr = out[13:2];
+   assign load_haz = ~(delay);
+   assign addr = Xalu_out[13:2];
    assign ena_hardwire = 1;
-   assign b = (ALUSrcB2) ? imm : rd2_or_forwarded; 
+   assign b = (alu_src_b) ? imm : rd2_or_forwarded; 
 
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
-		     .ena(enaX),
+		     .ena(load_haz),
 		     .wea(imem_enable),
 		     .addra(addr),
 		     .dina(mem_in),
 		     .clkb(clk),
-		     .addrb(PC[13:2]),
+		     .addrb(pc[13:2]),
 		     .doutb(inst));
     // Instantiate the data memory here (checkpoint 1 only)
    dmem_blk_ram dmem(.clka(clk),
@@ -127,143 +129,140 @@ module Riscv150(
            .wea(dmem_enable),
            .addra(addr),
            .dina(mem_in),
-           .douta(Dmem_out));
+           .douta(dmem_out));
    RegFile regfile(.clk(clk),
-		   .we(CWE3),
+		   .we(Wreg_write),
 		   .ra1(rs1),
 		   .ra2(rs2),
-		   .wa(rd_write),
-		   .wd(val),
+		   .wa(Wrd),
+		   .wd(rd_val),
 		   .rd1(rd1),
 		   .rd2(rd2));
    
-    // Instantiate your control unit here
    ALU alu(.A(a), 
 	   .B(b), 
 	   .ALUop(aluop), 
-	   .Out(out), 
+	   .Out(Xalu_out), 
 	   .Zero(zero));
    IOInterface io(.rd2(mem_in),
-		  .Addr(out),
-		  .IO_trans(uart_trans),
-		  .IO_recv(uart_recv),
+		  .Addr(Xalu_out),
+		  .IO_trans(io_trans),
+		  .IO_recv(Xio_recv),
 		  .Clock(clk),
 		  .Reset(rst),
                   .FPGA_Sin(FPGA_SERIAL_RX),
                   .FPGA_Sout(FPGA_SERIAL_TX),
-		  .Received(UART_out));
-   MemoryProc memoryproc(.Mem(Dmem_UART_Out),
-			 .Opcode(opcodew),
-			 .Funct3(funct3_write),
-			 .Address(forwarded),
-			 .Proc_Mem(Proc_Mem_Out));
+		  .Received(io_out));
+   MemoryProc memoryproc(.Mem(mem_out),
+			 .Opcode(Wopcode),
+			 .Funct3(Wfunct3),
+			 .Address(Walu_out),
+			 .Proc_Mem(aligned_mem_out));
    
-   MemControl memcontrol(.Opcode(opcodex),
-			 .Funct3(funct3),
-			 .A(out),
+   MemControl memcontrol(.Opcode(Xopcode),
+			 .Funct3(Xfunct3),
+			 .A(Xalu_out),
              .rd2(rd2_or_forwarded),
-             .haz_ena(enaX),
+             .haz_ena(load_haz),
 			 .Dmem_enable(dmem_enable),
 			 .Imem_enable(imem_enable),
-			 .Io_trans(uart_trans),
-			 .Io_recv(uart_recv),
+			 .Io_trans(io_trans),
+			 .Io_recv(Xio_recv),
              .shifted_rd2(mem_in));
    
-   HazardController hazard(.OpcodeW(opcodew), 
-			   .OpcodeX(opcodex), 
-			   .rd(rd_write), 
+   HazardController hazard(.OpcodeW(Wopcode), 
+			   .OpcodeX(Xopcode), 
+			   .rd(Wrd), 
 			   .rs1(rs1), 
 			   .rs2(rs2), 
 			   .diverge(diverge), 
-                           .PC_X(PC_execute),
-                           .PC_W(AIUPC_imm),
-			   .CWE2(CWE2),
-			   .ForwardA(FA), 
-			   .ForwardB(FB), 
-			   .delayW(delayW),
-			   .noop(noop)
+                           .PC_X(Xpc),
+                           .PC_W(Wpc),
+			   .CWE2(Xreg_write),
+			   .ForwardA(forward_a), 
+			   .ForwardB(forward_b), 
+			   .delayW(delay),
+			   .noop(Fnoop)
 			   );
   
-   ImmController immcontroller(.Opcode(opcodex), 
-			       .immA(immA), 
-			       .immB(immB), 
-			       .immC(immC), 
-			       .immD(immD), 
+   ImmController immcontroller(.Opcode(Xopcode), 
+			       .immA(imm_inA), 
+			       .immB(imm_inB), 
+			       .immC(imm_inC), 
+			       .immD(imm_inD), 
 			       .imm(imm));
-   Splitter splitter(.Instruction(inst_final), 
-		     .Opcode(opcodex), 
-		     .Funct3(funct3), 
+   Splitter splitter(.Instruction(inst_or_noop), 
+		     .Opcode(Xopcode), 
+		     .Funct3(Xfunct3), 
 		     .Funct7(funct7), 
 		     .Rs1(rs1), 
 		     .Rs2(rs2),
-		     .Rd(rd), 
-		     .UTypeImm(immA), 
-		     .ITypeImm(immB), 
-		     .STypeImm1(immD), 
-		     .STypeImm2(immC));
-   Control control(.Opcode(opcodex),
-		   .Funct3(funct3),
+		     .Rd(Xrd), 
+		     .UTypeImm(imm_inA), 
+		     .ITypeImm(imm_inB), 
+		     .STypeImm1(imm_inD), 
+		     .STypeImm2(imm_inC));
+   Control control(.Opcode(Xopcode),
+		   .Funct3(Xfunct3),
 		   .Funct7(funct7),
-		   .Lui(lui2),
+		   .Lui(lui),
 		   .ALUop(aluop),
-		   .ALUSrc2(ALUSrcB2),
-		   .Dest(dest),
-		   .Jal(isJAL),
-		   .Jalr(isJALR)
+		   .ALUSrc2(alu_src_b),
+		   .Dest(Xdest),
+		   .Jal(Xjal),
+		   .Jalr(jalr)
 		   );
-   BranchControl branchcontrol(.Opcode(opcodex), 
-			       .Funct3(funct3), 
-			       .ALUOut(out),
+   BranchControl branchcontrol(.Opcode(Xopcode), 
+			       .Funct3(Xfunct3), 
+			       .ALUOut(Xalu_out),
 			       .Zero(zero),
 			       .Diverge(diverge));
    
    
-    // Instantiate your datapath here
    always @ (posedge clk) 
    begin
        if (~stall)
        begin
-          if (enaX) 
+          if (load_haz) 
           begin
               // Fetch stage
               if (rst) 
               begin
-                  PC <= 12'b0;
+                  pc <= 12'b0;
               end
               else if (diverge)
               begin
-                PC <= PCJAL;
+                pc <= jump_vector;
               end
               else 
               begin
-                  PC <= PC + 4;
+                  pc <= pc + 4;
               end
 
               // Execute stage
-              next_PC_execute <= PC + 4;
-              PC_execute<=PC;
-              noop_final<=noop;
+              Xnext_pc <= pc + 4;
+              Xpc<=pc;
+              Xnoop<=Fnoop;
           end
           else
           begin
-              PC <= PC_execute;
-              next_PC_execute <= next_PC_execute;
-              PC_execute <= PC_execute;
-              noop_final <= noop;
+              pc <= Xpc;
+              Xnext_pc <= Xnext_pc;
+              Xpc <= Xpc;
+              Xnoop <= Fnoop;
           end
 
           // Writeback stage
-          isJAL_write <= isJAL;
-          dest_write<=dest;
-          uart_recv_write <= uart_recv; 
-          funct3_write <= funct3;
-          out_write<=out;
-          opcodew <= opcodex;
-          next_PC_write <= next_PC_execute;
-          AIUPC_imm <= PC_execute;
-          forwarded<=out;
-          rd_write <=rd;
-          CWE3<=CWE2;
+          Wjal <= Xjal;
+          Wdest<=Xdest;
+          Wio_recv <= Xio_recv; 
+          Wfunct3 <= Xfunct3;
+          Walu_out<=Xalu_out;
+          Wopcode <= Xopcode;
+          Wnext_pc <= Xnext_pc;
+          Wpc <= Xpc;
+          Wrd <=Xrd;
+          Wreg_write<=Xreg_write;
       end
    end 
    
@@ -271,14 +270,14 @@ module Riscv150(
    begin
 
       //Execute Stage
-      inst_final = (noop_final)? NOP:inst;
-      PC_imm = $signed(PC_execute) + $signed(imm<<1);
-      PCJAL = (isJALR) ? {out[13:1], 1'b0}  : PC_imm[13:0];
-      if (FA)
+      inst_or_noop = (Xnoop) ? NOP : inst;
+      branch_jal_target = $signed(Xpc) + $signed(imm<<1);
+      jump_vector = (jalr) ? {Xalu_out[13:1], 1'b0}  : branch_jal_target[13:0];
+      if (forward_a)
       begin
-          a = forwarded;
+          a = Walu_out;
       end
-      else if (lui2)
+      else if (lui)
       begin
           a = 12;
       end
@@ -287,9 +286,9 @@ module Riscv150(
           a = rd1;
       end
 
-      if (FB)
+      if (forward_b)
       begin
-          rd2_or_forwarded = forwarded;
+          rd2_or_forwarded = Walu_out;
       end
       else
       begin
@@ -298,14 +297,14 @@ module Riscv150(
 
 
       //Writeback Stage
-      Dmem_UART_Out = (uart_recv_write) ? UART_out : Dmem_out;
-      AIUPC_out = $signed(AIUPC_imm) + $signed(forwarded);
-      JALR_data = (isJAL_write) ? {18'b0, next_PC_write} : AIUPC_out;
-      case (dest_write)
-          2'b00: val = forwarded;
-          2'b01: val = Proc_Mem_Out;
-          2'b10: val = JALR_data;
-          default: val = 32'bx;
+      mem_out = (Wio_recv) ? io_out : dmem_out;
+      auipc_out = $signed(Wpc) + $signed(Walu_out);
+      pc_writeback = (Wjal) ? {18'b0, Wnext_pc} : auipc_out;
+      case (Wdest)
+          2'b00: rd_val = Walu_out;
+          2'b01: rd_val = aligned_mem_out;
+          2'b10: rd_val = pc_writeback;
+          default: rd_val = 32'bx;
       endcase
    end
 endmodule
