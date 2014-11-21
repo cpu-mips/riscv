@@ -99,7 +99,7 @@ module Riscv150(
    reg [2:0] 	   funct3_write;
    reg [4:0] 	   rd_write;
    //Writeback wires
-   wire [31:0] 	   Proc_Mem_Out, UART_out;
+   wire [31:0] 	   Proc_Mem_Out, Dmem_out, UART_out;
    wire [3:0] 	   uart_trans;
    
    //Fetch Assignments
