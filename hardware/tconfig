@@ -1,8 +1,86 @@
 #!/usr/bin/python
+import glob
+import os
+import os.path
+import sys
 
-import optparse
+from optparse import OptionParser
+
+#Do files relativelocation
+DO_FILES = "sim/tests"
+
+#Test file extensions
+ACTIVE = "do"
+INACTIVE = "dont"
 
 
+def parse_args():
+    """
+    Argument parsing for test configuration script.
+    """
+    parser = OptionParser()
+    parser.add_option("-l", "--list", action="store_true", dest="list", default=False,
+            help="Lists available tests")
+    parser.add_option("-a", "--activate", action="store_true", dest="activate", default=False,
+            help="Activates tests")
+    parser.add_option("-d", "--deactivate", action="store_true", dest="deactivate", default=False,
+            help="Deactivates tests")
+
+    options, args = parser.parse_args()
+
+
+    count = 0
+    if options.list:
+        count += 1
+    if options.activate:
+        count += 1
+    if options. deactivate:
+        count += 1
+    if count >= 2:
+        print "Too many options, only use one."
+        sys.exit(1)
+    
+
+    return options, args
+
+def get_base_name(test_file):
+    """
+    Returns base name from file.
+    """
+    return test_file.split(".")[0]
+
+def move_files(tests, first_ext, second_ext):
+    """
+    Mass renames files to either activate or deactivate tests.
+    """
+    for test in tests:
+        old = os.path.join(DO_FILES, ".".join(test, first_ext))
+        new = os.path.join(DO_FILES, ".".join(test, second_ext))
+        if os.path.exists(old):
+            os.rename(old, new)
+        else:
+            print "{0} does no exist".format(old)
+
+def main():
+    options, args = parse_args()
+
+    if options.list:
+        for test in os.listdir(DO_FILES):
+            name = get_base_name(test) 
+            print name
+
+    if 0 == len(args):
+        tests = [get_base_name(test_file) for test_file in os.listdir(DO_FILES)]
+    else:
+        tests = args
+
+    if options.deactivate:
+        pass
+
+    if options.activate:
+        pass
+
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
