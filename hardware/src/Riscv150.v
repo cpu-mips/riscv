@@ -144,7 +144,7 @@ module Riscv150(
 		     .STypeImm2(imm_inC));
 
    bios_mem bios(.clka(clk),
-           .ena(enaX),
+           .ena(imem_enable),
            .addra(pc[13:2]),
            .douta(inst_bios),
 	   .clkb(clk),
@@ -240,7 +240,7 @@ module Riscv150(
               // Fetch stage
               if (rst) 
               begin
-                  pc <= 32'h00000000;
+                  pc <= 32'h40000000;
               end
               else if (diverge)
               begin
