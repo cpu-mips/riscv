@@ -97,7 +97,7 @@ module Riscv150(
    reg Wreg_write, Wio_recv, Wjal;
    wire forward_a, forward_b, delay;
    //Writeback registers
-   reg [31:0] 	   Walu_out, rd_val, mem_in_write, out_bios_dmem;
+   reg [31:0] 	   Walu_out, rd_val, Waddr, out_bios_dmem;
    reg [31:0] 	   auipc_out, pc_writeback, mem_out;
    reg [31:0] 	   Wnext_pc, Wpc;
    reg [6:0] 	   Wopcode;
