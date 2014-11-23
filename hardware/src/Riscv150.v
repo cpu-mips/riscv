@@ -240,7 +240,7 @@ module Riscv150(
               // Fetch stage
               if (rst) 
               begin
-                  pc <= 32'h40000000;
+                  pc <= 32'h00000000;
               end
               else if (diverge)
               begin
