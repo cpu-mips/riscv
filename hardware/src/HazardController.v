@@ -2,8 +2,8 @@
 `include "Opcode.vh"
 
 module HazardController(input [6:0]OpcodeW, input [6:0] OpcodeX, 
-	input [4:0] rd, input[4:0] rs1, input[4:0] rs2, input diverge, input [13:0] PC_X,
-        input [13:0] PC_W, output noop, output CWE2, output reg ForwardA, output 
+	input [4:0] rd, input[4:0] rs1, input[4:0] rs2, input diverge, input [31:0] PC_X,
+        input [31:0] PC_W, output noop, output CWE2, output reg ForwardA, output 
 	reg ForwardB, output reg delayW);
 reg noopX, noopW, CWE2_temp;
 assign noop = noopX | noopW;
