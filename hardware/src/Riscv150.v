@@ -86,7 +86,7 @@ module Riscv150(
    wire [31:0] inst, imm, rd1, rd2, Xalu_out, mem_in; 
    wire zero;
    wire [4:0] rs1, rs2, Xrd;
-   wire [11:0] addr;
+   wire [31:0] addr;
    wire [19:0] imm_inA;
    wire [11:0] imm_inB;
    wire [6:0] imm_inC;
@@ -109,15 +109,15 @@ module Riscv150(
    
    //Wire assignments
    assign load_haz = ~(delay);
-   assign addr = Xalu_out[13:2];
+   assign addr = Xalu_out;
    assign ena_hardwire = 1;
    assign select_bios = (pc[31:28] == 4'b0100)?1:0;
-   assign select_bios_X = (mem_in_write[31:28] == 4'b0100 && Wopcode == `OPC_LOAD)?1:0;
+   assign select_bios_X = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD)?1:0;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
 		     .wea(imem_enable),
-		     .addra(addr),
+		     .addra(addr[13:2]),
 		     .dina(mem_in),
 		     .clkb(clk),
 		     .addrb(pc[13:2]),
@@ -149,7 +149,7 @@ module Riscv150(
            .douta(inst_bios),
 	   .clkb(clk),
            .enb(ena_hardwire),
-           .addrb(addr),
+           .addrb(addr[13:2]),
            .doutb(Bios_out));
     RegFile regfile(.clk(clk),
 		   .we(Wreg_write),
@@ -265,7 +265,7 @@ module Riscv150(
           end
 
           // Writeback stage
-          mem_in_write <= mem_in;
+          Waddr <= addr;
           Wjal <= Xjal;
           Wdest<=Xdest;
           Wio_recv <= Xio_recv; 
