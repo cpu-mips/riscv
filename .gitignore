@@ -34,7 +34,6 @@ hardware/src/cache_tag_blk_ram/*.v
 hardware/build/
 hardware/sim/build/
 hardware/sim/results/
-hardware/sim/tests/
 hardware/transcript
 
 software/echo/echo.v
