@@ -1,0 +1,12 @@
+start PromptTestbench
+file copy -force ../../../software/echo/prompt.mif imem_blk_ram.mif
+file copy -force ../../../software/echo/prompt.mif dmem_blk_ram.mif
+add wave PromptTestbench/*
+add wave PromptTestbench/uart/*
+add wave PromptTestbench/CPU/*
+add wave PromptTestbench/CPU/io/*
+add wave PromptTestbench/CPU/io/uart/*
+add wave PromptTestbench/CPU/io/uart/uatransmit/*
+add wave PromptTestbench/CPU/io/uart/uareceive/*
+add wave PromptTestbench/CPU/memoryproc/*
+run 10000us
