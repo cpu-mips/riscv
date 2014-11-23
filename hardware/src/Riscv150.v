@@ -64,7 +64,9 @@ module Riscv150(
 
    //Fetch registers    
    reg [31:0] pc, inst_temp; 
-   wire inst_bios;
+   //Fetch wires
+   wire [31:0] inst_bios;
+
    //Execute control signals
    reg Xnoop;
    wire lui, alu_src_b, Xreg_write;
@@ -76,8 +78,7 @@ module Riscv150(
    wire diverge, Xjal, jalr;
 
    //Execute registers
-   reg [31:0] inst_or_noop, rd2_or_forwarded, a, b, branch_jal_target;
-   reg [13:0] Xnext_pc, Xpc, jump_vector;
+   reg [31:0] Xpc, Xnext_pc, jump_vector, inst_or_noop, rd2_or_forwarded, a, b, branch_jal_target;
 
    //Execute wires
    wire [6:0] Xopcode, funct7;
@@ -148,7 +149,7 @@ module Riscv150(
            .douta(inst_bios),
 	   .clkb(clk),
            .enb(ena_hardwire),
-           .addrb(mem_in),
+           .addrb(addr),
            .doutb(Bios_out));
     RegFile regfile(.clk(clk),
 		   .we(Wreg_write),
