@@ -49,13 +49,19 @@ def get_base_name(test_file):
     """
     return test_file.split(".")[0]
 
+def get_extension(test_file):
+    """
+    Returns extension from file.
+    """
+    return test_file.split(".")[1]
+
 def move_files(tests, first_ext, second_ext):
     """
     Mass renames files to either activate or deactivate tests.
     """
     for test in tests:
-        old = os.path.join(DO_FILES, ".".join(test, first_ext))
-        new = os.path.join(DO_FILES, ".".join(test, second_ext))
+        old = os.path.join(DO_FILES, ".".join((test, first_ext)))
+        new = os.path.join(DO_FILES, ".".join((test, second_ext)))
         if os.path.exists(old):
             os.rename(old, new)
         else:
@@ -65,9 +71,21 @@ def main():
     options, args = parse_args()
 
     if options.list:
+        active = []
+        inactive = []
         for test in os.listdir(DO_FILES):
             name = get_base_name(test) 
-            print name
+            if ACTIVE == get_extension(test):
+                active.append(name)
+            else:
+                inactive.append(name)
+        print "Active"
+        for test in active:
+            print "\t{0}".format(test)
+        print "Inactive"
+        for test in inactive:
+            print "\t{0}".format(test)
+
 
     if 0 == len(args):
         tests = [get_base_name(test_file) for test_file in os.listdir(DO_FILES)]
@@ -75,10 +93,27 @@ def main():
         tests = args
 
     if options.deactivate:
-        pass
+        move_files(tests, ACTIVE, INACTIVE)
 
     if options.activate:
-        pass
+        move_files(tests, INACTIVE, ACTIVE)
+
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+
+
+    if 0 == len(args):
+        tests = [get_base_name(test_file) for test_file in os.listdir(DO_FILES)]
+    else:
+        tests = args
+
+    if options.deactivate:
+        move_files(INACTIVE, ACTIVE)
+
+    if options.activate:
+        move_files(ACTIVE, INACTIVE)
 
     sys.exit(0)
 
