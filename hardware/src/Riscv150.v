@@ -63,8 +63,8 @@ module Riscv150(
    wire Fnoop, ena_hardwire;
 
    //Fetch registers    
-   reg [13:0] pc; 
-
+   reg [31:0] pc, inst_temp; 
+   wire inst_bios;
    //Execute control signals
    reg Xnoop;
    wire lui, alu_src_b, Xreg_write;
@@ -96,21 +96,22 @@ module Riscv150(
    reg Wreg_write, Wio_recv, Wjal;
    wire forward_a, forward_b, delay;
    //Writeback registers
-   reg [31:0] 	   Walu_out, rd_val;
+   reg [31:0] 	   Walu_out, rd_val, mem_in_write, out_bios_dmem;
    reg [31:0] 	   auipc_out, pc_writeback, mem_out;
-   reg [13:0] 	   Wnext_pc, Wpc;
+   reg [31:0] 	   Wnext_pc, Wpc;
    reg [6:0] 	   Wopcode;
    reg [2:0] 	   Wfunct3;
    reg [4:0] 	   Wrd;
    //Writeback wires
-   wire [31:0] 	   aligned_mem_out, dmem_out, io_out;
+   wire [31:0] 	   aligned_mem_out, dmem_out, io_out, Bios_out;
    wire load_haz;
    
    //Wire assignments
    assign load_haz = ~(delay);
    assign addr = Xalu_out[13:2];
    assign ena_hardwire = 1;
-
+   assign select_bios = (pc[31:28] == 4'b0100)?1:0;
+   assign select_bios_X = (mem_in_write[31:28] == 4'b0100 && Wopcode == `OPC_LOAD)?1:0;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
@@ -141,7 +142,15 @@ module Riscv150(
 		     .STypeImm1(imm_inD), 
 		     .STypeImm2(imm_inC));
 
-   RegFile regfile(.clk(clk),
+   bios_mem bios(.clka(clk),
+           .ena(enaX),
+           .addra(pc[13:2]),
+           .douta(inst_bios),
+	   .clkb(clk),
+           .enb(ena_hardwire),
+           .addrb(mem_in),
+           .doutb(Bios_out));
+    RegFile regfile(.clk(clk),
 		   .we(Wreg_write),
 		   .ra1(rs1),
 		   .ra2(rs2),
@@ -255,6 +264,7 @@ module Riscv150(
           end
 
           // Writeback stage
+          mem_in_write <= mem_in;
           Wjal <= Xjal;
           Wdest<=Xdest;
           Wio_recv <= Xio_recv; 
@@ -272,7 +282,8 @@ module Riscv150(
    begin
 
       //Fetch Stage 
-      inst_or_noop = (Xnoop) ? NOP : inst;
+      inst_temp = (select_bios) ? inst_bios:inst;
+      inst_or_noop = (Xnoop) ? NOP : inst_temp;
 
       //Execute Stage
       branch_jal_target = $signed(Xpc) + $signed(imm<<1);
@@ -295,7 +306,8 @@ module Riscv150(
 
 
       //Writeback Stage
-      mem_out = (Wio_recv) ? io_out : dmem_out;
+      out_bios_dmem = (select_bios_X) ? Bios_out : dmem_out;
+      mem_out = (Wio_recv) ? io_out : out_bios_dmem;
       auipc_out = $signed(Wpc) + $signed(Walu_out);
       pc_writeback = (Wjal) ? {18'b0, Wnext_pc} : auipc_out;
 
