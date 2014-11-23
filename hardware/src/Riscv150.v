@@ -127,7 +127,7 @@ module Riscv150(
    dmem_blk_ram dmem(.clka(clk),
            .ena(ena_hardwire),
            .wea(dmem_enable),
-           .addra(addr),
+           .addra(addr[13:2]),
            .dina(mem_in),
            .douta(dmem_out));
 
@@ -240,7 +240,7 @@ module Riscv150(
               // Fetch stage
               if (rst) 
               begin
-                  pc <= 12'b0;
+                  pc <= 32'h40000000;
               end
               else if (diverge)
               begin
