@@ -48,6 +48,8 @@ module ml505top
   wire [3:0]  next_reset_r;
   wire [25:0] next_count_r;
 
+  wire stall_debounced;
+
   wire user_clk_g;
 
   wire cpu_clk;
@@ -173,6 +175,14 @@ module ml505top
     rst_sr <= {rst_sr[1:0], rst};
   end
 
+  // Synchronize and debounce the stall button
+  ButtonSyncDebounce stallDebounce(
+    .button(GPIO_SW_S),
+    .clk(cpu_clk_g),
+    .rst(rst),
+    .debounced(stall_debounced)
+    );
+
   // Create wires for the memories and graphics engines
   wire  [31:0] dcache_addr;
   wire  [31:0] icache_addr;
@@ -207,7 +217,7 @@ module ml505top
 
   // For CP1, wire the stall signal to the south switch on the FPGA board
   `ifdef CS150_CHKPNT_1
-  assign stall = GPIO_SW_S;
+  assign stall = stall_debounced;
   assign init_done = 1'b1;
   `endif
 
