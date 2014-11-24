@@ -107,13 +107,29 @@ module Riscv150(
    wire [31:0] 	   aligned_mem_out, dmem_out, io_out, Bios_out;
    wire load_haz;
    
-   //Wire assignments
-   assign load_haz = ~(delay);
-   assign addr = Xalu_out;
+   //Fetch wire assignemnts
    assign ena_hardwire = 1;
-
    assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
+   //Execute wire assignments
+   assign load_haz = ~(delay);
    assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
+   //Writeback wire assignments
+   assign addr = Xalu_out;
+
+   //Icache wire assignments
+   /*assign icache_addr = pc;
+   assign icache_we = imem_enable;
+   assign icache_re = load_haz;
+   assign icache_din = mem_in;
+   assign instruction = inst;*/
+
+   //Dcache wire assignments
+   assign dcache_addr = addr;
+   assign dcache_we = dmem_enable;
+   assign dcache_re = ena_hardwire;
+   assign dcache_din = mem_in;
+   assign dcache_dout = dmem_out;
+
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
@@ -125,12 +141,12 @@ module Riscv150(
 		     .doutb(inst));
 
     // Instantiate the data memory here (checkpoint 1 only)
-   dmem_blk_ram dmem(.clka(clk),
+   /*dmem_blk_ram dmem(.clka(clk),
            .ena(ena_hardwire),
            .wea(dmem_enable),
            .addra(addr[13:2]),
            .dina(mem_in),
-           .douta(dmem_out));
+           .douta(dmem_out));*/
 
    Splitter splitter(.Instruction(inst_or_noop), 
 		     .Opcode(Xopcode), 
