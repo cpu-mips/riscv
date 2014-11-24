@@ -75,7 +75,7 @@ module Riscv150(
    wire [3:0] io_trans;
    wire Xio_recv;
    wire [3:0] imem_enable, dmem_enable;
-   wire diverge, Xjal, jalr;
+   wire diverge, Xjal, jalr, select_bios;
 
    //Execute registers
    reg [31:0] Xpc, Xnext_pc, jump_vector, inst_or_noop, rd2_or_forwarded, a, b, branch_jal_target;
@@ -84,7 +84,7 @@ module Riscv150(
    wire [6:0] Xopcode, funct7;
    wire [2:0] Xfunct3;
    wire [31:0] inst, imm, rd1, rd2, Xalu_out, mem_in; 
-   wire zero;
+   wire zero, select_bios_X;
    wire [4:0] rs1, rs2, Xrd;
    wire [31:0] addr;
    wire [19:0] imm_inA;
@@ -310,7 +310,7 @@ module Riscv150(
       out_bios_dmem = (select_bios_X) ? Bios_out : dmem_out;
       mem_out = (Wio_recv) ? io_out : out_bios_dmem;
       auipc_out = $signed(Wpc) + $signed(Walu_out);
-      pc_writeback = (Wjal) ? {18'b0, Wnext_pc} : auipc_out;
+      pc_writeback = (Wjal) ? Wnext_pc : auipc_out;
 
       case (Wdest)
           2'b00: rd_val = Walu_out;
