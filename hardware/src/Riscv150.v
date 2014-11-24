@@ -144,7 +144,7 @@ module Riscv150(
 		     .STypeImm2(imm_inC));
 
    bios_mem bios(.clka(clk),
-           .ena(imem_enable),
+           .ena(load_haz),
            .addra(pc[13:2]),
            .douta(inst_bios),
 	   .clkb(clk),
@@ -288,7 +288,7 @@ module Riscv150(
 
       //Execute Stage
       branch_jal_target = $signed(Xpc) + $signed(imm<<1);
-      jump_vector = (jalr) ? {Xalu_out[13:1], 1'b0}  : branch_jal_target[13:0];
+      jump_vector = (jalr) ? {Xalu_out[31:1], 1'b0}  : branch_jal_target;
       rd2_or_forwarded = (forward_b) ? Walu_out : rd2;
       b = (alu_src_b) ? imm : rd2_or_forwarded; 
 
