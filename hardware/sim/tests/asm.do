@@ -1,5 +1,5 @@
 start AsmTestbench
-file copy -force ../../../software/asmtest/asmtest.mif imem_blk_ram.mif
+file copy -force ../../../software/echo/echo.mif imem_blk_ram.mif
 file copy -force ../../../software/asmtest/asmtest.mif bios_mem.mif
 file copy -force ../../../software/asmtest/asmtest.mif dmem_blk_ram.mif
 add wave AsmTestbench/*
