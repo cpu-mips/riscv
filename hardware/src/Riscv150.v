@@ -60,7 +60,7 @@ module Riscv150(
    parameter NOP = 32'd19;
 
    //Fetch control signals
-   wire Fnoop, ena_hardwire;
+   wire Fnoop, ena_hardwire, select_bios;
 
    //Fetch registers    
    reg [31:0] pc, inst_temp; 
@@ -69,7 +69,7 @@ module Riscv150(
 
    //Execute control signals
    reg Xnoop;
-   wire lui, alu_src_b, Xreg_write;
+   wire lui, alu_src_b, Xreg_write, Xselect_bios;
    wire [3:0] aluop;
    wire [1:0] Xdest;
    wire [3:0] io_trans;
@@ -111,8 +111,9 @@ module Riscv150(
    assign load_haz = ~(delay);
    assign addr = Xalu_out;
    assign ena_hardwire = 1;
-   assign select_bios = (pc[31:28] == 4'b0100)?1:0;
-   assign select_bios_X = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD)?1:0;
+
+   assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
+   assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
@@ -307,10 +308,10 @@ module Riscv150(
 
 
       //Writeback Stage
-      out_bios_dmem = (select_bios_X) ? Bios_out : dmem_out;
+      out_bios_dmem = (Xselect_bios) ? Bios_out : dmem_out;
       mem_out = (Wio_recv) ? io_out : out_bios_dmem;
       auipc_out = $signed(Wpc) + $signed(Walu_out);
-      pc_writeback = (Wjal) ? {18'b0, Wnext_pc} : auipc_out;
+      pc_writeback = (Wjal) ? Wnext_pc : auipc_out;
 
       case (Wdest)
           2'b00: rd_val = Walu_out;

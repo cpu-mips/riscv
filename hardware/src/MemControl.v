@@ -113,7 +113,7 @@ module MemControl(
                         out_rd2_reg = rd2;
                     end
                 endcase
-                if (1'b0 == A[31] && 1'b1 == A[28])
+                if (1'b0 == A[31] && 1'b0 == A[30] && 1'b1 == A[28])
                 begin
                     dmem_reg = mask_reg;
                 end
@@ -121,7 +121,7 @@ module MemControl(
                 begin
                     dmem_reg = 4'b000;
                 end
-                if (1'b0 == A[31] && 1'b1 == A[29])
+                if (1'b0 == A[31] && 1'b0 == A[30] && 1'b1 == A[29])
                 begin
                     imem_reg = mask_reg;
                 end
