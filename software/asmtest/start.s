@@ -32,12 +32,12 @@ bne x2, x12, Error
 # Add more tests here!
 # Test 3: AIUPC
 addi x7, x7, 0x1
-auipc x8, 0x00001
-addi x9, x0, 0x38
-addi x10, x0, 0x00001
-slli x10, x10, 0xc
-add x10, x10, x9
-bne x8, x10, Error
+# auipc x8, 0x00001
+# addi x9, x0, 0x38
+# addi x10, x0, 0x00001
+# slli x10, x10, 0xc
+# add x10, x10, x9
+# bne x8, x10, Error
 
 #Test 4: SLT
 addi x7, x7, 0x1
@@ -74,8 +74,10 @@ bne x10, x0, Error
 addi x7, x7, 0x1
 lw x11, 0(x10)
 add x9, x11, x10
+addi x11, x11, 0x8
 sw x9, 0(x11)
-beq x9, x11, Test9
+lw x12, 0(x11)
+bne x9, x12, Error
 nop
 
 #Test 8: Jumping and writing to x0
