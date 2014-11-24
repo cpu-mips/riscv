@@ -278,6 +278,24 @@ module Riscv150(
           Wrd <=Xrd;
           Wreg_write<=Xreg_write;
       end
+      else
+      begin
+          pc <= pc;
+          Xnext_pc <= Xnext_pc;
+          Xpc <= Xpc;
+          Xnoop <= Xnoop;
+          Waddr <= Waddr;
+          Wjal <= Wjal;
+          Wdest <= Wdest;
+          Wio_recv <= Wio_recv;
+          Wfunct3 <= Wfunct3;
+          Walu_out <= Walu_out;
+          Wopcode <= Wopcode;
+          Wnext_pc <= Wnext_pc;
+          Wpc <= Wpc;
+          Wrd <= Wrd;
+          Wreg_write <= Wreg_write;
+      end
    end 
    
    always @ (*) 
