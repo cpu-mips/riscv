@@ -108,7 +108,9 @@ module Riscv150(
    wire load_haz;
    
    //Fetch wire assignemnts
+   //assign ena_hardwire = 1;
    assign ena_hardwire = 1;
+   assign dmem_read_enable = (addr[31] == 1'b0 && addr[30] == 1'b0 && addr[28] == 1'b1 && Xopcode == `OPC_LOAD) ? 1:0;
    assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
    //Execute wire assignments
    assign load_haz = ~(delay);
@@ -126,7 +128,7 @@ module Riscv150(
    //Dcache wire assignments
    assign dcache_addr = addr;
    assign dcache_we = dmem_enable;
-   assign dcache_re = ena_hardwire;
+   assign dcache_re = dmem_read_enable;
    assign dcache_din = mem_in;
    assign dcache_dout = dmem_out;
 
