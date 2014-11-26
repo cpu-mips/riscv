@@ -111,7 +111,7 @@ module Riscv150(
    assign dmem_read_enable = (addr[31] == 1'b0 && addr[30] == 1'b0 && addr[28] == 1'b1 && Xopcode == `OPC_LOAD) ? 1:0;
    assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
    //Execute wire assignments
-   assign load_haz = ~(delay);
+   assign load_haz = ~(delay) && ~stall;
    assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
    //Writeback wire assignments
    assign addr = Xalu_out;
