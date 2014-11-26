@@ -55,7 +55,6 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-
    //NOP signal;
    parameter NOP = 32'd19;
 
@@ -108,7 +107,6 @@ module Riscv150(
    wire load_haz;
    
    //Fetch wire assignemnts
-   //assign ena_hardwire = 1;
    assign ena_hardwire = 1;
    assign dmem_read_enable = (addr[31] == 1'b0 && addr[30] == 1'b0 && addr[28] == 1'b1 && Xopcode == `OPC_LOAD) ? 1:0;
    assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
@@ -123,14 +121,14 @@ module Riscv150(
    assign icache_we = imem_enable;
    assign icache_re = load_haz;
    assign icache_din = mem_in;
-   assign instruction = inst;*/
+   assign inst=instruction;*/
 
    //Dcache wire assignments
-   assign dcache_addr = addr;
+   assign dcache_addr = {4'b0,addr[27:2],2'b0};
    assign dcache_we = dmem_enable;
    assign dcache_re = dmem_read_enable;
+   assign dmem_out = dcache_dout;
    assign dcache_din = mem_in;
-   assign dcache_dout = dmem_out;
 
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
