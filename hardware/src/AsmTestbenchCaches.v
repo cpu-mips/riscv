@@ -220,7 +220,6 @@ module AsmTestbenchCaches();
     initial begin
       // Reset. Has to be long enough to not be eaten by the debouncer.
       Reset = 0;
-      DataIn = 8'h7a;
       DataInValid = 0;
       DataOutReady = 0;
 

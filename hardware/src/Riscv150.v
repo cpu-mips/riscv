@@ -125,7 +125,7 @@ module Riscv150(
    assign inst=instruction;*/
 
    //Dcache wire assignments
-   assign dcache_addr = {4'b0,addr[27:2],2'b0};
+   assign dcache_addr = {4'b0, addr[27:2], 2'b0};
    assign dcache_we = dmem_enable;
    assign dcache_re = dmem_read_enable;
    assign dmem_out = dcache_dout;
@@ -169,6 +169,7 @@ module Riscv150(
            .enb(ena_hardwire),
            .addrb(addr[13:2]),
            .doutb(Bios_out));
+
     RegFile regfile(.clk(clk),
 		   .we(Wreg_write),
 		   .ra1(rs1),
