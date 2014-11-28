@@ -75,7 +75,7 @@ module MemControlTestbench();
 
         haz_ena = 1'b1;
         pc = 32'h00000000;
-        rd = 32'hxxxxxxxx;
+        rd = 32'h0000007a;
 
         //Checking unsigned vs signed for negatives
         A = 32'h8xxxxxxx;
@@ -86,6 +86,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b1;
+        REFrd2_out = 32'hxxxxxxxx;
         #1;
         checkOutput();
 
@@ -97,6 +98,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b0;
+        REFrd2_out = 32'hxxxxxxxx;
         #1;
         checkOutput();
 
@@ -108,6 +110,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b1;
+        REFrd2_out = 32'hxxxxxxxx;
         #1;
         checkOutput();
 
@@ -119,6 +122,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b0;
+        REFrd2_out = 32'hxxxxxxxx;
         #1;
         checkOutput();
 
@@ -130,6 +134,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b0;
+        REFrd2_out = 32'hxxxxxxxx;
         #1;
         checkOutput();
 
@@ -141,6 +146,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b0;
         REFIo_trans = 4'b0001;
         REFIo_recv = 1'bx;
+        REFrd2_out = 32'h0000007a;
         #1;
         checkOutput();
 
@@ -152,6 +158,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b0;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'bx;
+        REFrd2_out = 32'h7a000000;
         #1;
         checkOutput();
 
@@ -163,6 +170,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b0;
         REFIo_trans = 4'b0000;
         REFIo_recv = 1'bx;
+        REFrd2_out = 32'h007a0000;
         #1;
         checkOutput();
 
@@ -176,6 +184,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b0;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'bx;
+        REFrd2_out = 32'h0000007a;
         #1;
         checkOutput();
 
@@ -190,6 +199,7 @@ module MemControlTestbench();
         REFdmem_en = 1'b0;
         REFIo_trans = 4'b0000;
         REFIo_recv = 1'bx;
+        REFrd2_out = 32'hxxxxxxxx;
         #1;
         checkOutput();
         $display("\n\nALL TESTS PASSED!");
