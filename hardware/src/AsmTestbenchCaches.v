@@ -235,7 +235,7 @@ module AsmTestbenchCaches();
 		while(!DataOutValid) #(Cycle); 
 		$display("%s", DataOut);
 		DataOutReady = 1'b1;
-		#(Cycle);
+		#(5 * Cycle);
 		DataOutReady = 1'b0;
 	end
 	$display("You got UART!");
