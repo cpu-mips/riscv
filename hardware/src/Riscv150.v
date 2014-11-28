@@ -55,12 +55,11 @@ module Riscv150(
     output         line_trigger
 `endif
 );
-
    //NOP signal;
    parameter NOP = 32'd19;
 
    //Fetch control signals
-   wire Fnoop, ena_hardwire;
+   wire Fnoop, ena_hardwire, select_bios;
 
    //Fetch registers    
    reg [31:0] pc, inst_temp; 
@@ -69,7 +68,7 @@ module Riscv150(
 
    //Execute control signals
    reg Xnoop;
-   wire lui, alu_src_b, Xreg_write;
+   wire lui, alu_src_b, Xreg_write, Xselect_bios;
    wire [3:0] aluop;
    wire [1:0] Xdest;
    wire [3:0] io_trans;
@@ -107,12 +106,30 @@ module Riscv150(
    wire [31:0] 	   aligned_mem_out, dmem_out, io_out, Bios_out;
    wire load_haz;
    
-   //Wire assignments
-   assign load_haz = ~(delay);
-   assign addr = Xalu_out;
+   //Fetch wire assignemnts
    assign ena_hardwire = 1;
-   assign select_bios = (pc[31:28] == 4'b0100)?1:0;
-   assign select_bios_X = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD)?1:0;
+   assign dmem_read_enable = (addr[31] == 1'b0 && addr[30] == 1'b0 && addr[28] == 1'b1 && Xopcode == `OPC_LOAD) ? 1:0;
+   assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
+   //Execute wire assignments
+   assign load_haz = ~(delay) && ~stall;
+   assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
+   //Writeback wire assignments
+   assign addr = Xalu_out;
+
+   //Icache wire assignments
+   /*assign icache_addr = pc;
+   assign icache_we = imem_enable;
+   assign icache_re = load_haz;
+   assign icache_din = mem_in;
+   assign inst=instruction;*/
+
+   //Dcache wire assignments
+   assign dcache_addr = {4'b0,addr[27:2],2'b0};
+   assign dcache_we = dmem_enable;
+   assign dcache_re = dmem_read_enable;
+   assign dmem_out = dcache_dout;
+   assign dcache_din = mem_in;
+
     // Instantiate the instruction memory here (checkpoint 1 only)
    imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
@@ -124,12 +141,12 @@ module Riscv150(
 		     .doutb(inst));
 
     // Instantiate the data memory here (checkpoint 1 only)
-   dmem_blk_ram dmem(.clka(clk),
+   /*dmem_blk_ram dmem(.clka(clk),
            .ena(ena_hardwire),
            .wea(dmem_enable),
            .addra(addr[13:2]),
            .dina(mem_in),
-           .douta(dmem_out));
+           .douta(dmem_out));*/
 
    Splitter splitter(.Instruction(inst_or_noop), 
 		     .Opcode(Xopcode), 
@@ -144,7 +161,7 @@ module Riscv150(
 		     .STypeImm2(imm_inC));
 
    bios_mem bios(.clka(clk),
-           .ena(enaX),
+           .ena(load_haz),
            .addra(pc[13:2]),
            .douta(inst_bios),
 	   .clkb(clk),
@@ -240,7 +257,7 @@ module Riscv150(
               // Fetch stage
               if (rst) 
               begin
-                  pc <= 32'h00000000;
+                  pc <= 32'h40000000;
               end
               else if (diverge)
               begin
@@ -277,6 +294,24 @@ module Riscv150(
           Wrd <=Xrd;
           Wreg_write<=Xreg_write;
       end
+      else
+      begin
+          pc <= pc;
+          Xnext_pc <= Xnext_pc;
+          Xpc <= Xpc;
+          Xnoop <= Xnoop;
+          Waddr <= Waddr;
+          Wjal <= Wjal;
+          Wdest <= Wdest;
+          Wio_recv <= Wio_recv;
+          Wfunct3 <= Wfunct3;
+          Walu_out <= Walu_out;
+          Wopcode <= Wopcode;
+          Wnext_pc <= Wnext_pc;
+          Wpc <= Wpc;
+          Wrd <= Wrd;
+          Wreg_write <= Wreg_write;
+      end
    end 
    
    always @ (*) 
@@ -288,7 +323,7 @@ module Riscv150(
 
       //Execute Stage
       branch_jal_target = $signed(Xpc) + $signed(imm<<1);
-      jump_vector = (jalr) ? {Xalu_out[13:1], 1'b0}  : branch_jal_target[13:0];
+      jump_vector = (jalr) ? {Xalu_out[31:1], 1'b0}  : branch_jal_target;
       rd2_or_forwarded = (forward_b) ? Walu_out : rd2;
       b = (alu_src_b) ? imm : rd2_or_forwarded; 
 
@@ -307,10 +342,10 @@ module Riscv150(
 
 
       //Writeback Stage
-      out_bios_dmem = (select_bios_X) ? Bios_out : dmem_out;
+      out_bios_dmem = (Xselect_bios) ? Bios_out : dmem_out;
       mem_out = (Wio_recv) ? io_out : out_bios_dmem;
       auipc_out = $signed(Wpc) + $signed(Walu_out);
-      pc_writeback = (Wjal) ? {18'b0, Wnext_pc} : auipc_out;
+      pc_writeback = (Wjal) ? Wnext_pc : auipc_out;
 
       case (Wdest)
           2'b00: rd_val = Walu_out;
