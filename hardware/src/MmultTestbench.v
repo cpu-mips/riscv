@@ -237,6 +237,34 @@ module MmultTestbench();
 		#(5 * Cycle);
 		DataOutReady = 1'b0;
 	end
+    $write(DataOut);
+    DataOutReady = 1'b1;
+    #(5 * Cycle);
+    DataOutReady = 1'b0;
+	while("\n" != DataOut)  
+	begin
+		while(!DataOutValid) #(Cycle); 
+		$write("%s", DataOut);
+		DataOutReady = 1'b1;
+		#(5 * Cycle);
+		DataOutReady = 1'b0;
+	end
+    $write(DataOut);
+    DataOutReady = 1'b1;
+    #(5 * Cycle);
+    DataOutReady = 1'b0;
+	while("\n" != DataOut)  
+	begin
+		while(!DataOutValid) #(Cycle); 
+		$write("%s", DataOut);
+		DataOutReady = 1'b1;
+		#(5 * Cycle);
+		DataOutReady = 1'b0;
+	end
+    $write(DataOut);
+    DataOutReady = 1'b1;
+    #(5 * Cycle);
+    DataOutReady = 1'b0;
 	$display("You got UART!");
       $finish();
   end
