@@ -130,7 +130,7 @@ module MemControl(
                 end
                 else
                 begin
-                    dmem_wr_reg = 4'b000;
+                    dmem_wr_reg = 4'b0000;
                 end
                 if (2'b00 == addr[31:30] && 1'b1 == addr[28] && 1'b1 == pc[30])
                 begin
@@ -138,7 +138,7 @@ module MemControl(
                 end
                 else
                 begin
-                    imem_wr_reg = 4'b000;
+                    imem_wr_reg = 4'b0000;
                 end
                 if (4'b1000 == addr[31:28])
                 begin
@@ -148,12 +148,12 @@ module MemControl(
                     end
                     else
                     begin
-                        io_trans_reg = 4'b000;
+                        io_trans_reg = 4'b0000;
                     end
                 end
                 else
                 begin
-                    io_trans_reg = 4'b000;
+                    io_trans_reg = 4'b0000;
                 end
             end
             default:

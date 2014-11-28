@@ -174,7 +174,7 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        pc = 32'h10000000;
+        pc = 32'h40000000;
 
         A = 32'h3xxxxxxx;
         opcode = `OPC_STORE;
