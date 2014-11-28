@@ -12,11 +12,35 @@ module MemControlTestbench();
     
     localparam Cycle = 2*Halfcycle;
     
-    reg Clock;
+    reg Clock, rst;
+
+    reg [8:0] cycles, instructions;
     
     // Clock Signal generation:
     initial Clock = 0; 
+    initial cycles = 0;
+    initial instructions = 0;
     always #(Halfcycle) Clock = ~Clock;
+    always @(posedge Clock)
+    begin
+        if (rst)
+        begin
+            cycles = 0;
+            instructions = 0;
+        end
+        else
+        begin
+            cycles = cycles + 1;
+            if (1'b0 == stall)
+            begin
+                instructions = instructions + 1;
+            end
+            else
+            begin
+                instructions = instructions;
+            end
+        end
+    end
     
     // Register and wires to test the adder
     reg [6:0] opcode;
@@ -138,7 +162,43 @@ module MemControlTestbench();
         #1;
         checkOutput();
 
-        A = 32'h8xxxxxx4;
+        A = 32'h80000010;
+        opcode = `OPC_LOAD;
+        funct3 = `FNC_LW;
+        REFImem_enable = 4'b0;
+        REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b0;
+        REFIo_trans = 4'b0;
+        REFIo_recv = 1'b1;
+        REFrd2_out = 32'hxxxxxxxx;
+        #1;
+        checkOutput();
+
+        A = 32'h80000014;
+        opcode = `OPC_LOAD;
+        funct3 = `FNC_LW;
+        REFImem_enable = 4'b0;
+        REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b0;
+        REFIo_trans = 4'b0;
+        REFIo_recv = 1'b1;
+        REFrd2_out = 32'hxxxxxxxx;
+        #1;
+        checkOutput();
+
+        A = 32'h80000018;
+        opcode = `OPC_STORE;
+        funct3 = `FNC_SW;
+        REFImem_enable = 4'b0;
+        REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b0;
+        REFIo_trans = 4'b0001;
+        REFIo_recv = 1'b0;
+        REFrd2_out = 32'hxxxxxxxx;
+        #1;
+        checkOutput();
+
+        A = 32'h80000004;
         opcode = `OPC_STORE;
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
