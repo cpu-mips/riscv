@@ -109,7 +109,6 @@ module Riscv150(
    
    //Fetch wire assignemnts
    assign ena_hardwire = 1;
-   assign dmem_read_enable = (addr[31] == 1'b0 && addr[30] == 1'b0 && addr[28] == 1'b1 && Xopcode == `OPC_LOAD) ? 1:0;
    assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
    //Execute wire assignments
    assign load_haz = ~(delay) && ~stall;
@@ -214,7 +213,7 @@ module Riscv150(
              .rd2(rd2_or_forwarded),
              .haz_ena(load_haz),
              .pc(Xpc),
-             .dmem_en(),
+             .dmem_en(dmem_read_enable),
 			 .dmem_wr_en(dmem_enable),
 			 .imem_wr_en(imem_enable),
 			 .io_trans(io_trans),
