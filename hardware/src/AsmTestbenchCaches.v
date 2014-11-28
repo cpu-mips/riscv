@@ -232,7 +232,7 @@ module AsmTestbenchCaches();
 	while("\n" != DataOut)  
 	begin
 		while(!DataOutValid) #(Cycle); 
-		$display("%s", DataOut);
+		$write("%s", DataOut);
 		DataOutReady = 1'b1;
 		#(5 * Cycle);
 		DataOutReady = 1'b0;
