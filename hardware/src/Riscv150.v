@@ -86,6 +86,7 @@ module Riscv150(
    wire zero;
    wire [4:0] rs1, rs2, Xrd;
    wire [31:0] addr;
+   wire dmem_read_enable;
    wire [19:0] imm_inA;
    wire [11:0] imm_inB;
    wire [6:0] imm_inC;
@@ -206,16 +207,18 @@ module Riscv150(
 			       .Zero(zero),
 			       .Diverge(diverge));
    
-   MemControl memcontrol(.Opcode(Xopcode),
-			 .Funct3(Xfunct3),
-			 .A(Xalu_out),
+   MemControl memcontrol(.opcode(Xopcode),
+			 .funct3(Xfunct3),
+			 .addr(Xalu_out),
              .rd2(rd2_or_forwarded),
              .haz_ena(load_haz),
-			 .Dmem_enable(dmem_enable),
-			 .Imem_enable(imem_enable),
-			 .Io_trans(io_trans),
-			 .Io_recv(Xio_recv),
-             .shifted_rd2(mem_in));
+             .pc(Xpc),
+             .dmem_en(),
+			 .dmem_wr_en(dmem_enable),
+			 .imem_wr_en(imem_enable),
+			 .io_trans(io_trans),
+			 .io_recv(Xio_recv),
+             .mem_in(mem_in));
    
    IOInterface io(.rd2(mem_in),
 		  .Addr(Xalu_out),
