@@ -21,44 +21,50 @@ module MemControlTestbench();
     // Register and wires to test the adder
     reg [6:0] opcode;
     reg [2:0] funct3;
-    reg [31:0] A, rd2;
+    reg [31:0] A, pc, rd;
     reg haz_ena;
     reg [3:0] REFImem_enable, REFDmem_enable, REFIo_trans;
-    reg REFIo_recv;
+    reg [31:0] REFrd2_out;
+    reg REFIo_recv, REFdmem_en;
 
     wire [3:0] DUTImem_enable, DUTDmem_enable, DUTIo_trans;
-    wire [31:0] rd2_out;
-    wire DUTIo_recv;
+    wire [31:0] DUTrd2_out;
+    wire DUTIo_recv, DUTdmem_en;
 
     // Task for checking output
     task checkOutput;
         if ( REFImem_enable !== DUTImem_enable || 
              REFDmem_enable !== DUTDmem_enable ||
              REFIo_trans !== DUTIo_trans ||
-             REFIo_recv !== DUTIo_recv) begin
+             REFIo_recv !== DUTIo_recv ||
+             REFdmem_en !== DUTdmem_en) begin
             $display("FAIL: Incorrect result for A 0x%h, opcode %b, Funct %b", A, opcode, funct3);
-            $display("\tDUTImem_enable:%b, REFImem_enable:%b DUTDmem_enable:%b REFDmem_enable:%b", DUTImem_enable, REFImem_enable, DUTDmem_enable, REFDmem_enable);
+            $display("\tDUTrd2_out:%b REFrd2_out:%b", DUTrd2_out, REFrd2_out);
+            $display("\tDUTImem_enable:%b, REFImem_enable:%b DUTDmem_enable:%b REFDmem_enable:%b DUTdmem_en:%b REFdmem_en:%b", DUTImem_enable, REFImem_enable, DUTDmem_enable, REFDmem_enable, DUTdmem_en, REFdmem_en);
             $display("\tDUTIo_trans:%b, REFIo_trans:%b DUTIo_recv:%b REFIo_recv:%b", DUTIo_trans, REFIo_trans, DUTIo_recv, REFIo_recv);
             $finish();
         end
         else begin
             $display("PASS: Correct result for A 0x%h, opcode %b, Funct %b", A, opcode, funct3);
-            $display("\tDUTImem_enable:%b, REFImem_enable:%b DUTDmem_enable:%b REFDmem_enable:%b", DUTImem_enable, REFImem_enable, DUTDmem_enable, REFDmem_enable);
+            $display("\tDUTrd2_out:%b REFrd2_out:%b", DUTrd2_out, REFrd2_out);
+            $display("\tDUTImem_enable:%b, REFImem_enable:%b DUTDmem_enable:%b REFDmem_enable:%b DUTdmem_en:%b REFdmem_en:%b", DUTImem_enable, REFImem_enable, DUTDmem_enable, REFDmem_enable, DUTdmem_en, REFdmem_en);
             $display("\tDUTIo_trans:%b, REFIo_trans:%b DUTIo_recv:%b REFIo_recv:%b", DUTIo_trans, REFIo_trans, DUTIo_recv, REFIo_recv);
         end
     endtask
 
     MemControl DUT(
-        .Opcode(opcode),
-        .Funct3(funct3),
-        .A(A),
-        .rd2(32'bx),
+        .opcode(opcode),
+        .funct3(funct3),
+        .addr(A),
+        .rd2(rd),
+        .pc(pc),
         .haz_ena(haz_ena),
-        .Dmem_enable(DUTDmem_enable),
-        .Imem_enable(DUTImem_enable),
-        .Io_trans(DUTIo_trans),
-        .Io_recv(DUTIo_recv),
-        .shifted_rd2(rd2_out)
+        .dmem_en(DUTdmem_en),
+        .dmem_wr_en(DUTDmem_enable),
+        .imem_wr_en(DUTImem_enable),
+        .io_trans(DUTIo_trans),
+        .io_recv(DUTIo_recv),
+        .mem_in(DUTrd2_out)
     );
 
     // Testing logic:
@@ -68,6 +74,8 @@ module MemControlTestbench();
         ///////////////////////////////
 
         haz_ena = 1'b1;
+        pc = 32'h00000000;
+        rd = 32'hxxxxxxxx;
 
         //Checking unsigned vs signed for negatives
         A = 32'h8xxxxxxx;
@@ -75,6 +83,7 @@ module MemControlTestbench();
         funct3 = `FNC_LB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b1;
         #1;
@@ -85,6 +94,7 @@ module MemControlTestbench();
         funct3 = `FNC_LH;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b0;
         #1;
@@ -95,6 +105,7 @@ module MemControlTestbench();
         funct3 = `FNC_LW;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b1;
         #1;
@@ -105,6 +116,7 @@ module MemControlTestbench();
         funct3 = `FNC_LBU;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b0;
         #1;
@@ -115,6 +127,7 @@ module MemControlTestbench();
         funct3 = `FNC_LHU;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b1;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'b0;
         #1;
@@ -125,6 +138,7 @@ module MemControlTestbench();
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b0;
         REFIo_trans = 4'b0001;
         REFIo_recv = 1'bx;
         #1;
@@ -135,6 +149,7 @@ module MemControlTestbench();
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b1000;
+        REFdmem_en = 1'b0;
         REFIo_trans = 4'b0;
         REFIo_recv = 1'bx;
         #1;
@@ -145,27 +160,34 @@ module MemControlTestbench();
         funct3 = `FNC_SH;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b1100;
+        REFdmem_en = 1'b0;
         REFIo_trans = 4'b0000;
         REFIo_recv = 1'bx;
         #1;
         checkOutput();
+
+        pc = 32'h10000000;
 
         A = 32'h3xxxxxxx;
         opcode = `OPC_STORE;
         funct3 = `FNC_SW;
         REFImem_enable = 4'b1111;
         REFDmem_enable = 4'b1111;
+        REFdmem_en = 1'b0;
         REFIo_trans = 4'b0;
-        REFIo_recv = 4'bx;
+        REFIo_recv = 1'bx;
         #1;
         checkOutput();
 
+        pc = 32'h00000000;
         haz_ena = 1'b0;
+
         A = 32'h8xxxxxx4;
         opcode = `OPC_STORE;
         funct3 = `FNC_SB;
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
+        REFdmem_en = 1'b0;
         REFIo_trans = 4'b0000;
         REFIo_recv = 1'bx;
         #1;

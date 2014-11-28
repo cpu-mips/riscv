@@ -15,51 +15,62 @@
 `include "Opcode.vh"
 
 module MemControl(
-    input [6:0] Opcode,
-    input [2:0] Funct3,
-    input [31:0] A,
+    input [6:0] opcode,
+    input [2:0] funct3,
+    input [31:0] addr,
     input [31:0] rd2,
+    input [31:0] pc,
     input haz_ena,
-    output [3:0] Dmem_enable,
-    output [3:0] Imem_enable,
-    output [3:0] Io_trans,
-    output Io_recv,
-    output [31:0] shifted_rd2);
+    output dmem_en,
+    output [3:0] dmem_wr_en,
+    output [3:0] imem_wr_en,
+    output [3:0] io_trans,
+    output io_recv,
+    output [31:0] mem_in);
 
     reg [31:0] out_rd2_reg;
-    reg [3:0] dmem_reg, imem_reg, mask_reg, io_trans_reg;
-    reg io_recv_reg;
+    reg [3:0] dmem_wr_reg, imem_wr_reg, mask_reg, io_trans_reg;
+    reg dmem_reg, io_recv_reg;
 
-    assign Dmem_enable = dmem_reg;
-    assign Imem_enable = imem_reg;
-    assign Io_trans = io_trans_reg;
-    assign Io_recv = io_recv_reg;
-    assign shifted_rd2 = out_rd2_reg;
+    assign dmem_en = dmem_reg;
+    assign dmem_wr_en = dmem_wr_reg;
+    assign imem_wr_en = imem_wr_reg;
+    assign io_trans = io_trans_reg;
+    assign io_recv = io_recv_reg;
+    assign mem_in = out_rd2_reg;
 
     always@(*)
     begin
-        case(Opcode)
+        case(opcode)
             `OPC_LOAD:
             begin
-                dmem_reg = 4'b000;
-                imem_reg = 4'b000;
+                dmem_wr_reg = 4'b000;
+                imem_wr_reg = 4'b000;
                 io_trans_reg = 4'b000;
-                if (4'b1000 == A[31:28])
+                if (4'b1000 == addr[31:28])
                 begin
                     io_recv_reg = 1'b1;
+                    dmem_reg = 1'b0;
+                end
+                else if (2'b00 == addr[31:30] && 1'b1 == addr[28])
+                begin
+                    dmem_reg = 1'b1;
+                    io_recv_reg = 1'b0;
                 end
                 else
                 begin
                     io_recv_reg = 1'b0;
+                    dmem_reg = 1'b0;
                 end
             end
             `OPC_STORE:
             begin
+                dmem_reg = 1'b0;
                 io_recv_reg = 1'bx;
-                case (Funct3)
+                case (funct3)
                     `FNC_SB:
                     begin
-                        case (A[1:0])
+                        case (addr[1:0])
                             2'b00:
                             begin
                                 mask_reg = 4'b0001;
@@ -89,7 +100,7 @@ module MemControl(
                     end
                     `FNC_SH:
                     begin
-                        case (A[1:0])
+                        case (addr[1:0])
                             2'b00:
                             begin
                                 mask_reg = 4'b0011;
@@ -113,23 +124,23 @@ module MemControl(
                         out_rd2_reg = rd2;
                     end
                 endcase
-                if (1'b0 == A[31] && 1'b1 == A[28])
+                if (2'b00 == addr[31:30] && 1'b1 == addr[28])
                 begin
-                    dmem_reg = mask_reg;
+                    dmem_wr_reg = mask_reg;
                 end
                 else
                 begin
-                    dmem_reg = 4'b000;
+                    dmem_wr_reg = 4'b000;
                 end
-                if (1'b0 == A[31] && 1'b1 == A[29])
+                if (2'b00 == addr[31:30] && 1'b1 == addr[28] && 1'b1 == pc[30])
                 begin
-                    imem_reg = mask_reg;
+                    imem_wr_reg = mask_reg;
                 end
                 else
                 begin
-                    imem_reg = 4'b000;
+                    imem_wr_reg = 4'b000;
                 end
-                if (4'b1000 == A[31:28])
+                if (4'b1000 == addr[31:28])
                 begin
                     if (1'b1 == haz_ena)
                     begin
@@ -147,8 +158,9 @@ module MemControl(
             end
             default:
             begin
-                dmem_reg = 4'b000;
-                imem_reg = 4'b000;
+                dmem_reg = 1'b0;
+                dmem_wr_reg = 4'b000;
+                imem_wr_reg = 4'b000;
                 io_trans_reg = 4'b000;
                 io_recv_reg = 1'b0;
             end
