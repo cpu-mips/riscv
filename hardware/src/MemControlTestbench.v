@@ -12,35 +12,10 @@ module MemControlTestbench();
     
     localparam Cycle = 2*Halfcycle;
     
-    reg Clock, rst;
-
-    reg [8:0] cycles, instructions;
+    reg Clock;
     
     // Clock Signal generation:
     initial Clock = 0; 
-    initial cycles = 0;
-    initial instructions = 0;
-    always #(Halfcycle) Clock = ~Clock;
-    always @(posedge Clock)
-    begin
-        if (rst)
-        begin
-            cycles = 0;
-            instructions = 0;
-        end
-        else
-        begin
-            cycles = cycles + 1;
-            if (1'b0 == stall)
-            begin
-                instructions = instructions + 1;
-            end
-            else
-            begin
-                instructions = instructions;
-            end
-        end
-    end
     
     // Register and wires to test the adder
     reg [6:0] opcode;
@@ -192,7 +167,7 @@ module MemControlTestbench();
         REFImem_enable = 4'b0;
         REFDmem_enable = 4'b0;
         REFdmem_en = 1'b0;
-        REFIo_trans = 4'b0001;
+        REFIo_trans = 4'b1111;
         REFIo_recv = 1'b0;
         REFrd2_out = 32'hxxxxxxxx;
         #1;
