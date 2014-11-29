@@ -66,7 +66,7 @@ module MemControl(
             `OPC_STORE:
             begin
                 dmem_reg = 1'b0;
-                io_recv_reg = 1'bx;
+                io_recv_reg = 1'b0;
                 case (funct3)
                     `FNC_SB:
                     begin
