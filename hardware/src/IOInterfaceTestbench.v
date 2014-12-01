@@ -17,15 +17,26 @@ module IOInterfaceTestbench();
     reg [7:0] cycles, instructions;
     
     // Clock Signal generation:
-    initial Clock = 0; 
-    initial stall = 0;
-    initial rst = 0;
+    initial Clock = 1'b0; 
+    initial stall = 1'b0;
     initial cycles = 8'b0;
     initial instructions = 8'b0;
+
     always #(Halfcycle) Clock = ~Clock;
+    
+    // Register and wires to test the adder
+    reg [31:0] rd2, Addr;
+    reg [3:0] io_trans;
+    reg io_recv, din_valid, dout_ready, Reset;
+    reg [7:0] din, REFout, DUTout;
+
+    wire uart_to_io, io_to_uart, din_ready, dout_valid;
+    wire [31:0] recieve_out;
+    wire  [7:0] dout;
+
     always @(posedge Clock)
     begin
-        if (rst)
+        if (Reset)
         begin
             cycles = 8'b0;
             instructions = 8'b0;
@@ -39,16 +50,6 @@ module IOInterfaceTestbench();
             end
         end
     end
-    
-    // Register and wires to test the adder
-    reg [31:0] rd2, Addr;
-    reg [3:0] io_trans;
-    reg io_recv, din_valid, dout_ready, Reset;
-    reg [7:0] din, REFout, DUTout;
-
-    wire uart_to_io, io_to_uart, din_ready, dout_valid;
-    wire [31:0] recieve_out;
-    wire  [7:0] dout;
 
     // Task for checking output
     task checkOutput;
@@ -105,9 +106,7 @@ module IOInterfaceTestbench();
         io_trans = 4'bxxx0;
         io_recv = 1'b1;
         din = 8'b10101010;
-        din_valid = 1'b1;
-        Addr = 32'h80000000;
-        REFout = din;
+        din_valid = 1'b1; Addr = 32'h80000000; REFout = din;
         #(2 * Cycle)
         while (1'b0 == recieve_out[1])
         begin
@@ -138,24 +137,29 @@ module IOInterfaceTestbench();
 
         //Checking Counters
         Addr = 32'h80000010;
-        REFout = cycles;
-        DUTout = recieve_out;
         #(1 * Cycle);
+        REFout = cycles - 1;
+        DUTout = recieve_out;
         checkOutput(Addr);
 
+        stall = 1'b1;
+        #(5 * Cycle);
+        stall = 1'b0;
+
         Addr = 32'h80000014;
-        REFout = instructions;
-        DUTout = recieve_out;
         #(1 * Cycle);
+        REFout = instructions - 1;
+        DUTout = recieve_out;
         checkOutput(Addr);
 
         Addr = 32'h80000018;
-        rst = 1;
+        Reset = 1;
         #(1 * Cycle);
+        Reset = 0;
         Addr = 32'h80000010;
-        REFout = cycles;
+        #(5 * Cycle);
+        REFout = cycles - 1;
         DUTout = recieve_out;
-        #(1 * Cycle);
         checkOutput(Addr);
         $display("\n\nALL TESTS PASSED!");
         $finish();

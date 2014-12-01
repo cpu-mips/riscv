@@ -27,7 +27,7 @@ module IOInterface(
 
     reg [7:0] din;
     reg [31:0] io_out, synch_io_out;
-    reg [7:0] cycles, instructions;
+    reg [31:0] cycles, instructions;
 
     UART uart(
         .Clock(Clock),
@@ -48,7 +48,12 @@ module IOInterface(
     always@(posedge Clock)
     begin
         synch_io_out <= io_out;
-        if (32'h80000018 == Addr)
+        if (Reset)
+        begin
+            instructions <= 0;
+            cycles <= 0;
+        end
+        else if (32'h80000018 == Addr)
         begin
             instructions <= 0;
             cycles <= 0;
