@@ -12,11 +12,33 @@ module IOInterfaceTestbench();
     
     localparam Cycle = 2*Halfcycle;
     
-    reg Clock;
+    reg Clock, rst, stall;
+
+    reg [7:0] cycles, instructions;
     
     // Clock Signal generation:
     initial Clock = 0; 
+    initial stall = 0;
+    initial rst = 0;
+    initial cycles = 8'b0;
+    initial instructions = 8'b0;
     always #(Halfcycle) Clock = ~Clock;
+    always @(posedge Clock)
+    begin
+        if (rst)
+        begin
+            cycles = 8'b0;
+            instructions = 8'b0;
+        end
+        else
+        begin
+            cycles = cycles + 1;
+            if (~stall)
+            begin
+                instructions = instructions + 1;
+            end
+        end
+    end
     
     // Register and wires to test the adder
     reg [31:0] rd2, Addr;
@@ -49,6 +71,7 @@ module IOInterfaceTestbench();
         .IO_recv(io_recv),
         .Clock(Clock),
         .Reset(Reset),
+        .Stall(stall),
         .FPGA_Sin(uart_to_io),
         .FPGA_Sout(io_to_uart), 
         .Received(recieve_out)
@@ -113,6 +136,27 @@ module IOInterfaceTestbench();
         DUTout = dout;
         checkOutput(rd2);
 
+        //Checking Counters
+        Addr = 32'h80000010;
+        REFout = cycles;
+        DUTout = recieve_out;
+        #(1 * Cycle);
+        checkOutput(Addr);
+
+        Addr = 32'h80000014;
+        REFout = instructions;
+        DUTout = recieve_out;
+        #(1 * Cycle);
+        checkOutput(Addr);
+
+        Addr = 32'h80000018;
+        rst = 1;
+        #(1 * Cycle);
+        Addr = 32'h80000010;
+        REFout = cycles;
+        DUTout = recieve_out;
+        #(1 * Cycle);
+        checkOutput(Addr);
         $display("\n\nALL TESTS PASSED!");
         $finish();
     end

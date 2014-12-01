@@ -16,6 +16,7 @@ module IOInterface(
     input IO_recv,
     input Clock,
     input Reset,
+    input Stall,
     input FPGA_Sin,
     output FPGA_Sout,
     output [31:0] Received);
@@ -26,6 +27,7 @@ module IOInterface(
 
     reg [7:0] din;
     reg [31:0] io_out, synch_io_out;
+    reg [7:0] cycles, instructions;
 
     UART uart(
         .Clock(Clock),
@@ -46,6 +48,23 @@ module IOInterface(
     always@(posedge Clock)
     begin
         synch_io_out <= io_out;
+        if (32'h80000018 == Addr)
+        begin
+            instructions <= 0;
+            cycles <= 0;
+        end
+        else
+        begin
+            cycles <= cycles + 1;
+            if (Stall)
+            begin
+                instructions <= instructions;
+            end
+            else
+            begin
+                instructions <= instructions + 1;
+            end
+        end
     end
 
 
@@ -101,6 +120,16 @@ module IOInterface(
                     din = 8'bx;
                     din_valid = 1'b0;
                 end
+            end
+            32'h80000010:
+            begin
+                din = 8'bx;
+                io_out = cycles;
+            end
+            32'h80000014:
+            begin
+                din = 8'bx;
+                io_out = instructions;
             end
             default:
             begin
