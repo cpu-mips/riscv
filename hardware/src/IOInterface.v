@@ -129,11 +129,15 @@ module IOInterface(
             32'h80000010:
             begin
                 din = 8'bx;
+                din_valid = 1'b0;
+                dout_ready = 1'b0;
                 io_out = cycles;
             end
             32'h80000014:
             begin
                 din = 8'bx;
+                din_valid = 1'b0;
+                dout_ready = 1'b0;
                 io_out = instructions;
             end
             default:
