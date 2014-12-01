@@ -117,11 +117,11 @@ module Riscv150(
    assign addr = Xalu_out;
 
    //Icache wire assignments
-   /*assign icache_addr = pc;
-   assign icache_we = imem_enable;
-   assign icache_re = load_haz;
+   assign icache_addr = (imem_enable[3] || imem_enable[2] || imem_enable[1] || imem_enable[0]) ? {4'b0,addr[27:2], 2'b0}:{4'b0,pc[27:2],2'b0};
+   assign icache_we = imem_enable && load_haz;
+   assign icache_re = load_haz && ~select_bios;
    assign icache_din = mem_in;
-   assign inst=instruction;*/
+   assign inst=instruction;
 
    //Dcache wire assignments
    assign dcache_addr = {4'b0, addr[27:2], 2'b0};
@@ -131,14 +131,14 @@ module Riscv150(
    assign dcache_din = mem_in;
 
     // Instantiate the instruction memory here (checkpoint 1 only)
-   imem_blk_ram imem(.clka(clk),
+   /*imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
 		     .wea(imem_enable),
 		     .addra(addr[13:2]),
 		     .dina(mem_in),
 		     .clkb(clk),
 		     .addrb(pc[13:2]),
-		     .doutb(inst));
+		     .doutb(inst));*/
 
     // Instantiate the data memory here (checkpoint 1 only)
    /*dmem_blk_ram dmem(.clka(clk),
@@ -256,7 +256,7 @@ module Riscv150(
    begin
        if (~stall)
        begin
-          if (load_haz) 
+          if (load_haz || rst ) 
           begin
               // Fetch stage
               if (rst) 
