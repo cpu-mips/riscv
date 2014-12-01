@@ -226,6 +226,7 @@ module Riscv150(
 		  .IO_recv(Xio_recv),
 		  .Clock(clk),
 		  .Reset(rst),
+          .Stall(stall),
           .FPGA_Sin(FPGA_SERIAL_RX),
           .FPGA_Sout(FPGA_SERIAL_TX),
 		  .Received(io_out));
