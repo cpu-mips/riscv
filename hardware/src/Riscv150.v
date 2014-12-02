@@ -63,6 +63,8 @@ module Riscv150(
 
    //Fetch registers    
    reg [31:0] pc, inst_temp; 
+   reg [31:0] icache_addr_reg, dcache_addr_reg;
+   wire[31:0] icache_wire, dcache_wire;
    //Fetch wires
    wire [31:0] inst_bios;
 
@@ -115,9 +117,10 @@ module Riscv150(
    assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
    //Writeback wire assignments
    assign addr = Xalu_out;
-
+   assign icache_wire = (stall) ? icache_addr_reg:pc;
+   assign dcache_wire = (stall) ? dcache_addr_reg:addr;
    //Icache wire assignments
-   assign icache_addr = (imem_enable[3] || imem_enable[2] || imem_enable[1] || imem_enable[0]) ? {4'b0,addr[27:2], 2'b0}:{4'b0,pc[27:2],2'b0};
+   assign icache_addr = (imem_enable[3] || imem_enable[2] || imem_enable[1] || imem_enable[0]) ? {4'b0,dcache_wire[27:2], 2'b0}:{4'b0,icache_wire[27:2],2'b0};
    assign icache_we = imem_enable && load_haz;
    assign icache_re = load_haz && ~select_bios;
    assign icache_din = mem_in;
@@ -271,7 +274,7 @@ module Riscv150(
               begin
                   pc <= pc + 4;
               end
-
+	icache_addr_reg <= pc;
               // Execute stage
               Xnext_pc <= pc + 4;
               Xpc<=pc;
@@ -284,7 +287,7 @@ module Riscv150(
               Xpc <= Xpc;
               Xnoop <= Fnoop;
           end
-
+	  dcache_addr_reg <= addr;
           // Writeback stage
           Waddr <= addr;
           Wjal <= Xjal;
@@ -300,6 +303,8 @@ module Riscv150(
       end
       else
       begin
+	  icache_addr_reg <= icache_addr_reg;
+	  dcache_addr_reg <= dcache_addr_reg;
           pc <= pc;
           Xnext_pc <= Xnext_pc;
           Xpc <= Xpc;
