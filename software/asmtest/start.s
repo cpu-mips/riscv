@@ -105,13 +105,13 @@ bne x7, x7, Error
 #Test 10: Stores, Stores, Stores
 addi x7, x7, 0x1
 lui x8, 0xdeadb
-addi x8, x0, 0xef
+addi x8, x8, 0xef
 addi x1, x0, 0xef
 lui x2, 0x0000b
-addi x2, x0, 0xef
+addi x2, x2, 0xef
 lui x3, 0xfffff
 addi x5, x0, 0xf
-slli x5, x5, 0x2
+slli x5, x5, 0x8
 add x3, x5, x3
 addi x3, x3, 0xef
 lui x4, 0xffffb
@@ -123,11 +123,11 @@ sh x8, 64(x10)
 lbu x9, 32(x10)
 lhu x11, 64(x10)
 lb x5, 32(x10)
-lw x6, 64(x10)
+lh x6, 64(x10)
 bne x9, x1, Error
 bne x11, x2, Error
-bne x5, x1, Error
-bne x6, x2, Error
+bne x5, x3, Error
+bne x6, x4, Error
 j Pass
 
 Error:
