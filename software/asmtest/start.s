@@ -43,32 +43,32 @@ addi x7, x7, 0x1
 addi x7, x7, 0x1
 addi x8, x0, 0x8
 add x9, x8, x7
-slt x10, x9, x8
-bne x10, x0, Error
-slt x10, x8, x9
-beq x10, x0, Error
-slti x10, x9, 0x8
-bne x10, x0, Error
+slt x11, x9, x8
+bne x11, x0, Error
+slt x11, x8, x9
+beq x11, x0, Error
+slti x11, x9, 0x8
+bne x11, x0, Error
 
 #Test 5: shifts
 addi x7, x7, 0x1
 addi x8, x0, 0x8 
 srli x9, x8, 0x3
-addi x10, x0, 0x1
-bne x9, x10, Error
-sll x9, x9, x10
-addi x11, x0, 0x2
-bne x11, x9, Error
+addi x11, x0, 0x1
+bne x9, x11, Error
+sll x9, x9, x11
+addi x12, x0, 0x2
+bne x12, x9, Error
 
 #Test 6: logic operations
 addi x7, x7, 0x1
 addi x9,x0,0xf
-or x10, x9, x0
-bne x9, x10, Error
-xor x10, x9, x0
-bne x10, x9, Error
-and x10, x9, x0
-bne x10, x0, Error
+or x11, x9, x0
+bne x9, x11, Error
+xor x11, x9, x0
+bne x11, x9, Error
+and x11, x9, x0
+bne x11, x0, Error
 
 #Test 7: Mother-of-all Hazards
 addi x7, x7, 0x1
@@ -93,16 +93,41 @@ add x0, x7, x8
 bne x0, x8, Error
 
 #Test 9: Branches Galore
-addi x10, x7, 0x0
+addi x11, x7, 0x0
 addi x7, x7, 0x1
-beq x10, x7, Error
-blt x7, x10, Error
-bge x10, x7, Error
+beq x11, x7, Error
+blt x7, x11, Error
+bge x11, x7, Error
 bne x7, x7, Error
 #bltu x7, x10, Error
 #bgeu x7, x10, Error
 
-
+#Test 10: Stores, Stores, Stores
+addi x7, x7, 0x1
+lui x8, 0xdeadb
+addi x8, x0, 0xef
+addi x1, x0, 0xef
+lui x2, 0x0000b
+addi x2, x0, 0xef
+lui x3, 0xfffff
+addi x5, x0, 0xf
+slli x5, x5, 0x2
+add x3, x5, x3
+addi x3, x3, 0xef
+lui x4, 0xffffb
+addi x4, x4, 0xef
+#addi x3, x0, 0xffffffef
+#addi x4, x0, 0xffffb0ef
+sb x8, 32(x10)
+sh x8, 64(x10)
+lbu x9, 32(x10)
+lhu x11, 64(x10)
+lb x5, 32(x10)
+lw x6, 64(x10)
+bne x9, x1, Error
+bne x11, x2, Error
+bne x5, x1, Error
+bne x6, x2, Error
 j Pass
 
 Error:
