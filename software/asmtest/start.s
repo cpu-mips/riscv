@@ -69,12 +69,17 @@ addi x12, x0, 0x2
 bne x12, x9, Error
 lui x8, 0xf0000
 lui x11, 0xff000
+lui x12, 0x0f000
 addi x2, x0, 0x4
 sra x9, x8, x2
 srai x8, x8, 0x4 
 bne x8, x9, Error
 bne x8, x11, Error
 bne x9, x11, Error
+lui x8, 0xf0000
+srli x9, x8, 0x4
+beq x11, x9, Error
+bne x12, x9, Error
 
 #Test 6: logic operations
 addi x7, x7, 0x1
