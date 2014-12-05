@@ -53,6 +53,10 @@ lui x8, 0xfffff
 addi x8, x8, 0x1
 lui x2, 0x00000
 addi x2, x2, 0x1
+sltu x11, x2, x8 
+beq x11, x0, Error
+sltiu x11, x8, 0x0
+bne x11, x0, Error
 
 #Test 5: shifts
 addi x7, x7, 0x1
