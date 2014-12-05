@@ -49,6 +49,10 @@ slt x11, x8, x9
 beq x11, x0, Error
 slti x11, x9, 0x8
 bne x11, x0, Error
+lui x8, 0xfffff
+addi x8, x8, 0x1
+lui x2, 0x00000
+addi x2, x2, 0x1
 
 #Test 5: shifts
 addi x7, x7, 0x1
@@ -97,10 +101,16 @@ addi x11, x7, 0x0
 addi x7, x7, 0x1
 beq x11, x7, Error
 blt x7, x11, Error
+blt x7, x7, Error
 bge x11, x7, Error
 bne x7, x7, Error
-#bltu x7, x10, Error
-#bgeu x7, x10, Error
+lui x8, 0xfffff
+addi x8, x8, 0x1
+lui x2, 0x00000
+addi x2, x2, 0x1
+bltu x8, x2, Error
+bltu x8, x8, Error
+bgeu x2, x8, Error
 
 #Test 10: Stores, Stores, Stores
 addi x7, x7, 0x1
