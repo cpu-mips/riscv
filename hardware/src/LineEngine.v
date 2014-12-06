@@ -31,9 +31,9 @@ module LineEngine(
 	wire stall;
     reg [1:0] cs, ns;
     reg ystep, steep;
-    reg [9:0] x0_temp, x1_temp, y0_temp, y1_temp, x0, x1, y0, y1;
-    reg [9:0] abs_deltax, abs_deltay, deltax, deltay, error;
-    reg [9:0] x_reg, y_reg, error_reg;
+    reg [31:0] x0_temp, x1_temp, y0_temp, y1_temp, x0, x1, y0, y1;
+    reg [31:0] abs_deltax, abs_deltay, deltax, deltay, error;
+    reg [31:0] x_reg, y_reg, error_reg, x_reg_final;
 	reg [31:0] addr, color;
 	reg [3:0] we;
     // Implement Bresenham's line drawing algorithm here!
@@ -124,27 +124,41 @@ module LineEngine(
         case (cs)
             IDLE: ns = (LE_trigger) ? START : IDLE;
 			START: ns = (~stall) ? DRAW:START;
-            DRAW: ns = (x_reg < x1 || x_reg == x1) ? DRAW : IDLE;
+            DRAW: ns = (x_reg < x1+1) ? DRAW : IDLE;
 			default: ns = IDLE;
         endcase
     end
     
-
+	always @ (*) begin
+		if (cs == DRAW) begin
+			if (~stall) we = 4'b1111;
+			else we = 4'b0;
+		end
+	end
+	
     always @ (posedge clk) begin
         if (cs == DRAW) begin
             if (~stall) begin
-				x_reg <= x_reg+1;
-				we <= 4'b1111;
+				//we <= 4'b1111;
+				//x_reg<=x_reg+1;
 				//addr <= (steep) ? {12'b000000000001, x_reg[9:0], y_reg[9:3], 2'b0}:{12'b000000000001, y_reg[9:0], x_reg[9:3], 2'b0};
-				addr <=(steep) ?  {10'b0001000001, x_reg[9:0], y_reg[9:0], 2'b0} : {10'b0001000001, y_reg[9:0], x_reg[9:0], 2'b0};
+				addr <=(steep) ?  {10'b0001000001, x_reg_final[9:0], y_reg[9:0], 2'b0} : {10'b0001000001, y_reg[9:0], x_reg_final[9:0], 2'b0};
 				if ($signed(error_reg) < 0) begin
+					x_reg_final<=x_reg;
+					x_reg<=x_reg+1;
                     y_reg <= y_reg+ystep;
-                    error_reg <= $signed(error_reg)+$signed(deltax);
+                    error_reg <= error_reg + deltax-deltay;
                 end
-				else error_reg <= $signed(error_reg) - $signed(deltay);
+				else begin
+					x_reg_final <= x_reg;
+					x_reg <=x_reg+1; 
+					error_reg <= error_reg - deltay;
+					y_reg<=y_reg;
+				end 
             end else begin
+				x_reg_final <= x_reg_final;
 				x_reg <= x_reg;
-				we <= 4'b0;
+				//we <= 4'b0;
 				addr <= addr;
 				error_reg <= error_reg;
 				y_reg <= y_reg;
