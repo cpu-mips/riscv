@@ -143,8 +143,6 @@ add x3, x5, x3
 addi x3, x3, 0xef
 lui x4, 0xffffb
 addi x4, x4, 0xef
-#addi x3, x0, 0xffffffef
-#addi x4, x0, 0xffffb0ef
 sb x8, 32(x10)
 sh x8, 64(x10)
 lbu x9, 32(x10)
