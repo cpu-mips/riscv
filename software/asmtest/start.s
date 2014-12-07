@@ -20,6 +20,7 @@ lui x10, 0x10000
 sw x1, 0(x10)
 sw x2, 4(x10)
 lw x11, 0(x10)
+add x11, x0, x11
 lw x12, 4(x10)
 
 # Test 1
