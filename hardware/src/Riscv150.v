@@ -121,15 +121,15 @@ module Riscv150(
    assign dcache_wire = (stall) ? dcache_addr_reg:addr;
    //Icache wire assignments
    assign icache_addr = (imem_enable[3] || imem_enable[2] || imem_enable[1] || imem_enable[0]) ? {4'b0,dcache_wire[27:2], 2'b0}:{4'b0,icache_wire[27:2],2'b0};
-   assign icache_we = imem_enable && load_haz;
-   assign icache_re = load_haz && ~select_bios;
+   assign icache_we = imem_enable & {load_haz, load_haz, load_haz, load_haz} & {~stall, ~stall, ~stall, ~stall};
+   assign icache_re = load_haz & ~select_bios & ~stall;
    assign icache_din = mem_in;
    assign inst=instruction;
 
    //Dcache wire assignments
    assign dcache_addr = {4'b0, addr[27:2], 2'b0};
-   assign dcache_we = dmem_enable;
-   assign dcache_re = dmem_read_enable;
+   assign dcache_we = dmem_enable & {~stall, ~stall, ~stall, ~stall};
+   assign dcache_re = dmem_read_enable & ~stall;
    assign dmem_out = dcache_dout;
    assign dcache_din = mem_in;
 

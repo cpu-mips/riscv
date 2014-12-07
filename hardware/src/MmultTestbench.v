@@ -229,7 +229,7 @@ module MmultTestbench();
 
 	$display("Standing by for UART");
 	while(!DataOutValid) #(Cycle);
-	while("\n" != DataOut)  
+	while(1'b1)  
 	begin
 		while(!DataOutValid) #(Cycle); 
 		$write("%s", DataOut);
@@ -237,7 +237,7 @@ module MmultTestbench();
 		#(5 * Cycle);
 		DataOutReady = 1'b0;
 	end
-    $write(DataOut);
+    $write("%s", DataOut);
     DataOutReady = 1'b1;
     #(5 * Cycle);
     DataOutReady = 1'b0;
@@ -249,7 +249,7 @@ module MmultTestbench();
 		#(5 * Cycle);
 		DataOutReady = 1'b0;
 	end
-    $write(DataOut);
+    $write("%s", DataOut);
     DataOutReady = 1'b1;
     #(5 * Cycle);
     DataOutReady = 1'b0;
@@ -261,7 +261,7 @@ module MmultTestbench();
 		#(5 * Cycle);
 		DataOutReady = 1'b0;
 	end
-    $write(DataOut);
+    $write("%s", DataOut);
     DataOutReady = 1'b1;
     #(5 * Cycle);
     DataOutReady = 1'b0;
