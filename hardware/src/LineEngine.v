@@ -106,17 +106,9 @@ module LineEngine(
 		//if (~stall) begin
         	if (rst) begin
             	cs <= IDLE;
-				x_reg <= 10'b0;
-				y_reg <= 10'b0;
-				error_reg <= 10'b0;
         	end else begin
             	cs <= ns;
         	end
-			if (ns == START) begin
-				error_reg <= error;
-				y_reg <= y0;
-				x_reg <= x0;
-			end
 		//end
     end
 
@@ -137,6 +129,12 @@ module LineEngine(
 	end
 	
     always @ (posedge clk) begin
+		if (~rst) begin
+		if (cs == START) begin
+			error_reg <= error;
+			y_reg <= y0;
+			x_reg <= x0;
+		end
         if (cs == DRAW) begin
             if (~stall) begin
 				//we <= 4'b1111;
@@ -164,6 +162,11 @@ module LineEngine(
 				y_reg <= y_reg;
 			end
         end
+		end else begin
+			x_reg <= 32'b0;
+			y_reg<=32'b0;
+			error_reg<=32'b0;
+		end
     end       
 
 

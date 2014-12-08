@@ -24,17 +24,19 @@ module MemControl(
     output dmem_en,
     output [3:0] dmem_wr_en,
     output [3:0] imem_wr_en,
+	output [3:0] bypass_wr_en,
     output [3:0] io_trans,
     output io_recv,
     output [31:0] mem_in);
 
     reg [31:0] out_rd2_reg;
-    reg [3:0] dmem_wr_reg, imem_wr_reg, mask_reg, io_trans_reg;
+    reg [3:0] dmem_wr_reg, imem_wr_reg, mask_reg, io_trans_reg, bypass_wr_reg;
     reg dmem_reg, io_recv_reg;
-
+	
     assign dmem_en = dmem_reg;
     assign dmem_wr_en = dmem_wr_reg;
     assign imem_wr_en = imem_wr_reg;
+	assign bypass_wr_en = bypass_wr_reg;
     assign io_trans = io_trans_reg;
     assign io_recv = io_recv_reg;
     assign mem_in = out_rd2_reg;
@@ -132,7 +134,7 @@ module MemControl(
                 begin
                     dmem_wr_reg = 4'b0000;
                 end
-                if (2'b00 == addr[31:30] && 1'b1 == addr[28] && 1'b1 == pc[30])
+                if (2'b00 == addr[31:30] && 1'b1 == addr[29] && 1'b1 == pc[30])
                 begin
                     imem_wr_reg = mask_reg;
                 end
@@ -140,6 +142,14 @@ module MemControl(
                 begin
                     imem_wr_reg = 4'b0000;
                 end
+				if (4'b0100 == addr[31:28])
+				begin
+					bypass_wr_reg = mask_reg;
+				end
+				else 
+				begin
+					bypass_wr_reg = 4'b0000;
+				end
                 if (4'b1000 == addr[31:28])
                 begin
                     if (1'b1 == haz_ena)
@@ -159,9 +169,10 @@ module MemControl(
             default:
             begin
                 dmem_reg = 1'b0;
-                dmem_wr_reg = 4'b000;
-                imem_wr_reg = 4'b000;
-                io_trans_reg = 4'b000;
+                dmem_wr_reg = 4'b0000;
+				bypass_wr_reg = 4'b0000;
+                imem_wr_reg = 4'b0000;
+                io_trans_reg = 4'b0000;
                 io_recv_reg = 1'b0;
                 out_rd2_reg = 32'bxxxxxxxx;
             end

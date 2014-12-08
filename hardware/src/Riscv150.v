@@ -75,7 +75,7 @@ module Riscv150(
    wire [1:0] Xdest;
    wire [3:0] io_trans;
    wire Xio_recv;
-   wire [3:0] imem_enable, dmem_enable;
+   wire [3:0] imem_enable, dmem_enable, bypass_enable;
    wire diverge, Xjal, jalr;
 
    //Execute registers
@@ -107,8 +107,10 @@ module Riscv150(
    reg [4:0] 	   Wrd;
    //Writeback wires
    wire [31:0] 	   aligned_mem_out, dmem_out, io_out, Bios_out, line_color_temp;
-   wire line_x0_valid_temp, line_y0_valid_temp, line_x1_valid_temp, line_y1_valid_temp, line_color_valid_temp, line_trigger_temp;
-   
+   wire line_x0_valid_temp, line_y0_valid_temp, line_x1_valid_temp, line_y1_valid_temp, line_color_valid_temp, line_trigger_temp, fill_valid_temp;
+   wire [23:0] fill_color;
+   wire [9:0] line_point_temp;   
+
    //Fetch wire assignemnts
    assign ena_hardwire = 1;
    assign select_bios = (pc[31:28] == 4'b0100) ? 1 : 0;
@@ -135,17 +137,27 @@ module Riscv150(
    
     //Cache Bypass
     assign bypass_din = mem_in;
-    assign bypass_we = (addr[31:28] == 4'b0100 && Wopcode == `OPC_STORE) ? dmem_enable:4'b0;
+    assign bypass_we = bypass_enable;
     assign bypass_addr = {4'b0, addr[27:2], 2'b0}; 
    
    //Line Engine assignments
-   assign line_color_valid = (line_ready) ? line_color_valid : 1'b0;
-   assign line_x0_valid = (line_ready) ? line_x0_valid_temp:1'b0;
-   assign line_y0_valid = (line_ready) ? line_y0_valid:1'b0;
-   assign line_x1_valid = (line_ready) ? line_x1_valid_temp:1'b0;
-   assign line_y1_valid = (line_ready) ? line_y1_valid_temp:1'b0;
-   assign line_trigger = (line_ready) ? line_trigger_temp:1'b0;
+   /*assign line_color_valid = (line_ready && ~stall) ? line_color_valid : 1'b0;
+   assign line_x0_valid = (line_ready && ~stall) ? line_x0_valid_temp:1'b0;
+   assign line_y0_valid = (line_ready && ~stall) ? line_y0_valid:1'b0;
+   assign line_x1_valid = (line_ready && ~stall) ? line_x1_valid_temp:1'b0;
+   assign line_y1_valid = (line_ready && ~stall) ? line_y1_valid_temp:1'b0;
+   assign line_trigger = (line_ready && ~stall) ? line_trigger_temp:1'b0;
+   assign filler_valid = (filler_ready && ~stall) ? fill_valid:1'b0;*/
 
+   assign line_color_valid = (~stall) ? line_color_valid_temp : 1'b0;
+   assign line_x0_valid = (~stall) ? line_x0_valid_temp:1'b0;
+   assign line_y0_valid = (~stall) ? line_y0_valid_temp:1'b0;
+   assign line_x1_valid = (~stall) ? line_x1_valid_temp:1'b0;
+   assign line_y1_valid = (~stall) ? line_y1_valid_temp:1'b0;
+   assign line_trigger = ( ~stall) ? line_trigger_temp:1'b0;
+   assign filler_valid = (~stall) ? fill_valid_temp:1'b0;
+   assign line_color = line_color_temp;
+   assign line_point = line_point_temp;
     // Instantiate the instruction memory here (checkpoint 1 only)
    /*imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
@@ -232,6 +244,7 @@ module Riscv150(
              .dmem_en(dmem_read_enable),
 			 .dmem_wr_en(dmem_enable),
 			 .imem_wr_en(imem_enable),
+			 .bypass_wr_en(bypass_enable),
 			 .io_trans(io_trans),
 			 .io_recv(Xio_recv),
              .mem_in(mem_in));
@@ -240,20 +253,23 @@ module Riscv150(
 		  .Addr(Xalu_out),
 		  .IO_trans(io_trans),
 		  .IO_recv(Xio_recv),
+		  .line_ready(line_ready),
 		  .Clock(clk),
 		  .Reset(rst),
           .Stall(stall),
           .FPGA_Sin(FPGA_SERIAL_RX),
           .FPGA_Sout(FPGA_SERIAL_TX),
 		  .Received(io_out),
-		  .LE_color(line_color),
-		  .LE_point(line_point),
+		  .LE_color(line_color_temp),
+		  .LE_point(line_point_temp),
 		  .LE_color_valid(line_color_valid_temp),
 		  .LE_x0_valid(line_x0_valid_temp),
 		  .LE_y0_valid(line_y0_valid_temp),
 		  .LE_x1_valid(line_x1_valid_temp),
 		  .LE_y1_valid(line_y1_valid_temp),
-		  .LE_trigger(line_trigger_temp)
+		  .LE_trigger(line_trigger_temp),
+		  .Fill_color(fill_color),
+		  .Fill_valid(fill_valid)
 		);
 
    HazardController hazard(.OpcodeW(Wopcode), 
