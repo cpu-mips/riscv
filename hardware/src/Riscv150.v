@@ -57,7 +57,7 @@ module Riscv150(
 );
    //NOP signal;
    parameter NOP = 32'd19;
-
+	wire load_haz;
    //Fetch control signals
    wire Fnoop, ena_hardwire, select_bios;
 
@@ -117,9 +117,9 @@ module Riscv150(
    //Execute wire assignments
    assign load_haz = ~(delay) && ~stall;
    assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
-   assign icache_wire = (stall) ? icache_addr_reg:pc;
-   assign dcache_wire = (stall) ? dcache_addr_reg:addr;
-   assign io_wire = (stall) ? io_addr_reg : Xalu_out;
+   assign icache_wire = (stall || ~load_haz) ? icache_addr_reg:pc;
+   assign dcache_wire = (stall || ~load_haz) ? dcache_addr_reg:addr;
+   assign io_wire = (stall || ~load_haz) ? io_addr_reg : Xalu_out;
    //Writeback wire assignments
    assign addr = Xalu_out;
    //Icache wire assignments
@@ -131,15 +131,15 @@ module Riscv150(
 
    //Dcache wire assignments
    assign dcache_addr = {4'b0, dcache_wire[27:2], 2'b0};
-   assign dcache_we = dmem_enable & {~stall, ~stall, ~stall, ~stall};
-   assign dcache_re = dmem_read_enable & ~stall;
+   assign dcache_we = dmem_enable & {~stall, ~stall, ~stall, ~stall} & {load_haz, load_haz, load_haz, load_haz};
+   assign dcache_re = dmem_read_enable & ~stall & load_haz;
    assign dmem_out = dcache_dout;
    assign dcache_din = mem_in;
    
     //Cache Bypass
     assign bypass_din = mem_in;
-    assign bypass_we = bypass_enable;
-    assign bypass_addr = {4'b0, dcache_wire[27:2], 2'b0}; 
+    assign bypass_we = bypass_enable& {~stall, ~stall, ~stall, ~stall};
+    assign bypass_addr = {4'b0, addr[27:2], 2'b0}; 
    
    //Line Engine assignments
 
@@ -177,8 +177,10 @@ module Riscv150(
 	 ) /* synthesis syn_noprune=1 */;
 	chipscope_ila ila( .CONTROL(chipscope_control), 
 		.CLK(clk), 
-		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, rd2, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, 26'b0}),
-		.TRIG0(line_color_valid) ) /* synthesis syn_noprune=1 */;
+		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, inst_or_noop, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, load_haz, 25'b0}),
+		.TRIG0(line_color_valid),
+		.TRIG1(bypass_we),
+		.TRIG2(pc) ) /* synthesis syn_noprune=1 */;
 
    Splitter splitter(.Instruction(inst_or_noop), 
 		     .Opcode(Xopcode), 
@@ -241,7 +243,7 @@ module Riscv150(
    
    MemControl memcontrol(.opcode(Xopcode),
 			 .funct3(Xfunct3),
-			 .addr(Xalu_out),
+			 .addr(dcache_wire),
              .rd2(rd2_or_forwarded),
              .haz_ena(load_haz),
              .pc(Xpc),

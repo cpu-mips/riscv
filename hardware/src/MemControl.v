@@ -142,12 +142,14 @@ module MemControl(
                 begin
                     imem_wr_reg = 4'b0000;
                 end
-				if (4'b0100 == addr[31:28])
-				begin
-					bypass_wr_reg = mask_reg;
-				end
-				else 
-				begin
+				if (4'b0100 == addr[31:28]) begin
+					if (haz_ena == 1'b1) begin
+						bypass_wr_reg = mask_reg;
+					end
+					else begin 
+						bypass_wr_reg = 4'b0000;
+					end
+				end else begin 
 					bypass_wr_reg = 4'b0000;
 				end
                 if (4'b1000 == addr[31:28])
