@@ -45,6 +45,26 @@ module AsmTestbenchCaches();
     wire [31:0]  dcache_dout;
     wire [31:0]  instruction;
     wire         stall;
+     wire         video_ready;
+  wire         video_valid;
+  wire [23:0]  video;
+  wire         dvi_rst;
+  wire [23:0]  filler_color;
+  wire         filler_ready;
+  wire         filler_valid;
+  wire         line_ready;
+  wire  [31:0] line_color;
+  wire  [9:0]  line_point;
+  wire         line_color_valid;
+  wire         line_x0_valid;
+  wire         line_y0_valid;
+  wire         line_x1_valid;
+  wire         line_y1_valid;
+  wire         line_trigger;
+  wire [31:0]  bypass_addr;
+  wire [31:0]  bypass_din;
+  wire [3:0]   bypass_we;
+
 
     /* The PLL that generates all the clocks.
     * The global mult/divide ratio is set to 6. The input clk is 100MHz.
@@ -186,6 +206,29 @@ module AsmTestbenchCaches();
         .dcache_dout(dcache_dout),
         .icache_dout(instruction),
         .stall      (stall      )
+		 `ifdef CS150_CHKPNT_3
+      ,
+      .bypass_addr(bypass_addr),
+      .bypass_we  (bypass_we  ),
+      .bypass_din (bypass_din ),
+      .video      (video      ),
+      .video_ready(video_ready),
+      .video_valid(video_valid),
+      .filler_color(filler_color),
+      .filler_valid(filler_valid),
+      .filler_ready(filler_ready),
+      .line_ready(line_ready),
+      .line_color(line_color),
+      .line_point(line_point),
+      .line_color_valid(line_color_valid),
+      .line_x0_valid(line_x0_valid),
+      .line_y0_valid(line_y0_valid),
+      .line_x1_valid(line_x1_valid),
+      .line_y1_valid(line_y1_valid),
+      .line_trigger(line_trigger),
+      .dvi_rst(dvi_rst)
+      `endif
+
     );
 
     Riscv150 DUT(
@@ -204,6 +247,25 @@ module AsmTestbenchCaches();
         .dcache_dout (dcache_dout ),
         .instruction (instruction ),
         .stall(stall)
+        `ifdef CS150_CHKPNT_3
+    ,
+    .filler_color(filler_color),
+    .filler_valid(filler_valid),
+    .filler_ready(filler_ready),
+    .line_ready(line_ready),
+    .line_color(line_color),
+    .line_point(line_point),
+    .line_color_valid(line_color_valid),
+    .line_x0_valid(line_x0_valid),
+    .line_y0_valid(line_y0_valid),
+    .line_x1_valid(line_x1_valid),
+    .line_y1_valid(line_y1_valid),
+    .line_trigger(line_trigger),
+    .bypass_addr(bypass_addr),
+    .bypass_we  (bypass_we  ),
+    .bypass_din (bypass_din )
+    `endif
+
     );
 
     UART          uart( .Clock(           cpu_clk_g),
@@ -217,7 +279,40 @@ module AsmTestbenchCaches();
                         .SIn(             FPGA_SERIAL_TX),
                         .SOut(            FPGA_SERIAL_RX));
 
-    initial begin
+    
+	 `ifdef CS150_CHKPNT_3
+  DVI #(
+    .ClockFreq(                 50000000),
+    .Width(                     1040),   
+    .FrontH(                    56),     
+    .PulseH(                    120),    
+    .BackH(                     64),    
+    .Height(                    666),    
+    .FrontV(                    37),      
+    .PulseV(                    6),      
+    .BackV(                     23)      
+  )
+  dvi(         
+    .Clock(                     clk50_g),
+    .Reset(                     dvi_rst || ~init_done),
+    .DVI_D(                     DVI_D),
+    .DVI_DE(                    DVI_DE),
+    .DVI_H(                     DVI_H),
+    .DVI_V(                     DVI_V),
+    .DVI_RESET_B(               DVI_RESET_B),
+    .DVI_XCLK_N(                DVI_XCLK_N),
+    .DVI_XCLK_P(                DVI_XCLK_P),
+    .I2C_SCL_DVI(               IIC_SCL_VIDEO),
+    .I2C_SDA_DVI(               IIC_SDA_VIDEO),
+    /* Ready/Valid interface for 24-bit pixel values */
+    .Video(                     video),
+    .VideoReady(                video_ready),
+    .VideoValid(                video_valid)
+  );
+  `endif
+
+
+	initial begin
       // Reset. Has to be long enough to not be eaten by the debouncer.
       Reset = 0;
       DataInValid = 0;

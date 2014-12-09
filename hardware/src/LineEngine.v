@@ -54,10 +54,10 @@ module LineEngine(
 						);
     always @(*) begin
 		if (cs == IDLE || cs == START) begin
-        	x0_temp = (cs == IDLE && LE_x0_valid) ? LE_point:x0_temp;
+        	/*x0_temp = (cs == IDLE && LE_x0_valid) ? LE_point:x0_temp;
 			x1_temp = (cs == IDLE && LE_x1_valid) ? LE_point:x1_temp;
 			y0_temp = (cs == IDLE && LE_y0_valid) ? LE_point:y0_temp;
-			y1_temp = (cs == IDLE && LE_y1_valid) ? LE_point:y1_temp;
+			y1_temp = (cs == IDLE && LE_y1_valid) ? LE_point:y1_temp;*/
         	if (x1>x0) begin
             	abs_deltax = x1-x0;
         	end else begin
@@ -97,11 +97,20 @@ module LineEngine(
 			deltay = (y1>y0) ? y1-y0:y0-y1;
 			error = deltax/2;
 			ystep = (y1>y0) ? 1:-1;
-			if (LE_color_valid) color = LE_color;
+			//if (LE_color_valid) color = LE_color;
 		end
 	end
 
- 
+	always @(posedge clk) begin
+		if (cs == IDLE || cs == START) begin
+        	x0_temp = (cs == IDLE && LE_x0_valid) ? LE_point:x0_temp;
+			x1_temp = (cs == IDLE && LE_x1_valid) ? LE_point:x1_temp;
+			y0_temp = (cs == IDLE && LE_y0_valid) ? LE_point:y0_temp;
+			y1_temp = (cs == IDLE && LE_y1_valid) ? LE_point:y1_temp;
+		end
+		if (LE_color_valid) color = LE_color;
+	end
+
     always @ (posedge clk) begin
 		//if (~stall) begin
         	if (rst) begin

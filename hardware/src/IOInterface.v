@@ -8,8 +8,10 @@
 //  Output Interface:
 //    Received: Received IO signal
 //-----------------------------------------------------------------------------
+`include "Opcode.vh"
 
 module IOInterface(
+	input [6:0] opcode,
     input [31:0] rd2,
     input [31:0] Addr,
     input [3:0] IO_trans,
@@ -28,9 +30,7 @@ module IOInterface(
 	output LE_y0_valid,
 	output LE_x1_valid,
 	output LE_y1_valid,
-	output LE_trigger,
-	output [23:0] Fill_color,
-	output Fill_valid
+	output LE_trigger
 	);
 
     wire dout_valid, din_ready;
@@ -43,8 +43,7 @@ module IOInterface(
 	reg x1_valid, x0_valid, y0_valid, y1_valid, color_valid, le_trigger;
 	reg [9:0] point, point_synch;
 	reg [31:0] color, color_synch;
-	reg x1_valid_synch, x0_valid_synch, y0_valid_synch, y1_valid_synch, color_valid_synch, le_trigger_synch, filler_valid_synch, filler_valid;
-	reg [23:0] filler_color_synch, filler_color;
+	reg x1_valid_synch, x0_valid_synch, y0_valid_synch, y1_valid_synch, color_valid_synch, le_trigger_synch; 
     UART uart(
         .Clock(Clock),
         .Reset(Reset),
@@ -68,8 +67,6 @@ module IOInterface(
 	assign LE_x1_valid = x1_valid_synch;
 	assign LE_y1_valid = y1_valid_synch;
 	assign LE_trigger = le_trigger_synch;
-	assign Fill_color = filler_color_synch;
-	assign Fill_valid = filler_valid_synch;
     always@(posedge Clock)
     begin
         synch_io_out <= io_out;
@@ -95,16 +92,23 @@ module IOInterface(
                 instructions <= instructions + 1;
             end
         end
-		x1_valid_synch<=x1_valid;
-		x0_valid_synch<=x0_valid;
-		y1_valid_synch<=y1_valid;
-		y0_valid_synch<=y1_valid;
-		color_synch<=color;
-		point_synch<=point;
-		le_trigger_synch<=le_trigger;
-		color_valid_synch<=color_valid;
-		filler_color_synch <= filler_color;
-		filler_valid_synch <= filler_valid;
+		if (Reset) begin
+			x1_valid_synch<=1'b0;
+			x0_valid_synch<=1'b0;
+			y1_valid_synch<=1'b0;
+			y0_valid_synch<=1'b0;
+			le_trigger_synch<=1'b0;
+			color_valid_synch<=1'b0;
+		end else begin
+			x1_valid_synch<=x1_valid;
+			x0_valid_synch<=x0_valid;
+			y1_valid_synch<=y1_valid;
+			y0_valid_synch<=y0_valid;
+			color_synch<=color;
+			point_synch<=point;
+			le_trigger_synch<=le_trigger;
+			color_valid_synch<=color_valid;
+		end
     end
 
 
@@ -130,7 +134,6 @@ module IOInterface(
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
             end
             32'h80000004:
             begin
@@ -152,7 +155,6 @@ module IOInterface(
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
             end
             32'h80000008:
             begin
@@ -180,7 +182,6 @@ module IOInterface(
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
             end
             32'h80000010:
             begin
@@ -194,7 +195,6 @@ module IOInterface(
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
             end
             32'h80000014:
             begin
@@ -208,177 +208,197 @@ module IOInterface(
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
             end
-			32'h80000020: begin
-				filler_color = rd2[23:0];
-				filler_valid = 1'b1;
-				din = 8'bx;
-                io_out = 32'hxxxxxxxx;
-                dout_ready = 1'b0;
-                din_valid = 1'b0;
-				x0_valid = 1'b0;
-				y0_valid = 1'b0;
-				x1_valid = 1'b0;
-				y1_valid = 1'b0;
-				color_valid = 1'b0;
-				le_trigger = 1'b0;
-			end
 			32'h80000028: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode ==`OPC_STORE) begin
 				color = {8'b0,rd2[23:0]};
 				color_valid = 1'b1;
+				end else begin
+					color_valid = 1'b0;
+				end
 				x0_valid = 1'b0;
 				y0_valid = 1'b0;
 				x1_valid = 1'b0;
 				y1_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
 			end
 			32'h80000030: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
 				x0_valid = 1'b1;
+				end else begin
+				x0_valid = 1'b0;
+				end
 				y0_valid = 1'b0;
 				x1_valid = 1'b0;
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
 			end
 			32'h80000034: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
-				x0_valid = 1'b0;
 				y0_valid = 1'b1;
+				end else begin
+				y0_valid = 1'b0;
+				end
+				x0_valid = 1'b0;
 				x1_valid = 1'b0;
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
 			end
 			32'h80000038: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
+				x1_valid = 1'b1;
+				end else begin
+				x1_valid = 1'b0;
+				end
 				x0_valid = 1'b0;
 				y0_valid = 1'b0;
-				x1_valid = 1'b1;
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
 			end
 			32'h8000003c: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
+				y1_valid = 1'b1;
+				end else begin
+				y1_valid = 1'b0;
+				end
 				x0_valid = 1'b0;
 				y0_valid = 1'b0;
 				x1_valid = 1'b0;
-				y1_valid = 1'b1;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
 			end
 			32'h80000040: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
 				x0_valid = 1'b1;
+				le_trigger = 1'b1;
+				end else begin
+				x0_valid = 1'b0;
+				le_trigger = 1'b0;
+				end
 				y0_valid = 1'b0;
 				x1_valid = 1'b0;
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
-				le_trigger = 1'b1;
-				filler_valid = 1'b0;
-			end
+							end
 			32'h80000044: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
-				x0_valid = 1'b0;		
 				y0_valid = 1'b1;
+				le_trigger = 1'b1;
+				end else begin
+				y0_valid = 1'b0;
+				le_trigger = 1'b0;
+				end
+				x0_valid = 1'b0;		
 				x1_valid = 1'b0;
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
-				le_trigger = 1'b1;
-				filler_valid = 1'b0;
 			end
 			32'h80000048: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
 				x1_valid = 1'b1;
+				le_trigger = 1'b1;
+				end else begin
+				x1_valid = 1'b0;
+				le_trigger = 1'b0;
+				end
 				x0_valid = 1'b0;
 				y0_valid = 1'b0;
 				y1_valid = 1'b0;
-				color_valid = 1'b0;
-				le_trigger = 1'b1;
-				filler_valid = 1'b0;
+				color_valid = 1'b0;		
 			end
 			32'h8000004c: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
+				if (opcode == `OPC_STORE) begin
 				point = rd2[9:0];
 				y1_valid = 1'b1;
+				le_trigger = 1'b1;
+				end else begin
+				le_trigger = 1'b0;
+				y1_valid = 1'b0;
+				end
 				x0_valid = 1'b0;
 				y0_valid = 1'b0;
 				x1_valid = 1'b0;
 				color_valid = 1'b0;
-				le_trigger = 1'b1;
-				filler_valid = 1'b0;
 			end
 			32'h8000001c:
 			begin
 				din = 8'bx;
+				if (opcode == `OPC_LOAD) begin
                 io_out = 32'h00000001;
+				end else begin
+				io_out = 32'hx;
+				end
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
-				point = rd2[9:0];
 				y1_valid = 1'b0;
 				x0_valid = 1'b0;
 				y0_valid = 1'b0;
 				x1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
 			end
 			32'h80000024:
 			begin
 				din = 8'bx;
+				if (opcode == `OPC_LOAD) begin
                 io_out = {31'h00000000, line_ready};
+				end else begin
+				io_out = 32'hx;
+				end
                 dout_ready = 1'b0;
                 din_valid = 1'b0;
-				point = rd2[9:0];
 				y1_valid = 1'b0;
 				x0_valid = 1'b0;
 				y0_valid = 1'b0;
 				x1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
 			end
            default:
             begin
@@ -392,7 +412,6 @@ module IOInterface(
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
 				le_trigger = 1'b0;
-				filler_valid = 1'b0;
             end
         endcase
     end

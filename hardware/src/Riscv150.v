@@ -138,26 +138,19 @@ module Riscv150(
     //Cache Bypass
     assign bypass_din = mem_in;
     assign bypass_we = bypass_enable;
-    assign bypass_addr = {4'b0, addr[27:2], 2'b0}; 
+    assign bypass_addr = {4'b0, addr[27:0]}; 
    
    //Line Engine assignments
-   /*assign line_color_valid = (line_ready && ~stall) ? line_color_valid : 1'b0;
-   assign line_x0_valid = (line_ready && ~stall) ? line_x0_valid_temp:1'b0;
-   assign line_y0_valid = (line_ready && ~stall) ? line_y0_valid:1'b0;
-   assign line_x1_valid = (line_ready && ~stall) ? line_x1_valid_temp:1'b0;
-   assign line_y1_valid = (line_ready && ~stall) ? line_y1_valid_temp:1'b0;
-   assign line_trigger = (line_ready && ~stall) ? line_trigger_temp:1'b0;
-   assign filler_valid = (filler_ready && ~stall) ? fill_valid:1'b0;*/
 
-   assign line_color_valid = (~stall) ? line_color_valid_temp : 1'b0;
-   assign line_x0_valid = (~stall) ? line_x0_valid_temp:1'b0;
-   assign line_y0_valid = (~stall) ? line_y0_valid_temp:1'b0;
-   assign line_x1_valid = (~stall) ? line_x1_valid_temp:1'b0;
-   assign line_y1_valid = (~stall) ? line_y1_valid_temp:1'b0;
-   assign line_trigger = ( ~stall) ? line_trigger_temp:1'b0;
-   assign filler_valid = (~stall) ? fill_valid_temp:1'b0;
-   assign line_color = line_color_temp;
+   /*assign line_color_valid = (~stall) ? line_color_valid_temp;
+   assign line_x0_valid = (~stall) ? line_x0_valid_temp:line_x0_valid;
+   assign line_y0_valid = (~stall) ? line_y0_valid_temp: line_y0_valid;
+   assign line_x1_valid = (~stall) ? line_x1_valid_temp:line_x1_valid;
+   assign line_y1_valid = (~stall) ? line_y1_valid_temp:line_y1_valid;
+   assign line_trigger = (~stall) ? line_trigger_temp:line_trigger;
+   assign filler_valid = (~stall) ? fill_valid_temp:filler_valid;
    assign line_point = line_point_temp;
+   assign line_color = line_color_temp;*/
     // Instantiate the instruction memory here (checkpoint 1 only)
    /*imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
@@ -175,6 +168,16 @@ module Riscv150(
            .addra(addr[13:2]),
            .dina(mem_in),
            .douta(dmem_out));*/
+
+   // ChipScope components: 
+   	wire [35:0] chipscope_control; 
+	chipscope_icon icon( 
+	.CONTROL0(chipscope_control)
+	 ) /* synthesis syn_noprune=1 */;
+	chipscope_ila ila( .CONTROL(chipscope_control), 
+		.CLK(clk), 
+		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, rd2, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, 26'b0}),
+		.TRIG0(line_color_valid) ) /* synthesis syn_noprune=1 */;
 
    Splitter splitter(.Instruction(inst_or_noop), 
 		     .Opcode(Xopcode), 
@@ -249,7 +252,8 @@ module Riscv150(
 			 .io_recv(Xio_recv),
              .mem_in(mem_in));
    
-   IOInterface io(.rd2(mem_in),
+   IOInterface io(.opcode(Xopcode),
+		  .rd2(mem_in),
 		  .Addr(Xalu_out),
 		  .IO_trans(io_trans),
 		  .IO_recv(Xio_recv),
@@ -260,16 +264,14 @@ module Riscv150(
           .FPGA_Sin(FPGA_SERIAL_RX),
           .FPGA_Sout(FPGA_SERIAL_TX),
 		  .Received(io_out),
-		  .LE_color(line_color_temp),
-		  .LE_point(line_point_temp),
-		  .LE_color_valid(line_color_valid_temp),
-		  .LE_x0_valid(line_x0_valid_temp),
-		  .LE_y0_valid(line_y0_valid_temp),
-		  .LE_x1_valid(line_x1_valid_temp),
-		  .LE_y1_valid(line_y1_valid_temp),
-		  .LE_trigger(line_trigger_temp),
-		  .Fill_color(fill_color),
-		  .Fill_valid(fill_valid)
+		  .LE_color(line_color),
+		  .LE_point(line_point),
+		  .LE_color_valid(line_color_valid),
+		  .LE_x0_valid(line_x0_valid),
+		  .LE_y0_valid(line_y0_valid),
+		  .LE_x1_valid(line_x1_valid),
+		  .LE_y1_valid(line_y1_valid),
+		  .LE_trigger(line_trigger)
 		);
 
    HazardController hazard(.OpcodeW(Wopcode), 

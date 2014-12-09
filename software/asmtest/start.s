@@ -154,6 +154,21 @@ bne x9, x1, Error
 bne x11, x2, Error
 bne x5, x3, Error
 bne x6, x4, Error
+
+
+#Test 11a: Line Engine Setup
+addi x7, x7, 0x1
+lui x5, 0x80000
+#Test 11b: Line Engine Test
+addi x3, x0, 0xff
+sw x3, 28(x5)
+addi x3, x0, 0x0
+sw x3, 30(x5)
+sw x3, 34(x5)
+addi x3, x0, 0xff
+sw x3, 38(x5)
+addi x3, x0, 0xed
+sw x3, 76(x5)
 j Pass
 
 Error:
