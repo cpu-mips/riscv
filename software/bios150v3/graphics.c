@@ -10,7 +10,7 @@ void fill(uint32_t color)
   FILLER_COLOR = color;
 }
 
-void hwline(uint32_t color, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void hwline(uint32_t color, uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
 {
   while (!(LE_CTRL & FILLER_CTRL)) ;
   LE_COLOR = color;
@@ -29,7 +29,7 @@ void swap(int* a, int* b)
   *b = tmp;
 }
 
-uint16_t abs(int a) 
+uint32_t abs(int a) 
 {
    if (a < 0)
        return -a;

@@ -139,7 +139,7 @@ module Riscv150(
     //Cache Bypass
     assign bypass_din = mem_in;
     assign bypass_we = bypass_enable& {~stall, ~stall, ~stall, ~stall};
-    assign bypass_addr = {4'b0, addr[27:2], 2'b0}; 
+    assign bypass_addr = {4'b0, dcache_wire[27:2], 2'b0}; 
    
    //Line Engine assignments
 
@@ -171,16 +171,16 @@ module Riscv150(
            .douta(dmem_out));*/
 
    //ChipScope components: 
-   	wire [35:0] chipscope_control; 
-	chipscope_icon icon( 
-	.CONTROL0(chipscope_control)
-	 ) /* synthesis syn_noprune=1 */;
-	chipscope_ila ila( .CONTROL(chipscope_control), 
-		.CLK(clk), 
-		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, inst_or_noop, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, load_haz, 25'b0}),
-		.TRIG0(line_color_valid),
-		.TRIG1(bypass_we),
-		.TRIG2(pc) ) /* synthesis syn_noprune=1 */;
+   	//wire [35:0] chipscope_control; 
+	//chipscope_icon icon( 
+	//.CONTROL0(chipscope_control)
+	 //) /* synthesis syn_noprune=1 */;
+	//chipscope_ila ila( .CONTROL(chipscope_control), 
+	//	.CLK(clk), 
+	//	.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, inst_or_noop, mem_in, rs2, Xrd, Wrd, rd2_or_forwarded, Wdest, load_haz, forward_a, forward_b, 23'b0}),
+	//	.TRIG0(line_color_valid),
+//		.TRIG1(bypass_we),
+//		.TRIG2(pc) ) /* synthesis syn_noprune=1 */;
 
    Splitter splitter(.Instruction(inst_or_noop), 
 		     .Opcode(Xopcode), 

@@ -18,7 +18,7 @@
 
 
 void fill(uint32_t color);
-void hwline(uint32_t color, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
+void hwline(uint32_t color, uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1);
 void swline(uint32_t color, int x0, int y0, int x1, int y1);
 
 #endif

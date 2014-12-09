@@ -99,7 +99,17 @@ module IOInterface(
 			y0_valid_synch<=1'b0;
 			le_trigger_synch<=1'b0;
 			color_valid_synch<=1'b0;
-		end else begin
+		end else if (Stall) begin
+			x1_valid_synch<=x1_valid_synch;
+			x0_valid_synch<=x0_valid_synch;
+			y1_valid_synch<=y1_valid_synch;
+			y0_valid_synch<=y0_valid_synch;
+			color_synch<=color_synch;
+			point_synch<=point_synch;
+			le_trigger_synch<=le_trigger_synch;
+			color_valid_synch<=color_valid_synch;
+		end 
+		else begin
 			x1_valid_synch<=x1_valid;
 			x0_valid_synch<=x0_valid;
 			y1_valid_synch<=y1_valid;
@@ -311,7 +321,7 @@ module IOInterface(
 				x1_valid = 1'b0;
 				y1_valid = 1'b0;
 				color_valid = 1'b0;
-							end
+			end
 			32'h80000044: begin
 				din = 8'bx;
                 io_out = 32'hxxxxxxxx;

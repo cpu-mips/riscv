@@ -109,18 +109,31 @@ int main(void)
             uint32_t color = ascii_hex_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
             fill(color);
         } else if (strcmp(input, "hwline") == 0) {
+	    int8_t buffer[64];
             uint32_t color = ascii_hex_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t x0 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t y0 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t x1 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t y1 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t x0 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t y0 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t x1 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t y1 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
+	    uwrite_int8s("\r\n");
+	    uwrite_int8s(uint32_to_ascii_hex(color, buffer, 64));
+	    uwrite_int8s("\r\n");
+	    uwrite_int8s(uint32_to_ascii_hex(x0, buffer, 64));
+	    uwrite_int8s("\r\n");
+	    uwrite_int8s(uint32_to_ascii_hex(y0, buffer, 64));
+	    uwrite_int8s("\r\n");
+	    uwrite_int8s(uint32_to_ascii_hex(x1, buffer, 64));
+	    uwrite_int8s("\r\n");
+	    uwrite_int8s(uint32_to_ascii_hex(y1, buffer, 64));
+	    uwrite_int8s("\r\n");
+	    uwrite_int8s("\r\n");
             hwline(color, x0, y0, x1, y1);
         } else if (strcmp(input, "swline") == 0) {
             uint32_t color = ascii_hex_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t x0 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t y0 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t x1 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
-            uint16_t y1 = ascii_dec_to_uint16(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t x0 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t y0 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t x1 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
+            uint32_t y1 = ascii_dec_to_uint32(read_token(buffer, BUFFER_LEN, " \x0d"));
             swline(color, x0, y0, x1, y1);
         } else {
             uwrite_int8s("\n\rGo fuck yourself: ");
