@@ -63,7 +63,7 @@ module Riscv150(
 
    //Fetch registers    
    reg [31:0] pc, inst_temp; 
-   reg [31:0] icache_addr_reg, dcache_addr_reg;
+   reg [31:0] icache_addr_reg, dcache_addr_reg, io_addr_reg;
    wire[31:0] icache_wire, dcache_wire;
    //Fetch wires
    wire [31:0] inst_bios;
@@ -87,7 +87,7 @@ module Riscv150(
    wire [31:0] inst, imm, rd1, rd2, Xalu_out, mem_in; 
    wire zero;
    wire [4:0] rs1, rs2, Xrd;
-   wire [31:0] addr;
+   wire [31:0] addr, io_wire;
    wire dmem_read_enable;
    wire [19:0] imm_inA;
    wire [11:0] imm_inB;
@@ -117,10 +117,11 @@ module Riscv150(
    //Execute wire assignments
    assign load_haz = ~(delay) && ~stall;
    assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
-   //Writeback wire assignments
-   assign addr = Xalu_out;
    assign icache_wire = (stall) ? icache_addr_reg:pc;
    assign dcache_wire = (stall) ? dcache_addr_reg:addr;
+   assign io_wire = (stall) ? io_addr_reg : Xalu_out;
+   //Writeback wire assignments
+   assign addr = Xalu_out;
    //Icache wire assignments
    assign icache_addr = (imem_enable[3] || imem_enable[2] || imem_enable[1] || imem_enable[0]) ? {4'b0,dcache_wire[27:2], 2'b0}:{4'b0,icache_wire[27:2],2'b0};
    assign icache_we = imem_enable & {load_haz, load_haz, load_haz, load_haz} & {~stall, ~stall, ~stall, ~stall};
@@ -170,14 +171,14 @@ module Riscv150(
            .douta(dmem_out));*/
 
    // ChipScope components: 
-   	wire [35:0] chipscope_control; 
-	chipscope_icon icon( 
-	.CONTROL0(chipscope_control)
-	 ) /* synthesis syn_noprune=1 */;
-	chipscope_ila ila( .CONTROL(chipscope_control), 
-		.CLK(clk), 
-		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, rd2, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, 26'b0}),
-		.TRIG0(line_color_valid) ) /* synthesis syn_noprune=1 */;
+   	//wire [35:0] chipscope_control; 
+	//chipscope_icon icon( 
+	//.CONTROL0(chipscope_control)
+	// ) /* synthesis syn_noprune=1 */;
+	//chipscope_ila ila( .CONTROL(chipscope_control), 
+	//	.CLK(clk), 
+//		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, rd2, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, 26'b0}),
+//		.TRIG0(line_color_valid) ) /* synthesis syn_noprune=1 */;
 
    Splitter splitter(.Instruction(inst_or_noop), 
 		     .Opcode(Xopcode), 
@@ -328,6 +329,7 @@ module Riscv150(
               Xnoop <= Fnoop;
           end
 	  dcache_addr_reg <= addr;
+      io_addr_reg <= Xalu_out;
           // Writeback stage
           Waddr <= addr;
           Wjal <= Xjal;
@@ -345,6 +347,7 @@ module Riscv150(
       begin
 	  icache_addr_reg <= icache_addr_reg;
 	  dcache_addr_reg <= dcache_addr_reg;
+        io_addr_reg <= io_addr_reg;
           pc <= pc;
           Xnext_pc <= Xnext_pc;
           Xpc <= Xpc;
