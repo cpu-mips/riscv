@@ -53,11 +53,7 @@ module LineEngine(
 						.wdf_wr_en(wdf_wr_en)
 						);
     always @(*) begin
-		if (cs == IDLE || cs == START) begin
-        	/*x0_temp = (cs == IDLE && LE_x0_valid) ? LE_point:x0_temp;
-			x1_temp = (cs == IDLE && LE_x1_valid) ? LE_point:x1_temp;
-			y0_temp = (cs == IDLE && LE_y0_valid) ? LE_point:y0_temp;
-			y1_temp = (cs == IDLE && LE_y1_valid) ? LE_point:y1_temp;*/
+		if (cs == START) begin
         	if (x1>x0) begin
             	abs_deltax = x1-x0;
         	end else begin
@@ -103,10 +99,10 @@ module LineEngine(
 
 	always @(posedge clk) begin
 		if (cs == IDLE || cs == START) begin
-        	x0_temp = (cs == IDLE && LE_x0_valid) ? LE_point:x0_temp;
-			x1_temp = (cs == IDLE && LE_x1_valid) ? LE_point:x1_temp;
-			y0_temp = (cs == IDLE && LE_y0_valid) ? LE_point:y0_temp;
-			y1_temp = (cs == IDLE && LE_y1_valid) ? LE_point:y1_temp;
+        	x0_temp = (LE_x0_valid) ? LE_point:x0_temp;
+			x1_temp = (LE_x1_valid) ? LE_point:x1_temp;
+			y0_temp = (LE_y0_valid) ? LE_point:y0_temp;
+			y1_temp = (LE_y1_valid) ? LE_point:y1_temp;
 		end
 		if (LE_color_valid) color = LE_color;
 	end
@@ -147,8 +143,6 @@ module LineEngine(
 		end
         if (cs == DRAW) begin
             if (~stall) begin
-				//we <= 4'b1111;
-				//x_reg<=x_reg+1;
 				//addr <= (steep) ? {12'b000000000001, x_reg[9:0], y_reg[9:3], 2'b0}:{12'b000000000001, y_reg[9:0], x_reg[9:3], 2'b0};
 				addr <=(steep) ?  {10'b0001000001, x_reg_final[9:0], y_reg[9:0], 2'b0} : {10'b0001000001, y_reg[9:0], x_reg_final[9:0], 2'b0};
 				if ($signed(error_reg) < 0) begin
