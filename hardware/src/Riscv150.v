@@ -106,8 +106,8 @@ module Riscv150(
    reg [2:0] 	   Wfunct3;
    reg [4:0] 	   Wrd;
    //Writeback wires
-   wire [31:0] 	   aligned_mem_out, dmem_out, io_out, Bios_out;
-   wire load_haz;
+   wire [31:0] 	   aligned_mem_out, dmem_out, io_out, Bios_out, line_color_temp;
+   wire line_x0_valid_temp, line_y0_valid_temp, line_x1_valid_temp, line_y1_valid_temp, line_color_valid_temp, line_trigger_temp;
    
    //Fetch wire assignemnts
    assign ena_hardwire = 1;
@@ -133,6 +133,19 @@ module Riscv150(
    assign dcache_re = dmem_read_enable & ~stall;
    assign dmem_out = dcache_dout;
    assign dcache_din = mem_in;
+   
+    //Cache Bypass
+    assign bypass_din = mem_in;
+    assign bypass_we = (addr[31:28] == 4'b0100 && Wopcode == `OPC_STORE) ? dmem_enable:4'b0;
+    assign bypass_addr = {4'b0, addr[27:2], 2'b0}; 
+   
+   //Line Engine assignments
+   assign line_color_valid = (line_ready) ? line_color_valid : 1'b0;
+   assign line_x0_valid = (line_ready) ? line_x0_valid_temp:1'b0;
+   assign line_y0_valid = (line_ready) ? line_y0_valid:1'b0;
+   assign line_x1_valid = (line_ready) ? line_x1_valid_temp:1'b0;
+   assign line_y1_valid = (line_ready) ? line_y1_valid_temp:1'b0;
+   assign line_trigger = (line_ready) ? line_trigger_temp:1'b0;
 
     // Instantiate the instruction memory here (checkpoint 1 only)
    /*imem_blk_ram imem(.clka(clk),
@@ -233,7 +246,16 @@ module Riscv150(
           .Stall(stall),
           .FPGA_Sin(FPGA_SERIAL_RX),
           .FPGA_Sout(FPGA_SERIAL_TX),
-		  .Received(io_out));
+		  .Received(io_out),
+		  .LE_color(line_color),
+		  .LE_point(line_point),
+		  .LE_color_valid(line_color_valid_temp),
+		  .LE_x0_valid(line_x0_valid_temp),
+		  .LE_y0_valid(line_y0_valid_temp),
+		  .LE_x1_valid(line_x1_valid_temp),
+		  .LE_y1_valid(line_y1_valid_temp),
+		  .LE_trigger(line_trigger_temp)
+		);
 
    HazardController hazard(.OpcodeW(Wopcode), 
 			   .OpcodeX(Xopcode), 
