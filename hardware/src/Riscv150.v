@@ -130,7 +130,7 @@ module Riscv150(
    assign inst=instruction;
 
    //Dcache wire assignments
-   assign dcache_addr = {4'b0, addr[27:2], 2'b0};
+   assign dcache_addr = {4'b0, dcache_wire[27:2], 2'b0};
    assign dcache_we = dmem_enable & {~stall, ~stall, ~stall, ~stall};
    assign dcache_re = dmem_read_enable & ~stall;
    assign dmem_out = dcache_dout;
@@ -139,7 +139,7 @@ module Riscv150(
     //Cache Bypass
     assign bypass_din = mem_in;
     assign bypass_we = bypass_enable;
-    assign bypass_addr = {4'b0, addr[27:0]}; 
+    assign bypass_addr = {4'b0, dcache_wire[27:2], 2'b0}; 
    
    //Line Engine assignments
 
@@ -170,15 +170,15 @@ module Riscv150(
            .dina(mem_in),
            .douta(dmem_out));*/
 
-   // ChipScope components: 
-   	//wire [35:0] chipscope_control; 
-	//chipscope_icon icon( 
-	//.CONTROL0(chipscope_control)
-	// ) /* synthesis syn_noprune=1 */;
-	//chipscope_ila ila( .CONTROL(chipscope_control), 
-	//	.CLK(clk), 
-//		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, rd2, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, 26'b0}),
-//		.TRIG0(line_color_valid) ) /* synthesis syn_noprune=1 */;
+   //ChipScope components: 
+   	wire [35:0] chipscope_control; 
+	chipscope_icon icon( 
+	.CONTROL0(chipscope_control)
+	 ) /* synthesis syn_noprune=1 */;
+	chipscope_ila ila( .CONTROL(chipscope_control), 
+		.CLK(clk), 
+		.DATA({line_color_valid, line_x0_valid, line_y0_valid, line_x1_valid, line_y1_valid, line_trigger, line_point, line_color, pc, stall, addr, line_ready, Xfunct3, rd2, rd2_or_forwarded, rs2, Xrd, Wrd, rd_val, Wdest, 26'b0}),
+		.TRIG0(line_color_valid) ) /* synthesis syn_noprune=1 */;
 
    Splitter splitter(.Instruction(inst_or_noop), 
 		     .Opcode(Xopcode), 
@@ -255,7 +255,7 @@ module Riscv150(
    
    IOInterface io(.opcode(Xopcode),
 		  .rd2(mem_in),
-		  .Addr(Xalu_out),
+		  .Addr(dcache_wire),
 		  .IO_trans(io_trans),
 		  .IO_recv(Xio_recv),
 		  .line_ready(line_ready),

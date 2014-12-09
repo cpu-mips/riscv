@@ -124,7 +124,8 @@ module LineEngine(
     always @ (*) begin
         case (cs)
             IDLE: ns = (LE_trigger) ? START : IDLE;
-			START: ns = (~stall) ? DRAW:START;
+			//START: ns = (~stall) ? DRAW:START;
+			START: ns = DRAW;
             DRAW: ns = (x_reg < x1+1) ? DRAW : IDLE;
 			default: ns = IDLE;
         endcase
