@@ -101,6 +101,7 @@ module IOInterface(
 			y0_valid_synch <= 1'b0;
 			le_trigger_synch <= 1'b0;
 			color_valid_synch <= 1'b0;
+            color_synch <= color_synch;
 		end 
         else if (Stall) 
         begin
