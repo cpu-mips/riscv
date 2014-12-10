@@ -48,6 +48,7 @@ module MemControl(
             begin
                 dmem_wr_reg = 4'b000;
                 imem_wr_reg = 4'b000;
+                bypass_wr_reg = 4'b000;
                 io_trans_reg = 4'b000;
                 if (4'b1000 == addr[31:28])
                 begin

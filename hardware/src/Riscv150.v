@@ -63,8 +63,8 @@ module Riscv150(
 
    //Fetch registers    
    reg [31:0] pc, inst_temp; 
-   reg [31:0] icache_addr_reg, dcache_addr_reg, io_addr_reg;
-   wire[31:0] icache_wire, dcache_wire;
+   reg [31:0] icache_addr_reg ;
+   wire[31:0] icache_wire;
    //Fetch wires
    wire [31:0] inst_bios;
 
@@ -79,12 +79,12 @@ module Riscv150(
    wire diverge, Xjal, jalr;
 
    //Execute registers
-   reg [31:0] Xpc, Xnext_pc, jump_vector, inst_or_noop, rd2_or_forwarded, a, b, branch_jal_target;
+   reg [31:0] Xpc, Xnext_pc, jump_vector, inst_or_noop, rd2_or_forwarded, a, b, branch_jal_target, dcache_addr_reg, io_addr_reg;
 
    //Execute wires
    wire [6:0] Xopcode, funct7;
    wire [2:0] Xfunct3;
-   wire [31:0] inst, imm, rd1, rd2, Xalu_out, mem_in; 
+   wire [31:0] inst, imm, rd1, rd2, Xalu_out, mem_in, dcache_wire; 
    wire zero;
    wire [4:0] rs1, rs2, Xrd;
    wire [31:0] addr;
