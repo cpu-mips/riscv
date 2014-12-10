@@ -93,7 +93,6 @@ module LineEngine(
 			deltay = (y1>y0) ? y1-y0:y0-y1;
 			error = deltax/2;
 			ystep = (y1>y0) ? 1:-1;
-			//if (LE_color_valid) color = LE_color;
 		end
 	end
 
@@ -108,19 +107,16 @@ module LineEngine(
 	end
 
     always @ (posedge clk) begin
-		//if (~stall) begin
         	if (rst) begin
             	cs <= IDLE;
         	end else begin
             	cs <= ns;
         	end
-		//end
     end
 
     always @ (*) begin
         case (cs)
             IDLE: ns = (LE_trigger) ? START : IDLE;
-			//START: ns = (~stall) ? DRAW:START;
 			START: ns = DRAW;
             DRAW: ns = (x_reg < x1+1) ? DRAW : IDLE;
 			default: ns = IDLE;
@@ -143,7 +139,6 @@ module LineEngine(
 		end
         if (cs == DRAW) begin
             if (~stall) begin
-				//addr <= (steep) ? {12'b000000000001, x_reg[9:0], y_reg[9:3], 2'b0}:{12'b000000000001, y_reg[9:0], x_reg[9:3], 2'b0};
 				addr <=(steep) ?  {10'b0001000001, x_reg_final[9:0], y_reg[9:0], 2'b0} : {10'b0001000001, y_reg[9:0], x_reg_final[9:0], 2'b0};
 				if ($signed(error_reg) < 0) begin
 					x_reg_final<=x_reg;
@@ -160,7 +155,6 @@ module LineEngine(
             end else begin
 				x_reg_final <= x_reg_final;
 				x_reg <= x_reg;
-				//we <= 4'b0;
 				addr <= addr;
 				error_reg <= error_reg;
 				y_reg <= y_reg;

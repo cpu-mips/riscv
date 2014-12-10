@@ -87,7 +87,7 @@ module Riscv150(
    wire [31:0] inst, imm, rd1, rd2, Xalu_out, mem_in; 
    wire zero;
    wire [4:0] rs1, rs2, Xrd;
-   wire [31:0] addr, io_wire;
+   wire [31:0] addr;
    wire dmem_read_enable;
    wire [19:0] imm_inA;
    wire [11:0] imm_inB;
@@ -107,9 +107,6 @@ module Riscv150(
    reg [4:0] 	   Wrd;
    //Writeback wires
    wire [31:0] 	   aligned_mem_out, dmem_out, io_out, Bios_out, line_color_temp;
-   wire line_x0_valid_temp, line_y0_valid_temp, line_x1_valid_temp, line_y1_valid_temp, line_color_valid_temp, line_trigger_temp, fill_valid_temp;
-   wire [23:0] fill_color;
-   wire [9:0] line_point_temp;   
 
    //Fetch wire assignemnts
    assign ena_hardwire = 1;
@@ -119,20 +116,19 @@ module Riscv150(
    assign Xselect_bios = (Waddr[31:28] == 4'b0100 && Wopcode == `OPC_LOAD) ? 1 : 0;
    assign icache_wire = (stall || ~load_haz) ? icache_addr_reg:pc;
    assign dcache_wire = (stall || ~load_haz) ? dcache_addr_reg:addr;
-   assign io_wire = (stall || ~load_haz) ? io_addr_reg : Xalu_out;
    //Writeback wire assignments
    assign addr = Xalu_out;
    //Icache wire assignments
    assign icache_addr = (imem_enable[3] || imem_enable[2] || imem_enable[1] || imem_enable[0]) ? {4'b0,dcache_wire[27:2], 2'b0}:{4'b0,icache_wire[27:2],2'b0};
-   assign icache_we = imem_enable & {load_haz, load_haz, load_haz, load_haz} & {~stall, ~stall, ~stall, ~stall};
-   assign icache_re = load_haz & ~select_bios & ~stall;
+   assign icache_we = imem_enable & {load_haz, load_haz, load_haz, load_haz};
+   assign icache_re = load_haz & ~select_bios;
    assign icache_din = mem_in;
    assign inst=instruction;
 
    //Dcache wire assignments
    assign dcache_addr = {4'b0, dcache_wire[27:2], 2'b0};
-   assign dcache_we = dmem_enable & {~stall, ~stall, ~stall, ~stall} & {load_haz, load_haz, load_haz, load_haz};
-   assign dcache_re = dmem_read_enable & ~stall & load_haz;
+   assign dcache_we = dmem_enable & {load_haz, load_haz, load_haz, load_haz};
+   assign dcache_re = dmem_read_enable & load_haz;
    assign dmem_out = dcache_dout;
    assign dcache_din = mem_in;
    
@@ -143,15 +139,6 @@ module Riscv150(
    
    //Line Engine assignments
 
-   /*assign line_color_valid = (~stall) ? line_color_valid_temp;
-   assign line_x0_valid = (~stall) ? line_x0_valid_temp:line_x0_valid;
-   assign line_y0_valid = (~stall) ? line_y0_valid_temp: line_y0_valid;
-   assign line_x1_valid = (~stall) ? line_x1_valid_temp:line_x1_valid;
-   assign line_y1_valid = (~stall) ? line_y1_valid_temp:line_y1_valid;
-   assign line_trigger = (~stall) ? line_trigger_temp:line_trigger;
-   assign filler_valid = (~stall) ? fill_valid_temp:filler_valid;
-   assign line_point = line_point_temp;
-   assign line_color = line_color_temp;*/
     // Instantiate the instruction memory here (checkpoint 1 only)
    /*imem_blk_ram imem(.clka(clk),
 		     .ena(load_haz),
